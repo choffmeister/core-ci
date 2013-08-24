@@ -16,28 +16,32 @@
  */
 using System;
 using System.Threading.Tasks;
-using System.Threading;
-using CoreCI.Server.VirtualMachines;
 
-namespace CoreCI.Server
+namespace CoreCI.Server.VirtualMachines
 {
     /// <summary>
-    /// Server executable.
+    /// The base interface for virtual machines.
     /// </summary>
-    class MainClass
+    public interface IVirtualMachine : IDisposable
     {
         /// <summary>
-        /// Main entry point.
+        /// Creates and starts the virtual machine. Must not be called,
+        /// when already up.
         /// </summary>
-        /// <param name="args">The command-line arguments.</param>
-        public static void Main(string[] args)
-        {
-            using (var vm = new VagrantVirtualMachine("precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
-            {
-                vm.Up();
-                int exitCode = vm.Execute("sudo apt-get install -y git").Result;
-                vm.Down();
-            }
-        }
+        void Up();
+
+        /// <summary>
+        /// Stops and destroys the virtual machine. Must not be called,
+        /// when already down or not started yet.
+        /// </summary>
+        void Down();
+
+        /// <summary>
+        /// Executes a shell command on the virtual machine. Returns
+        /// the return code of the command.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <returns>The return code of the command.</returns>
+        Task<int> Execute(string command);
     }
 }
