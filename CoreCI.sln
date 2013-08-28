@@ -27,7 +27,7 @@ Global
 		{FF31BBD8-FFA1-42CA-B395-FEA78B653D47}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = CoreCI.Worker\CoreCI.Worker.csproj
+		StartupItem = CoreCI.Server\CoreCI.Server.csproj
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
 		$1.DirectoryNamespaceAssociation = PrefixedHierarchical

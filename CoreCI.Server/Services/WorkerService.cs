@@ -25,6 +25,8 @@ namespace CoreCI.Server.Services
     {
         public WorkerKeepAliveResponse Get(WorkerKeepAliveRequest req)
         {
+            Console.WriteLine("[{0}] Keep alive", req.WorkerId);
+
             return new WorkerKeepAliveResponse();
         }
     }

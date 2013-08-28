@@ -33,6 +33,7 @@ namespace CoreCI.Worker
     /// </summary>
     public class MainClass
     {
+        private static readonly Guid _workerId = Guid.Parse(ConfigurationManager.AppSettings ["workerId"]);
         private static readonly string _coordinatorBaseAddress = ConfigurationManager.AppSettings ["coordinatorApiBaseAddress"];
 
         /// <summary>
@@ -75,9 +76,7 @@ namespace CoreCI.Worker
             {
                 using (JsonServiceClient client = new JsonServiceClient(_coordinatorBaseAddress))
                 {
-                    client.Get(new WorkerKeepAliveRequest());
-
-                    Console.WriteLine("Keep alive");
+                    client.Get(new WorkerKeepAliveRequest(_workerId));
                 }
             }
             catch (Exception ex)
