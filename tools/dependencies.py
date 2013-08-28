@@ -11,6 +11,7 @@ dependencies = [
 	('nuget', 'servicestack-text', 'servicestack.text', '3.9.55'),
 	('nuget', 'servicestack-ormlite-mysql', 'serviceStack.ormlite.mysql', '3.9.55'),
 	('nuget', 'sshnet', 'ssh.net', '2013.4.7'),
+	('github', 'mono-posix', 'choffmeister/mono-posix', 'v4.0.0.0'),
 ]
 
 # define paths
@@ -30,12 +31,22 @@ def unzip(src_path, dest_dir):
 def resolve_nuget(name, package, version):
 	print '- NuGet package %s (%s)' % (package, version)
 
-	nuget_baseurl = 'http://packages.nuget.org/api/v2/package/'
-	nuget_packageurl = nuget_baseurl + package + '/' + version
+	nuget_packageurl = 'http://packages.nuget.org/api/v2/package/%s/%s' % (package, version)
 	download_path = os.path.join(libs_path, name + '.nupkg')
 	unpack_path = os.path.join(libs_path, name)
 
 	download(nuget_packageurl, download_path)
+	unzip(download_path, unpack_path)
+
+# github resolver
+def resolve_github(name, package, version):
+	print '- GitHub package %s (%s)' % (package, version)
+
+	github_packageurl = 'https://github.com/%s/archive/%s.zip' % (package, version)
+	download_path = os.path.join(libs_path, name + '.zip')
+	unpack_path = os.path.join(libs_path, name)
+
+	download(github_packageurl, download_path)
 	unzip(download_path, unpack_path)
 
 # check if libs directory exists
@@ -47,5 +58,7 @@ else:
 for resolver, name, package, version in dependencies:
 	if resolver == 'nuget':
 		resolve_nuget(name, package, version)
+	elif resolver == 'github':
+		resolve_github(name, package, version)
 	else:
 		print '! Unknown resolver %s' % resolver

@@ -15,33 +15,35 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Configuration;
-using ServiceStack.ServiceHost;
-using CoreCI.Common;
+using Mono.Unix;
+using Mono.Unix.Native;
 
-namespace CoreCI.Server
+namespace CoreCI.Common
 {
-    /// <summary>
-    /// Server executable.
-    /// </summary>
-    public class MainClass
+    public static class UnixHelper
     {
-        private static readonly string _baseAddress = ConfigurationManager.AppSettings ["apiBaseAddress"];
-        private static AppHost _appHost;
-
         /// <summary>
-        /// Main entry point.
+        /// Waits for signal (SIG_INT or SIG_TERM).
         /// </summary>
-        /// <param name="args">The command-line arguments.</param>
-        public static void Main(string[] args)
+        public static void WaitForSignal()
         {
-            _appHost = new AppHost();
-            _appHost.Init();
-            _appHost.Start(_baseAddress);
+            UnixSignal[] signals = new UnixSignal[]
+            {
+                new UnixSignal(Signum.SIGINT),
+                new UnixSignal(Signum.SIGTERM),
+            };
 
-            UnixHelper.WaitForSignal();
+            // Wait for a unix signal
+            for (bool exit = false; !exit;)
+            {
+                int id = UnixSignal.WaitAny(signals);
 
-            _appHost.Stop();
+                if (id >= 0 && id < signals.Length)
+                {
+                    if (signals [id].IsSet)
+                        exit = true;
+                }
+            }
         }
     }
 }

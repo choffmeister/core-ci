@@ -74,5 +74,9 @@
       <Project>{FF31BBD8-FFA1-42CA-B395-FEA78B653D47}</Project>
       <Name>CoreCI.Worker</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CoreCI.Common\CoreCI.Common.csproj">
+      <Project>{8AB806FC-1E14-4789-B578-DA429B2B265E}</Project>
+      <Name>CoreCI.Common</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
