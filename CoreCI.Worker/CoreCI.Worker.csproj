@@ -36,6 +36,15 @@
       <HintPath>..\libs\sshnet\lib\net40\Renci.SshNet.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
+    <Reference Include="ServiceStack.Common">
+      <HintPath>..\libs\servicestack-common\lib\net35\ServiceStack.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Interfaces">
+      <HintPath>..\libs\servicestack-common\lib\net35\ServiceStack.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>..\libs\servicestack-text\lib\net35\ServiceStack.Text.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -60,5 +69,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CoreCI.Contracts\CoreCI.Contracts.csproj">
+      <Project>{D34081AB-46F0-4830-8DEE-711D96276B7C}</Project>
+      <Name>CoreCI.Contracts</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

@@ -15,6 +15,7 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using System.Configuration;
 using System.Threading.Tasks;
 using System.Threading;
 using CoreCI.Worker.VirtualMachines;
@@ -22,6 +23,8 @@ using System.Reflection;
 using System.IO;
 using Renci.SshNet;
 using Renci.SshNet.Common;
+using ServiceStack.ServiceClient.Web;
+using CoreCI.Contracts;
 
 namespace CoreCI.Worker
 {
@@ -30,13 +33,15 @@ namespace CoreCI.Worker
     /// </summary>
     public class MainClass
     {
+        private static readonly string _coordinatorBaseAddress = ConfigurationManager.AppSettings ["coordinatorApiBaseAddress"];
+
         /// <summary>
         /// Main entry point.
         /// </summary>
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
-            TaskLoop loop = new TaskLoop(FetchTask, 5000);
+            TaskLoop loop = new TaskLoop(KeepAliveTask, 5000);
 
             try
             {
@@ -64,9 +69,21 @@ namespace CoreCI.Worker
             }
         }
 
-        private static bool FetchTask()
+        private static bool KeepAliveTask()
         {
-            Console.WriteLine("{0} Loop", DateTime.Now);
+            try
+            {
+                using (JsonServiceClient client = new JsonServiceClient(_coordinatorBaseAddress))
+                {
+                    client.Get(new WorkerKeepAliveRequest());
+
+                    Console.WriteLine("Keep alive");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.Message);
+            }
 
             return false;
         }

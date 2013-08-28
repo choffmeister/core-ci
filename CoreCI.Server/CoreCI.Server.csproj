@@ -33,10 +33,46 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
+    <Reference Include="ServiceStack.ServiceInterface">
+      <HintPath>..\libs\servicestack\lib\net35\ServiceStack.ServiceInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack">
+      <HintPath>..\libs\servicestack\lib\net35\ServiceStack.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Common">
+      <HintPath>..\libs\servicestack-common\lib\net35\ServiceStack.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Interfaces">
+      <HintPath>..\libs\servicestack-common\lib\net35\ServiceStack.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>..\libs\servicestack-text\lib\net35\ServiceStack.Text.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite">
+      <HintPath>..\libs\servicestack-ormlite-mysql\lib\ServiceStack.OrmLite.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="AppHost.cs" />
+    <Compile Include="Services\WorkerService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CoreCI.Contracts\CoreCI.Contracts.csproj">
+      <Project>{D34081AB-46F0-4830-8DEE-711D96276B7C}</Project>
+      <Name>CoreCI.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CoreCI.Worker\CoreCI.Worker.csproj">
+      <Project>{FF31BBD8-FFA1-42CA-B395-FEA78B653D47}</Project>
+      <Name>CoreCI.Worker</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

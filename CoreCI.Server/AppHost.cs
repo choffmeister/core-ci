@@ -15,33 +15,20 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Configuration;
-using ServiceStack.ServiceHost;
+using ServiceStack.WebHost.Endpoints;
+using Funq;
 
 namespace CoreCI.Server
 {
-    /// <summary>
-    /// Server executable.
-    /// </summary>
-    public class MainClass
+    public class AppHost : AppHostHttpListenerBase
     {
-        private static readonly string _baseAddress = ConfigurationManager.AppSettings ["apiBaseAddress"];
-        private static AppHost _appHost;
-
-        /// <summary>
-        /// Main entry point.
-        /// </summary>
-        /// <param name="args">The command-line arguments.</param>
-        public static void Main(string[] args)
+        public AppHost()
+            : base("core:ci", typeof(AppHost).Assembly)
         {
-            _appHost = new AppHost();
-            _appHost.Init();
-            _appHost.Start(_baseAddress);
+        }
 
-            Console.WriteLine("Running, press a key to terminate...");
-            Console.ReadKey(false);
-
-            _appHost.Stop();
+        public override void Configure(Container container)
+        {
         }
     }
 }

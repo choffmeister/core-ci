@@ -15,33 +15,17 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Configuration;
+using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceHost;
+using CoreCI.Contracts;
 
-namespace CoreCI.Server
+namespace CoreCI.Server.Services
 {
-    /// <summary>
-    /// Server executable.
-    /// </summary>
-    public class MainClass
+    public class WorkerService : Service
     {
-        private static readonly string _baseAddress = ConfigurationManager.AppSettings ["apiBaseAddress"];
-        private static AppHost _appHost;
-
-        /// <summary>
-        /// Main entry point.
-        /// </summary>
-        /// <param name="args">The command-line arguments.</param>
-        public static void Main(string[] args)
+        public WorkerKeepAliveResponse Get(WorkerKeepAliveRequest req)
         {
-            _appHost = new AppHost();
-            _appHost.Init();
-            _appHost.Start(_baseAddress);
-
-            Console.WriteLine("Running, press a key to terminate...");
-            Console.ReadKey(false);
-
-            _appHost.Stop();
+            return new WorkerKeepAliveResponse();
         }
     }
 }
