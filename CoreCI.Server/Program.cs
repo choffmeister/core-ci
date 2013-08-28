@@ -15,16 +15,13 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Threading.Tasks;
-using System.Threading;
-using CoreCI.Server.VirtualMachines;
 
 namespace CoreCI.Server
 {
     /// <summary>
     /// Server executable.
     /// </summary>
-    class MainClass
+    public class MainClass
     {
         /// <summary>
         /// Main entry point.
@@ -32,12 +29,6 @@ namespace CoreCI.Server
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
-            using (var vm = new VagrantVirtualMachine("precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
-            {
-                vm.Up();
-                int exitCode = vm.Execute("sudo apt-get install -y git").Result;
-                vm.Down();
-            }
         }
     }
 }

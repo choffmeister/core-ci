@@ -2,6 +2,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "{0}"
   config.vm.box_url = "{1}"
 
+  config.vm.provision :shell, :path => "Vagrantfile-bootstrap.sh"
   config.vm.synced_folder ".", "/vagrant", :disabled => true
 
   config.vm.provider :virtualbox do |vb|

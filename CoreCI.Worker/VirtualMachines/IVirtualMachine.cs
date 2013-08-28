@@ -15,15 +15,17 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Threading.Tasks;
+using Renci.SshNet;
 
-namespace CoreCI.Server.VirtualMachines
+namespace CoreCI.Worker.VirtualMachines
 {
     /// <summary>
     /// The base interface for virtual machines.
     /// </summary>
     public interface IVirtualMachine : IDisposable
     {
+        ConnectionInfo ConnectionInfo { get; }
+
         /// <summary>
         /// Creates and starts the virtual machine. Must not be called,
         /// when already up.
@@ -37,11 +39,9 @@ namespace CoreCI.Server.VirtualMachines
         void Down();
 
         /// <summary>
-        /// Executes a shell command on the virtual machine. Returns
-        /// the return code of the command.
+        /// Creates a SSH client to connect to the virtual machine.
         /// </summary>
-        /// <param name="command">The command.</param>
-        /// <returns>The return code of the command.</returns>
-        Task<int> Execute(string command);
+        /// <returns>The client.</returns>
+        SshClient CreateClient();
     }
 }

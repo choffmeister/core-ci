@@ -16,19 +16,22 @@
  */
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using Renci.SshNet;
 
-namespace CoreCI.Server.VirtualMachines
+namespace CoreCI.Worker.VirtualMachines
 {
     /// <summary>
     /// Implementation of a virtual machine using Vagrant.
     /// </summary>
     public class VagrantVirtualMachine : IVirtualMachine
     {
-        private static readonly string _vagrantExecutable = "/usr/bin/vagrant";
+        private static readonly string _vagrantExecutable = ConfigurationManager.AppSettings ["vagrantExecutablePath"];
+        private static readonly string _vagrantVirtualMachinesPath = ConfigurationManager.AppSettings ["vagrantVirtualMachinesPath"];
         private readonly object _lock = new object();
         private readonly Guid _id;
         private readonly string _folder;
@@ -37,13 +40,25 @@ namespace CoreCI.Server.VirtualMachines
         private readonly int _cpuCount;
         private readonly int _memorySize;
         private bool _isUp;
+        private ConnectionInfo _connectionInfo;
+
+        public ConnectionInfo ConnectionInfo
+        {
+            get
+            {
+                if (!_isUp)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                return _connectionInfo;
+            }
+        }
 
         public VagrantVirtualMachine(string name, Uri imageUri, int cpuCount, int memorySize)
         {
-            string baseFolder = ConfigurationManager.AppSettings ["virtualMachinesPath"];
-
             _id = Guid.NewGuid();
-            _folder = Path.Combine(baseFolder, _id.ToString());
+            _folder = Path.Combine(_vagrantVirtualMachinesPath, _id.ToString());
 
             _name = name;
             _imageUri = imageUri;
@@ -73,15 +88,45 @@ namespace CoreCI.Server.VirtualMachines
                 }
                 _isUp = true;
 
+                string publicKey = GetResource("id_rsa.pub");
+
                 EnsureDirectoryExists(_folder);
                 string vagrantFilePath = Path.Combine(_folder, "Vagrantfile");
-                string vagrantFileContent = string.Format(GetVagrantfileTemplate(), _name, _imageUri, _cpuCount, _memorySize);
+                string vagrantFileContent = GetResource("Vagrantfile-template.txt", _name, _imageUri, _cpuCount, _memorySize);
                 File.WriteAllText(vagrantFilePath, vagrantFileContent);
+
+                string vagrantFileBootstrapPath = Path.Combine(_folder, "Vagrantfile-bootstrap.sh");
+                string vagrantFileBootstrapContent = GetResource("Vagrantfile-bootstrap-template.txt", publicKey);
+                File.WriteAllText(vagrantFileBootstrapPath, vagrantFileBootstrapContent);
 
                 if (this.ExecuteVagrantCommand("up") != 0)
                 {
                     throw new VirtualMachineException("VM could not be started");
                 }
+
+                StringBuilder sb = new StringBuilder();
+                TextWriter writer = new StringWriter(sb);
+
+                if (this.ExecuteVagrantCommand("ssh-config", writer) != 0)
+                {
+                    throw new VirtualMachineException("Could not determine SSH connection information");
+                }
+
+                string sshConfig = sb.ToString();
+                Match hostNameMatch = Regex.Match(sshConfig, @"HostName\s(?<HostName>[^\s]+)");
+                Match portMatch = Regex.Match(sshConfig, @"Port\s(?<Port>[\d]+)");
+
+                if (!hostNameMatch.Success || !portMatch.Success)
+                {
+                    throw new VirtualMachineException("Could not determine SSH connection information");
+                }
+
+                string hostName = hostNameMatch.Groups ["HostName"].Value;
+                int port = int.Parse(portMatch.Groups ["Port"].Value);
+                string userName = "coreci";
+                PrivateKeyFile privateKey = new PrivateKeyFile("Resources/id_rsa");
+
+                _connectionInfo = new ConnectionInfo(hostName, port, userName, new PrivateKeyAuthenticationMethod(userName, privateKey));
             }
         }
 
@@ -95,6 +140,8 @@ namespace CoreCI.Server.VirtualMachines
                 }
                 _isUp = false;
 
+                _connectionInfo = null;
+
                 if (this.ExecuteVagrantCommand("destroy -f") != 0)
                 {
                     throw new VirtualMachineException("VM could ne be destroyed");
@@ -104,23 +151,38 @@ namespace CoreCI.Server.VirtualMachines
             }
         }
 
-        public Task<int> Execute(string command)
+        public SshClient CreateClient()
         {
-            return Task<int>.Factory.StartNew(() =>
+            lock (_lock)
             {
-                string vagrantCommand = string.Format(@"ssh -c ""{0}""", command.Replace("\"", "\\\""));
+                if (!_isUp)
+                {
+                    throw new InvalidOperationException();
+                }
 
-                return this.ExecuteVagrantCommand(vagrantCommand);
-            });
+                return new SshClient(_connectionInfo);
+            }
         }
 
-        private int ExecuteVagrantCommand(string vagrantCommand)
+        private int ExecuteVagrantCommand(string vagrantCommand, TextWriter stdOutWriter = null)
         {
             ProcessStartInfo psi = new ProcessStartInfo(_vagrantExecutable, vagrantCommand);
             psi.WorkingDirectory = _folder;
             psi.UseShellExecute = false;
+            psi.RedirectStandardInput = true;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
 
             Process p = Process.Start(psi);
+
+            p.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
+            {
+                if (stdOutWriter != null)
+                {
+                    stdOutWriter.Write(e.Data);
+                }
+            };
+            p.BeginOutputReadLine();
             p.WaitForExit();
 
             return p.ExitCode;
@@ -142,15 +204,17 @@ namespace CoreCI.Server.VirtualMachines
             }
         }
 
-        private static string GetVagrantfileTemplate()
+        private static string GetResource(string name, params object[] args)
         {
             Assembly assembly = typeof(MainClass).Assembly;
 
-            using (Stream stream = assembly.GetManifestResourceStream("CoreCI.Server.Resources.Vagrantfile-template.txt"))
+            using (Stream stream = new FileStream(Path.Combine("Resources", name), FileMode.Open, FileAccess.Read))
             {
                 using (StreamReader reader = new StreamReader(stream))
                 {
-                    return reader.ReadToEnd();
+                    string resource = reader.ReadToEnd();
+
+                    return string.Format(resource, args);
                 }
             }
         }

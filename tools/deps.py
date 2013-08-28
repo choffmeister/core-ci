@@ -10,6 +10,7 @@ dependencies = [
 	('nuget', 'servicestack-common', 'servicestack.common', '3.9.55'),
 	('nuget', 'servicestack-text', 'servicestack.text', '3.9.55'),
 	('nuget', 'servicestack-ormlite-mysql', 'serviceStack.ormlite.mysql', '3.9.55'),
+	('nuget', 'sshnet', 'ssh.net', '2013.4.7'),
 ]
 
 # define paths

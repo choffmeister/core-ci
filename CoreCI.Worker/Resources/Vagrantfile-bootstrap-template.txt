@@ -1,0 +1,10 @@
+#!/bin/bash
+
+addgroup coreci
+adduser --ingroup coreci --disabled-password --gecos "" coreci
+adduser coreci admin
+mkdir /home/coreci/.ssh
+echo "{0}" > /home/coreci/.ssh/authorized_keys
+chmod 700 /home/coreci/.ssh
+chmod 644 /home/coreci/.ssh/authorized_keys
+chown -R coreci:coreci /home/coreci/.ssh

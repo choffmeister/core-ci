@@ -17,7 +17,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace CoreCI.Server.VirtualMachines
+namespace CoreCI.Worker.VirtualMachines
 {
     [Serializable]
     public class VirtualMachineException : Exception
