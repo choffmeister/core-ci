@@ -15,39 +15,22 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Collections.Generic;
 
 namespace CoreCI.Models
 {
-    public class TaskEntity : IEntity
+    public class ShellLine
     {
-        public Guid Id { get; set; }
+        public int Index { get; set; }
 
-        public TaskState State { get; set; }
+        public ShellLineType Type { get; set; }
 
-        public Guid? WorkerId { get; set; }
-
-        public string Script { get; set; }
-
-        public List<ShellLine> Output { get; set; }
-
-        public int ExitCode { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime? DelegatedAt { get; set; }
-
-        public TaskEntity()
-        {
-            this.Output = new List<ShellLine>();
-        }
+        public string Content { get; set; }
     }
 
-    public enum TaskState
+    public enum ShellLineType
     {
-        Pending,
-        Running,
-        Succeeded,
-        Failed
+        StandardInput,
+        StandardOutput,
+        StandardError
     }
 }

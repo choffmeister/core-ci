@@ -15,39 +15,29 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using ServiceStack.ServiceHost;
 using System.Collections.Generic;
 
-namespace CoreCI.Models
+namespace CoreCI.Contracts
 {
-    public class TaskEntity : IEntity
+    [RouteAttribute("/worker/task/update", "POST")]
+    public class WorkerUpdateTaskRequest : IReturn<WorkerUpdateTaskResponse>
     {
-        public Guid Id { get; set; }
+        public Guid WorkerId { get; set; }
 
-        public TaskState State { get; set; }
-
-        public Guid? WorkerId { get; set; }
-
-        public string Script { get; set; }
-
-        public List<ShellLine> Output { get; set; }
+        public Guid TaskId { get; set; }
 
         public int ExitCode { get; set; }
 
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime? DelegatedAt { get; set; }
-
-        public TaskEntity()
+        public WorkerUpdateTaskRequest(Guid workerId, Guid taskId, int exitCode)
         {
-            this.Output = new List<ShellLine>();
+            this.WorkerId = workerId;
+            this.TaskId = taskId;
+            this.ExitCode = exitCode;
         }
     }
 
-    public enum TaskState
+    public class WorkerUpdateTaskResponse
     {
-        Pending,
-        Running,
-        Succeeded,
-        Failed
     }
 }

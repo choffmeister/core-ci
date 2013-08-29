@@ -20,6 +20,7 @@ using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceHost;
 using CoreCI.Contracts;
 using CoreCI.Models;
+using ServiceStack.Common.Web;
 
 namespace CoreCI.Server.Services
 {
@@ -89,6 +90,43 @@ namespace CoreCI.Server.Services
 
                 return new WorkerGetTaskResponse();
             }
+        }
+
+        public WorkerUpdateTaskResponse Post(WorkerUpdateTaskRequest req)
+        {
+            TaskEntity task = _taskRepository.Single(t => t.Id == req.TaskId);
+
+            if (task == null)
+            {
+                throw HttpError.NotFound(string.Format("Could not find task {0}", req.TaskId));
+            }
+
+            Console.WriteLine("Exited with {0}", req.ExitCode);
+
+            task.ExitCode = req.ExitCode;
+            task.State = task.ExitCode == 0 ? TaskState.Succeeded : TaskState.Failed;
+            _taskRepository.Update(task);
+
+            return new WorkerUpdateTaskResponse();
+        }
+
+        public WorkerUpdateTaskShellResponse Post(WorkerUpdateTaskShellRequest req)
+        {
+            TaskEntity task = _taskRepository.Single(t => t.Id == req.TaskId);
+
+            if (task == null)
+            {
+                throw HttpError.NotFound(string.Format("Could not find task {0}", req.TaskId));
+            }
+
+            foreach (var line in req.Lines)
+            {
+                Console.WriteLine("[{0:0000}] {2} {1}", line.Index, line.Content, line.Type == ShellLineType.StandardInput ? ">" : "<");
+                task.Output.Add(line);
+            }
+            _taskRepository.Update(task);
+
+            return new WorkerUpdateTaskShellResponse();
         }
     }
 }

@@ -46,6 +46,7 @@
     <Compile Include="InMemoryRepository.cs" />
     <Compile Include="TaskEntity.cs" />
     <Compile Include="WorkerEntity.cs" />
+    <Compile Include="ShellLine.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

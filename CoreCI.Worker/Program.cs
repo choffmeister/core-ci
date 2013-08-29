@@ -28,6 +28,7 @@ using CoreCI.Contracts;
 using CoreCI.Common;
 using ServiceStack.Text;
 using CoreCI.Models;
+using System.Collections.Generic;
 
 namespace CoreCI.Worker
 {
@@ -45,7 +46,7 @@ namespace CoreCI.Worker
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
-            TaskLoop keepAliveLoop = new TaskLoop(KeepAliveLoop, 30000);
+            TaskLoop keepAliveLoop = new TaskLoop(KeepAliveLoop, 1000);
             TaskLoop doWorkLoop = new TaskLoop(DoWorkLoop, 1000);
 
             try
@@ -72,15 +73,37 @@ namespace CoreCI.Worker
 
                     if (resp.Task != null)
                     {
+                        TaskEntity task = resp.Task;
+
                         using (var vm = new VagrantVirtualMachine("precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
                         {
                             vm.Up();
 
                             using (SshClient vmShell = vm.CreateClient())
                             {
-                                vmShell.Connect();
-                                vmShell.Execute(resp.Task.Script, Console.Out);
-                                vmShell.Disconnect();
+                                try
+                                {
+                                    vmShell.Connect();
+
+                                    foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(task.Script))
+                                    {
+                                        vmShell.Execute(commandLine, line => {
+                                            // TODO: throttle and group multiple lines into one request
+                                            client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
+                                            {
+                                                Lines = new List<ShellLine>() { line }
+                                            });
+                                        });
+                                    }
+
+                                    vmShell.Disconnect();
+
+                                    client.Post(new WorkerUpdateTaskRequest(_workerId, task.Id, 0));
+                                }
+                                catch (SshCommandFailedException ex)
+                                {
+                                    client.Post(new WorkerUpdateTaskRequest(_workerId, task.Id, ex.ExitCode));
+                                }
                             }
 
                             vm.Down();
@@ -94,7 +117,7 @@ namespace CoreCI.Worker
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
+                Console.Error.WriteLine(ex.ToString());
 
                 return false;
             }
@@ -113,7 +136,7 @@ namespace CoreCI.Worker
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
+                Console.Error.WriteLine(ex.ToString());
 
                 return false;
             }

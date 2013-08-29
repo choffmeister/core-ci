@@ -38,6 +38,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WorkerKeepAliveRequest.cs" />
     <Compile Include="WorkerGetTaskRequest.cs" />
+    <Compile Include="WorkerUpdateTaskShellRequest.cs" />
+    <Compile Include="WorkerUpdateTaskRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

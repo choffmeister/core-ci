@@ -20,7 +20,7 @@ using CoreCI.Models;
 
 namespace CoreCI.Contracts
 {
-    [RouteAttribute("/worker/gettask", "POST")]
+    [RouteAttribute("/worker/task/get", "POST")]
     public class WorkerGetTaskRequest : IReturn<WorkerGetTaskResponse>
     {
         public Guid WorkerId { get; set; }
