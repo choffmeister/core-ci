@@ -26,6 +26,8 @@ using Renci.SshNet.Common;
 using ServiceStack.ServiceClient.Web;
 using CoreCI.Contracts;
 using CoreCI.Common;
+using ServiceStack.Text;
+using CoreCI.Models;
 
 namespace CoreCI.Worker
 {
@@ -43,96 +45,77 @@ namespace CoreCI.Worker
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
-            TaskLoop loop = new TaskLoop(KeepAliveTask, 5000);
+            TaskLoop keepAliveLoop = new TaskLoop(KeepAliveLoop, 30000);
+            TaskLoop doWorkLoop = new TaskLoop(DoWorkLoop, 1000);
 
             try
             {
-                loop.Start();
+                keepAliveLoop.Start();
+                doWorkLoop.Start();
 
-                using (var vm = new VagrantVirtualMachine("precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
-                {
-                    vm.Up();
-
-                    using (SshClient client = vm.CreateClient())
-                    {
-                        client.Connect();
-
-                        Execute(client, "id");
-
-                        client.Disconnect();
-                    }
-
-                    vm.Down();
-                }
+                UnixHelper.WaitForSignal();
             }
             finally
             {
-                loop.Stop();
+                doWorkLoop.Stop();
+                keepAliveLoop.Stop();
             }
         }
 
-        private static bool KeepAliveTask()
+        private static bool DoWorkLoop()
         {
             try
             {
                 using (JsonServiceClient client = new JsonServiceClient(_coordinatorBaseAddress))
                 {
-                    client.Get(new WorkerKeepAliveRequest(_workerId));
+                    WorkerGetTaskResponse resp = client.Post(new WorkerGetTaskRequest(_workerId));
+
+                    if (resp.Task != null)
+                    {
+                        using (var vm = new VagrantVirtualMachine("precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
+                        {
+                            vm.Up();
+
+                            using (SshClient vmShell = vm.CreateClient())
+                            {
+                                vmShell.Connect();
+                                vmShell.Execute(resp.Task.Script, Console.Out);
+                                vmShell.Disconnect();
+                            }
+
+                            vm.Down();
+                        }
+
+                        return true;
+                    }
+
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine(ex.Message);
-            }
 
-            return false;
+                return false;
+            }
         }
 
-        public static int Execute(SshClient client, string commandText)
+        private static bool KeepAliveLoop()
         {
-            Console.WriteLine("$ {0}", commandText);
-
-            using (SshCommand cmd = client.CreateCommand(commandText))
+            try
             {
-                cmd.CommandTimeout = TimeSpan.FromSeconds(60.0);
-
-                DateTime startTime = DateTime.UtcNow;
-                IAsyncResult asynch = cmd.BeginExecute();
-                StreamReader reader = new StreamReader(cmd.OutputStream);
-                StreamReader readerExtended = new StreamReader(cmd.ExtendedOutputStream);
-
-                while (!asynch.IsCompleted)
+                using (JsonServiceClient client = new JsonServiceClient(_coordinatorBaseAddress))
                 {
-                    if (DateTime.UtcNow.Subtract(startTime) > cmd.CommandTimeout)
-                    {
-                        throw new SshOperationTimeoutException();
-                    }
-                    else if (cmd.OutputStream.Length > 0)
-                    {
-                        Console.Write(reader.ReadToEnd());
-                    }
-                    else if (cmd.ExtendedOutputStream.Length > 0)
-                    {
-                        Console.Error.Write(readerExtended.ReadToEnd());
-                    }
-                    else
-                    {
-                        Thread.Sleep(10);
-                    }
-                }
+                    client.Post(new WorkerKeepAliveRequest(_workerId));
 
-                if (cmd.OutputStream.Length > 0)
-                {
-                    Console.Write(reader.ReadToEnd());
+                    return false;
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.Message);
 
-                if (cmd.ExtendedOutputStream.Length > 0)
-                {
-                    Console.Error.Write(readerExtended.ReadToEnd());
-                }
-
-                cmd.EndExecute(asynch);
-                return cmd.ExitStatus;
+                return false;
             }
         }
     }

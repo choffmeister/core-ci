@@ -19,7 +19,7 @@ using ServiceStack.ServiceHost;
 
 namespace CoreCI.Contracts
 {
-    [RouteAttribute("/worker/keepalive", "GET")]
+    [RouteAttribute("/worker/keepalive", "POST")]
     public class WorkerKeepAliveRequest : IReturn<WorkerKeepAliveResponse>
     {
         public Guid WorkerId { get; set; }

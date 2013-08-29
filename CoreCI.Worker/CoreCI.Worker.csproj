@@ -52,6 +52,7 @@
     <Compile Include="VirtualMachines\IVirtualMachine.cs" />
     <Compile Include="VirtualMachines\VagrantVirtualMachine.cs" />
     <Compile Include="VirtualMachines\VirtualMachineException.cs" />
+    <Compile Include="SshClientExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -77,6 +78,10 @@
     <ProjectReference Include="..\CoreCI.Common\CoreCI.Common.csproj">
       <Project>{8AB806FC-1E14-4789-B578-DA429B2B265E}</Project>
       <Name>CoreCI.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CoreCI.Models\CoreCI.Models.csproj">
+      <Project>{D64D07E2-7C2F-4363-8758-CBC0B68FA1A5}</Project>
+      <Name>CoreCI.Models</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

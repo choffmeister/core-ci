@@ -15,28 +15,33 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using ServiceStack.WebHost.Endpoints;
-using Funq;
+using ServiceStack.ServiceHost;
 using CoreCI.Models;
-using ServiceStack.Text;
 
-namespace CoreCI.Server
+namespace CoreCI.Contracts
 {
-    public class AppHost : AppHostHttpListenerBase
+    [RouteAttribute("/worker/gettask", "POST")]
+    public class WorkerGetTaskRequest : IReturn<WorkerGetTaskResponse>
     {
-        public AppHost()
-            : base("core:ci", typeof(AppHost).Assembly)
+        public Guid WorkerId { get; set; }
+
+        public WorkerGetTaskRequest(Guid workerId)
+        {
+            this.WorkerId = workerId;
+        }
+    }
+
+    public class WorkerGetTaskResponse
+    {
+        public TaskEntity Task { get; set; }
+
+        public WorkerGetTaskResponse()
         {
         }
 
-        public override void Configure(Container container)
+        public WorkerGetTaskResponse(TaskEntity task)
         {
-            JsConfig.AlwaysUseUtc = true;
-            JsConfig.DateHandler = JsonDateHandler.ISO8601;
-            JsConfig.EmitCamelCaseNames = true;
-
-            container.RegisterAs<InMemoryRepository<WorkerEntity>, IRepository<WorkerEntity>>().ReusedWithin(ReuseScope.None);
-            container.RegisterAs<InMemoryRepository<TaskEntity>, IRepository<TaskEntity>>().ReusedWithin(ReuseScope.None);
+            this.Task = task;
         }
     }
 }

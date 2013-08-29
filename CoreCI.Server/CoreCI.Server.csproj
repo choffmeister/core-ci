@@ -51,6 +51,7 @@
     <Reference Include="ServiceStack.OrmLite">
       <HintPath>..\libs\servicestack-ormlite-mysql\lib\ServiceStack.OrmLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -77,6 +78,10 @@
     <ProjectReference Include="..\CoreCI.Common\CoreCI.Common.csproj">
       <Project>{8AB806FC-1E14-4789-B578-DA429B2B265E}</Project>
       <Name>CoreCI.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CoreCI.Models\CoreCI.Models.csproj">
+      <Project>{D64D07E2-7C2F-4363-8758-CBC0B68FA1A5}</Project>
+      <Name>CoreCI.Models</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

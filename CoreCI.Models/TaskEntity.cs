@@ -24,9 +24,13 @@ namespace CoreCI.Models
 
         public TaskState State { get; set; }
 
+        public Guid? WorkerId { get; set; }
+
         public string Script { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        public DateTime? DelegatedAt { get; set; }
     }
 
     public enum TaskState

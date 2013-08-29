@@ -15,19 +15,80 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using System.Linq;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceHost;
 using CoreCI.Contracts;
+using CoreCI.Models;
 
 namespace CoreCI.Server.Services
 {
     public class WorkerService : Service
     {
-        public WorkerKeepAliveResponse Get(WorkerKeepAliveRequest req)
+        private static readonly object _taskLock = new object();
+        private readonly IRepository<WorkerEntity> _workerRepository;
+        private readonly IRepository<TaskEntity> _taskRepository;
+
+        public WorkerService(IRepository<WorkerEntity> workerRepository, IRepository<TaskEntity> taskRepository)
         {
-            Console.WriteLine("[{0}] Keep alive", req.WorkerId);
+            _workerRepository = workerRepository;
+            _taskRepository = taskRepository;
+        }
+
+        public override void Dispose()
+        {
+            _workerRepository.Dispose();
+            _taskRepository.Dispose();
+        }
+
+        public WorkerKeepAliveResponse Post(WorkerKeepAliveRequest req)
+        {
+            WorkerEntity worker = _workerRepository.SingleOrDefault(w => w.Id == req.WorkerId);
+
+            if (worker != null)
+            {
+                Console.WriteLine("[{0}] Living worker", req.WorkerId);
+
+                worker.LastKeepAlive = DateTime.UtcNow;
+
+                _workerRepository.Update(worker);
+            }
+            else
+            {
+                Console.WriteLine("[{0}] New worker", req.WorkerId);
+
+                worker = new WorkerEntity()
+                {
+
+                    Id = req.WorkerId,
+                    LastKeepAlive = DateTime.UtcNow
+                };
+
+                _workerRepository.InsertOrUpdate(worker);
+            }
 
             return new WorkerKeepAliveResponse();
+        }
+
+        public WorkerGetTaskResponse Post(WorkerGetTaskRequest req)
+        {
+            lock (_taskLock)
+            {
+                TaskEntity task = _taskRepository.Where(t => t.State == TaskState.Pending).OrderBy(t => t.CreatedAt).FirstOrDefault();
+
+                if (task != null)
+                {
+                    Console.WriteLine("[{0}] Delegating task", req.WorkerId);
+
+                    task.State = TaskState.Running;
+                    task.DelegatedAt = DateTime.UtcNow;
+                    _taskRepository.Update(task);
+
+                    return new WorkerGetTaskResponse(task);
+                }
+
+                return new WorkerGetTaskResponse();
+            }
         }
     }
 }
