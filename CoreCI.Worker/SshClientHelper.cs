@@ -27,11 +27,10 @@ namespace CoreCI.Worker
 {
     public static class SshClientHelper
     {
-        public static void Execute(this SshClient client, string commandText, Action<ShellLine> callback)
+        public static void Execute(this SshClient client, string commandText, ref int index, Action<ShellLine> callback)
         {
             using (SshCommand cmd = client.CreateCommand(commandText))
             {
-                int index = 0;
                 callback(new ShellLine()
                 {
                     Index = index++,

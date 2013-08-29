@@ -83,11 +83,12 @@ namespace CoreCI.Worker
                             {
                                 try
                                 {
+                                    int index = 0;
                                     vmShell.Connect();
 
                                     foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(task.Script))
                                     {
-                                        vmShell.Execute(commandLine, line => {
+                                        vmShell.Execute(commandLine, ref index, line => {
                                             // TODO: throttle and group multiple lines into one request
                                             client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
                                             {
