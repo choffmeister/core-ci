@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{987E45C8-0788-4035-B9EB-9CA93315E326}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>CoreCI.Tests</RootNamespace>
+    <AssemblyName>CoreCI.Tests</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\libs\nunit\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SshClientHelperTest.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\CoreCI.Common\CoreCI.Common.csproj">
+      <Project>{8AB806FC-1E14-4789-B578-DA429B2B265E}</Project>
+      <Name>CoreCI.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CoreCI.Contracts\CoreCI.Contracts.csproj">
+      <Project>{D34081AB-46F0-4830-8DEE-711D96276B7C}</Project>
+      <Name>CoreCI.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CoreCI.Models\CoreCI.Models.csproj">
+      <Project>{D64D07E2-7C2F-4363-8758-CBC0B68FA1A5}</Project>
+      <Name>CoreCI.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CoreCI.Server\CoreCI.Server.csproj">
+      <Project>{FDFB5540-94C1-42D1-ACDA-1A3F8E4CCAEF}</Project>
+      <Name>CoreCI.Server</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CoreCI.Worker\CoreCI.Worker.csproj">
+      <Project>{FF31BBD8-FFA1-42CA-B395-FEA78B653D47}</Project>
+      <Name>CoreCI.Worker</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

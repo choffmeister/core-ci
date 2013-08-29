@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreCI.Common", "CoreCI.Com
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreCI.Models", "CoreCI.Models\CoreCI.Models.csproj", "{D64D07E2-7C2F-4363-8758-CBC0B68FA1A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreCI.Tests", "CoreCI.Tests\CoreCI.Tests.csproj", "{987E45C8-0788-4035-B9EB-9CA93315E326}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -21,6 +23,10 @@ Global
 		{8AB806FC-1E14-4789-B578-DA429B2B265E}.Debug|x86.Build.0 = Debug|Any CPU
 		{8AB806FC-1E14-4789-B578-DA429B2B265E}.Release|x86.ActiveCfg = Release|Any CPU
 		{8AB806FC-1E14-4789-B578-DA429B2B265E}.Release|x86.Build.0 = Release|Any CPU
+		{987E45C8-0788-4035-B9EB-9CA93315E326}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{987E45C8-0788-4035-B9EB-9CA93315E326}.Debug|x86.Build.0 = Debug|Any CPU
+		{987E45C8-0788-4035-B9EB-9CA93315E326}.Release|x86.ActiveCfg = Release|Any CPU
+		{987E45C8-0788-4035-B9EB-9CA93315E326}.Release|x86.Build.0 = Release|Any CPU
 		{D34081AB-46F0-4830-8DEE-711D96276B7C}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{D34081AB-46F0-4830-8DEE-711D96276B7C}.Debug|x86.Build.0 = Debug|Any CPU
 		{D34081AB-46F0-4830-8DEE-711D96276B7C}.Release|x86.ActiveCfg = Release|Any CPU
