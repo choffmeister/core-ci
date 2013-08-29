@@ -42,7 +42,8 @@ namespace CoreCI.Worker
                 cmd.CommandTimeout = TimeSpan.FromHours(1.0);
                 DateTime startTime = DateTime.UtcNow;
                 IAsyncResult asynch = cmd.BeginExecute();
-                StreamReader reader = new StreamReader(cmd.OutputStream);
+                StreamReader stdOutReader = new StreamReader(cmd.OutputStream);
+                StreamReader stdErrReader = new StreamReader(cmd.ExtendedOutputStream);
 
                 while (!asynch.IsCompleted)
                 {
@@ -56,7 +57,16 @@ namespace CoreCI.Worker
                         {
                             Index = index++,
                             Type = ShellLineType.StandardOutput,
-                            Content = reader.ReadLine()
+                            Content = stdOutReader.ReadLine()
+                        });
+                    }
+                    else if (cmd.ExtendedOutputStream.Length > 0)
+                    {
+                        callback(new ShellLine()
+                        {
+                            Index = index++,
+                            Type = ShellLineType.StandardError,
+                            Content = stdErrReader.ReadLine()
                         });
                     }
                     else
@@ -71,7 +81,17 @@ namespace CoreCI.Worker
                     {
                         Index = index++,
                         Type = ShellLineType.StandardOutput,
-                        Content = reader.ReadLine()
+                        Content = stdOutReader.ReadLine()
+                    });
+                }
+
+                while (cmd.ExtendedOutputStream.Length > 0)
+                {
+                    callback(new ShellLine()
+                    {
+                        Index = index++,
+                        Type = ShellLineType.StandardError,
+                        Content = stdErrReader.ReadLine()
                     });
                 }
 
