@@ -1,6 +1,15 @@
 # external libraries
 libs/
 
+###MonoDevelop###
+
+# User-specific files
+*.userprefs
+
+# NUnit test Results
+[Tt]est-[Rr]esult*/
+[Tt]est[Rr]esult.xml
+
 ###VisualStudio###
 
 ## Ignore Visual Studio temporary files, build results, and
@@ -24,7 +33,6 @@ build/
 # Test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
-[Tt]est-[Rr]esult*/
 
 *_i.c
 *_p.c
