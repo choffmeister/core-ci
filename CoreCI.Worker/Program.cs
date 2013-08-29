@@ -25,6 +25,7 @@ using Renci.SshNet;
 using Renci.SshNet.Common;
 using ServiceStack.ServiceClient.Web;
 using CoreCI.Contracts;
+using CoreCI.Common;
 
 namespace CoreCI.Worker
 {

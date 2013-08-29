@@ -17,7 +17,7 @@
 using System;
 using System.Threading;
 
-namespace CoreCI.Worker
+namespace CoreCI.Common
 {
     /// <summary>
     /// A wrapper for a single action that has to be repeated
