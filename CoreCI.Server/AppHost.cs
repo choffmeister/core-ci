@@ -19,14 +19,36 @@ using ServiceStack.WebHost.Endpoints;
 using Funq;
 using CoreCI.Models;
 using ServiceStack.Text;
+using CoreCI.Common;
+using NLog;
 
 namespace CoreCI.Server
 {
     public class AppHost : AppHostHttpListenerBase
     {
-        public AppHost()
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly IConfigurationProvider _configurationProvider;
+
+        public AppHost(IConfigurationProvider configurationProvider)
             : base("core:ci", typeof(AppHost).Assembly)
         {
+            _configurationProvider = configurationProvider;
+        }
+
+        public void Start()
+        {
+            string baseAddress = _configurationProvider.GetSettingString("apiBaseAddress");
+
+            _logger.Info("Start listening on {0}", baseAddress);
+            this.Start(baseAddress);
+            _logger.Info("Started");
+        }
+
+        public override void Stop()
+        {
+            _logger.Info("Stop listening");
+            base.Stop();
+            _logger.Info("Stopped");
         }
 
         public override void Configure(Container container)

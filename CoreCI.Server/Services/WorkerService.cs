@@ -21,11 +21,13 @@ using ServiceStack.ServiceHost;
 using CoreCI.Contracts;
 using CoreCI.Models;
 using ServiceStack.Common.Web;
+using NLog;
 
 namespace CoreCI.Server.Services
 {
     public class WorkerService : Service
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private static readonly object _taskLock = new object();
         private readonly IRepository<WorkerEntity> _workerRepository;
         private readonly IRepository<TaskEntity> _taskRepository;
@@ -48,7 +50,7 @@ namespace CoreCI.Server.Services
 
             if (worker != null)
             {
-                Console.WriteLine("[{0}] Living worker", req.WorkerId);
+                _logger.Trace("Worker {0} alive", req.WorkerId);
 
                 worker.LastKeepAlive = DateTime.UtcNow;
 
@@ -56,7 +58,7 @@ namespace CoreCI.Server.Services
             }
             else
             {
-                Console.WriteLine("[{0}] New worker", req.WorkerId);
+                _logger.Info("New worker {0} registered", req.WorkerId);
 
                 worker = new WorkerEntity()
                 {
@@ -79,7 +81,7 @@ namespace CoreCI.Server.Services
 
                 if (task != null)
                 {
-                    Console.WriteLine("[{0}] Delegating task", req.WorkerId);
+                    _logger.Info("Delegating task {0} to worker {1}", task.Id, req.WorkerId);
 
                     task.State = TaskState.Running;
                     task.DelegatedAt = DateTime.UtcNow;
@@ -101,7 +103,7 @@ namespace CoreCI.Server.Services
                 throw HttpError.NotFound(string.Format("Could not find task {0}", req.TaskId));
             }
 
-            Console.WriteLine("Exited with {0}", req.ExitCode);
+            _logger.Info("Task {0} finished with exit code {1}", req.TaskId, req.ExitCode);
 
             task.ExitCode = req.ExitCode;
             task.State = task.ExitCode == 0 ? TaskState.Succeeded : TaskState.Failed;
@@ -121,6 +123,7 @@ namespace CoreCI.Server.Services
 
             foreach (var line in req.Lines)
             {
+                // TODO: remove
                 Console.WriteLine("[{0:0000}] {2} {1}", line.Index, line.Content, line.Type == ShellLineType.StandardInput ? ">" : "<");
                 task.Output.Add(line);
             }

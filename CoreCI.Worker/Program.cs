@@ -48,25 +48,35 @@ namespace CoreCI.Worker
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
-            _logger.Info("Starting");
-
-            TaskLoop keepAliveLoop = new TaskLoop(KeepAliveLoop, 1000);
-            TaskLoop doWorkLoop = new TaskLoop(DoWorkLoop, 1000);
-
             try
             {
-                keepAliveLoop.Start();
-                doWorkLoop.Start();
+                _logger.Info("Starting");
 
-                UnixHelper.WaitForSignal();
+                TaskLoop keepAliveLoop = new TaskLoop(KeepAliveLoop, 1000);
+                TaskLoop doWorkLoop = new TaskLoop(DoWorkLoop, 1000);
+
+                try
+                {
+                    keepAliveLoop.Start();
+                    doWorkLoop.Start();
+
+                    UnixHelper.WaitForSignal();
+                }
+                finally
+                {
+                    doWorkLoop.Stop();
+                    keepAliveLoop.Stop();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Fatal(ex);
             }
             finally
             {
-                doWorkLoop.Stop();
-                keepAliveLoop.Stop();
+                _logger.Info("Stopped");
             }
-
-            _logger.Info("Stopped");
         }
 
         private static bool DoWorkLoop()
@@ -83,6 +93,8 @@ namespace CoreCI.Worker
 
                         using (var vm = new VagrantVirtualMachine("precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
                         {
+                            _logger.Info("Bringing VM {0} up for task {1}", "precise64", task.Id);
+
                             vm.Up();
 
                             using (SshClient vmShell = vm.CreateClient())
@@ -94,6 +106,8 @@ namespace CoreCI.Worker
 
                                     foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(task.Script))
                                     {
+                                        _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
+
                                         vmShell.Execute(commandLine, ref index, line => {
                                             // TODO: throttle and group multiple lines into one request
                                             client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
@@ -114,6 +128,8 @@ namespace CoreCI.Worker
                             }
 
                             vm.Down();
+
+                            _logger.Info("Brought VM {0} from task {1} down", "precise64", task.Id);
                         }
 
                         return true;
@@ -124,7 +140,7 @@ namespace CoreCI.Worker
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.ToString());
+                _logger.Error(ex);
 
                 return false;
             }
@@ -143,7 +159,7 @@ namespace CoreCI.Worker
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.ToString());
+                _logger.Error(ex);
 
                 return false;
             }

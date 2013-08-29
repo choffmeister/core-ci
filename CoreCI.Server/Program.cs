@@ -28,8 +28,6 @@ namespace CoreCI.Server
     public class ServerExecutable
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private static readonly string _baseAddress = ConfigurationManager.AppSettings ["apiBaseAddress"];
-        private static AppHost _appHost;
 
         /// <summary>
         /// Main entry point.
@@ -37,17 +35,26 @@ namespace CoreCI.Server
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
-            _logger.Info("Starting");
+            try
+            {
+                _logger.Info("Starting");
 
-            _appHost = new AppHost();
-            _appHost.Init();
-            _appHost.Start(_baseAddress);
+                IConfigurationProvider configurationProvider = new FileConfigurationProvider();
+                AppHost appHost = new AppHost(configurationProvider);
 
-            UnixHelper.WaitForSignal();
-
-            _appHost.Stop();
-
-            _logger.Info("Stopped");
+                appHost.Init();
+                appHost.Start();
+                UnixHelper.WaitForSignal();
+                appHost.Stop();
+            }
+            catch (Exception ex)
+            {
+                _logger.Fatal(ex);
+            }
+            finally
+            {
+                _logger.Info("Stopped");
+            }
         }
     }
 }
