@@ -45,6 +45,9 @@
     <Reference Include="ServiceStack.Text">
       <HintPath>..\libs\servicestack-text\lib\net35\ServiceStack.Text.dll</HintPath>
     </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\libs\nlog\lib\net40\NLog.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -70,6 +73,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="NLog.xsd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CoreCI.Contracts\CoreCI.Contracts.csproj">

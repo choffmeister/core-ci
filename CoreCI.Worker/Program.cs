@@ -29,14 +29,16 @@ using CoreCI.Common;
 using ServiceStack.Text;
 using CoreCI.Models;
 using System.Collections.Generic;
+using NLog;
 
 namespace CoreCI.Worker
 {
     /// <summary>
     /// Worker executable.
     /// </summary>
-    public class MainClass
+    public class WorkerExecutable
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private static readonly Guid _workerId = Guid.Parse(ConfigurationManager.AppSettings ["workerId"]);
         private static readonly string _coordinatorBaseAddress = ConfigurationManager.AppSettings ["coordinatorApiBaseAddress"];
 
@@ -46,6 +48,8 @@ namespace CoreCI.Worker
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
+            _logger.Info("Starting");
+
             TaskLoop keepAliveLoop = new TaskLoop(KeepAliveLoop, 1000);
             TaskLoop doWorkLoop = new TaskLoop(DoWorkLoop, 1000);
 
@@ -61,6 +65,8 @@ namespace CoreCI.Worker
                 doWorkLoop.Stop();
                 keepAliveLoop.Stop();
             }
+
+            _logger.Info("Stopped");
         }
 
         private static bool DoWorkLoop()

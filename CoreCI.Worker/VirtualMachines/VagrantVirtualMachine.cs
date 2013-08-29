@@ -206,7 +206,7 @@ namespace CoreCI.Worker.VirtualMachines
 
         private static string GetResource(string name, params object[] args)
         {
-            Assembly assembly = typeof(MainClass).Assembly;
+            Assembly assembly = typeof(WorkerExecutable).Assembly;
 
             using (Stream stream = new FileStream(Path.Combine("Resources", name), FileMode.Open, FileAccess.Read))
             {

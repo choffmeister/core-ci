@@ -18,14 +18,16 @@ using System;
 using System.Configuration;
 using ServiceStack.ServiceHost;
 using CoreCI.Common;
+using NLog;
 
 namespace CoreCI.Server
 {
     /// <summary>
     /// Server executable.
     /// </summary>
-    public class MainClass
+    public class ServerExecutable
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private static readonly string _baseAddress = ConfigurationManager.AppSettings ["apiBaseAddress"];
         private static AppHost _appHost;
 
@@ -35,6 +37,8 @@ namespace CoreCI.Server
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
+            _logger.Info("Starting");
+
             _appHost = new AppHost();
             _appHost.Init();
             _appHost.Start(_baseAddress);
@@ -42,6 +46,8 @@ namespace CoreCI.Server
             UnixHelper.WaitForSignal();
 
             _appHost.Stop();
+
+            _logger.Info("Stopped");
         }
     }
 }

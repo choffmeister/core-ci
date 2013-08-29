@@ -6,6 +6,7 @@ import os
 
 dependencies = [
 	('nuget', 'nunit', 'nunit', '2.6.2'),
+	('nuget', 'nlog', 'nlog', '2.0.1.2'),
 	('nuget', 'servicestack', 'servicestack', '3.9.55'),
 	('nuget', 'servicestack-common', 'servicestack.common', '3.9.55'),
 	('nuget', 'servicestack-text', 'servicestack.text', '3.9.55'),
