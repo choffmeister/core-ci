@@ -30,9 +30,9 @@ namespace CoreCI.Worker.VirtualMachines
     /// </summary>
     public class VagrantVirtualMachine : IVirtualMachine
     {
-        private static readonly string _vagrantExecutable = ConfigurationManager.AppSettings ["vagrantExecutablePath"];
-        private static readonly string _vagrantVirtualMachinesPath = ConfigurationManager.AppSettings ["vagrantVirtualMachinesPath"];
         private readonly object _lock = new object();
+        private readonly string _vagrantExecutable;
+        private readonly string _vagrantVirtualMachinesPath;
         private readonly Guid _id;
         private readonly string _folder;
         private readonly string _name;
@@ -55,8 +55,11 @@ namespace CoreCI.Worker.VirtualMachines
             }
         }
 
-        public VagrantVirtualMachine(string name, Uri imageUri, int cpuCount, int memorySize)
+        public VagrantVirtualMachine(string vagrantExecutablePath, string vagrantVirtualMachinesPath, string name, Uri imageUri, int cpuCount, int memorySize)
         {
+            _vagrantExecutable = vagrantExecutablePath;
+            _vagrantVirtualMachinesPath = vagrantVirtualMachinesPath;
+
             _id = Guid.NewGuid();
             _folder = Path.Combine(_vagrantVirtualMachinesPath, _id.ToString());
 

@@ -30,8 +30,10 @@ namespace CoreCI.Worker
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IConfigurationProvider _configurationProvider;
+        private readonly string _vagrantExecutablePath;
+        private readonly string _vagrantVirtualMachinesPath;
         private readonly Guid _workerId;
-        private readonly string _coordinatorBaseAddress;
+        private readonly string _serverApiBaseAddress;
         private readonly TaskLoop _keepAliveLoop;
         private readonly TaskLoop _doWorkLoop;
 
@@ -39,8 +41,10 @@ namespace CoreCI.Worker
         {
             _configurationProvider = configurationProvider;
 
+            _vagrantExecutablePath = _configurationProvider.GetSettingString("workerVagrantExecutablePath");
+            _vagrantVirtualMachinesPath = _configurationProvider.GetSettingString("workerVagrantVirtualMachinesPath");
             _workerId = Guid.Parse(_configurationProvider.GetSettingString("workerId"));
-            _coordinatorBaseAddress = _configurationProvider.GetSettingString("coordinatorApiBaseAddress");
+            _serverApiBaseAddress = _configurationProvider.GetSettingString("workerServerApiBaseAddress");
 
             _keepAliveLoop = new TaskLoop(this.KeepAliveLoop, 1000);
             _doWorkLoop = new TaskLoop(this.DoWorkLoop, 1000);
@@ -66,7 +70,7 @@ namespace CoreCI.Worker
         {
             try
             {
-                using (JsonServiceClient client = new JsonServiceClient(_coordinatorBaseAddress))
+                using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
                 {
                     WorkerGetTaskResponse resp = client.Post(new WorkerGetTaskRequest(_workerId));
 
@@ -74,7 +78,7 @@ namespace CoreCI.Worker
                     {
                         TaskEntity task = resp.Task;
 
-                        using (var vm = new VagrantVirtualMachine("precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
+                        using (var vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
                         {
                             _logger.Info("Bringing VM {0} up for task {1}", "precise64", task.Id);
 
@@ -133,7 +137,7 @@ namespace CoreCI.Worker
         {
             try
             {
-                using (JsonServiceClient client = new JsonServiceClient(_coordinatorBaseAddress))
+                using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
                 {
                     client.Post(new WorkerKeepAliveRequest(_workerId));
 

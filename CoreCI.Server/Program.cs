@@ -39,7 +39,7 @@ namespace CoreCI.Server
                 _logger.Info("Starting");
 
                 IConfigurationProvider configurationProvider = new FileConfigurationProvider();
-                bool isWorkerIntegrated = bool.Parse(configurationProvider.GetSettingString("workerIntegrated"));
+                bool isWorkerIntegrated = bool.Parse(configurationProvider.GetSettingString("serverWorkerIntegrated"));
 
                 ServerHandler serverHandler = new ServerHandler(configurationProvider);
                 WorkerHandler workerHandler = null;
