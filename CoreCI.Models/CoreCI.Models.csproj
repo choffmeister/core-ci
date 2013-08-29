@@ -30,9 +30,28 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\libs\mongo-csharp-driver\lib\net35\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\libs\mongo-csharp-driver\lib\net35\MongoDB.Driver.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="IEntity.cs" />
+    <Compile Include="IRepository.cs" />
+    <Compile Include="MongoDbRepository.cs" />
+    <Compile Include="InMemoryRepository.cs" />
+    <Compile Include="TaskEntity.cs" />
+    <Compile Include="WorkerEntity.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\CoreCI.Common\CoreCI.Common.csproj">
+      <Project>{8AB806FC-1E14-4789-B578-DA429B2B265E}</Project>
+      <Name>CoreCI.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
