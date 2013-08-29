@@ -24,13 +24,13 @@ using NLog;
 
 namespace CoreCI.Server
 {
-    public class AppHost : AppHostHttpListenerBase
+    public class ServerHandler : AppHostHttpListenerBase
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IConfigurationProvider _configurationProvider;
 
-        public AppHost(IConfigurationProvider configurationProvider)
-            : base("core:ci", typeof(AppHost).Assembly)
+        public ServerHandler(IConfigurationProvider configurationProvider)
+            : base("core:ci", typeof(ServerHandler).Assembly)
         {
             _configurationProvider = configurationProvider;
         }
@@ -57,6 +57,7 @@ namespace CoreCI.Server
             JsConfig.DateHandler = JsonDateHandler.ISO8601;
             JsConfig.EmitCamelCaseNames = true;
 
+            container.Register<IConfigurationProvider>(_configurationProvider);
             container.RegisterAs<InMemoryRepository<WorkerEntity>, IRepository<WorkerEntity>>().ReusedWithin(ReuseScope.None);
             container.RegisterAs<InMemoryRepository<TaskEntity>, IRepository<TaskEntity>>().ReusedWithin(ReuseScope.None);
         }

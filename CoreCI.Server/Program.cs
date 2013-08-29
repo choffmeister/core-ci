@@ -15,8 +15,6 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Configuration;
-using ServiceStack.ServiceHost;
 using CoreCI.Common;
 using NLog;
 
@@ -40,12 +38,12 @@ namespace CoreCI.Server
                 _logger.Info("Starting");
 
                 IConfigurationProvider configurationProvider = new FileConfigurationProvider();
-                AppHost appHost = new AppHost(configurationProvider);
+                ServerHandler serverHandler = new ServerHandler(configurationProvider);
 
-                appHost.Init();
-                appHost.Start();
+                serverHandler.Init();
+                serverHandler.Start();
                 UnixHelper.WaitForSignal();
-                appHost.Stop();
+                serverHandler.Stop();
             }
             catch (Exception ex)
             {

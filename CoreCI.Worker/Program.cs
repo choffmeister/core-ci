@@ -15,20 +15,7 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Configuration;
-using System.Threading.Tasks;
-using System.Threading;
-using CoreCI.Worker.VirtualMachines;
-using System.Reflection;
-using System.IO;
-using Renci.SshNet;
-using Renci.SshNet.Common;
-using ServiceStack.ServiceClient.Web;
-using CoreCI.Contracts;
 using CoreCI.Common;
-using ServiceStack.Text;
-using CoreCI.Models;
-using System.Collections.Generic;
 using NLog;
 
 namespace CoreCI.Worker
@@ -39,8 +26,6 @@ namespace CoreCI.Worker
     public class WorkerExecutable
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private static readonly Guid _workerId = Guid.Parse(ConfigurationManager.AppSettings ["workerId"]);
-        private static readonly string _coordinatorBaseAddress = ConfigurationManager.AppSettings ["coordinatorApiBaseAddress"];
 
         /// <summary>
         /// Main entry point.
@@ -52,22 +37,12 @@ namespace CoreCI.Worker
             {
                 _logger.Info("Starting");
 
-                TaskLoop keepAliveLoop = new TaskLoop(KeepAliveLoop, 1000);
-                TaskLoop doWorkLoop = new TaskLoop(DoWorkLoop, 1000);
+                IConfigurationProvider configurationProvider = new FileConfigurationProvider();
+                WorkerHandler workerHandler = new WorkerHandler(configurationProvider);
 
-                try
-                {
-                    keepAliveLoop.Start();
-                    doWorkLoop.Start();
-
-                    UnixHelper.WaitForSignal();
-                }
-                finally
-                {
-                    doWorkLoop.Stop();
-                    keepAliveLoop.Stop();
-                }
-
+                workerHandler.Start();
+                UnixHelper.WaitForSignal();
+                workerHandler.Stop();
             }
             catch (Exception ex)
             {
@@ -76,92 +51,6 @@ namespace CoreCI.Worker
             finally
             {
                 _logger.Info("Stopped");
-            }
-        }
-
-        private static bool DoWorkLoop()
-        {
-            try
-            {
-                using (JsonServiceClient client = new JsonServiceClient(_coordinatorBaseAddress))
-                {
-                    WorkerGetTaskResponse resp = client.Post(new WorkerGetTaskRequest(_workerId));
-
-                    if (resp.Task != null)
-                    {
-                        TaskEntity task = resp.Task;
-
-                        using (var vm = new VagrantVirtualMachine("precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
-                        {
-                            _logger.Info("Bringing VM {0} up for task {1}", "precise64", task.Id);
-
-                            vm.Up();
-
-                            using (SshClient vmShell = vm.CreateClient())
-                            {
-                                try
-                                {
-                                    int index = 0;
-                                    vmShell.Connect();
-
-                                    foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(task.Script))
-                                    {
-                                        _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
-
-                                        vmShell.Execute(commandLine, ref index, line => {
-                                            // TODO: throttle and group multiple lines into one request
-                                            client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
-                                            {
-                                                Lines = new List<ShellLine>() { line }
-                                            });
-                                        });
-                                    }
-
-                                    vmShell.Disconnect();
-
-                                    client.Post(new WorkerUpdateTaskRequest(_workerId, task.Id, 0));
-                                }
-                                catch (SshCommandFailedException ex)
-                                {
-                                    client.Post(new WorkerUpdateTaskRequest(_workerId, task.Id, ex.ExitCode));
-                                }
-                            }
-
-                            vm.Down();
-
-                            _logger.Info("Brought VM {0} from task {1} down", "precise64", task.Id);
-                        }
-
-                        return true;
-                    }
-
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-
-                return false;
-            }
-        }
-
-        private static bool KeepAliveLoop()
-        {
-            try
-            {
-                using (JsonServiceClient client = new JsonServiceClient(_coordinatorBaseAddress))
-                {
-                    client.Post(new WorkerKeepAliveRequest(_workerId));
-
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-
-                return false;
             }
         }
     }

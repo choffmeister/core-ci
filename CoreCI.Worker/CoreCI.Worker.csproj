@@ -57,6 +57,7 @@
     <Compile Include="VirtualMachines\VirtualMachineException.cs" />
     <Compile Include="SshClientHelper.cs" />
     <Compile Include="SshCommandFailedException.cs" />
+    <Compile Include="WorkerHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
