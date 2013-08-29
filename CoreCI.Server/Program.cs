@@ -17,6 +17,7 @@
 using System;
 using CoreCI.Common;
 using NLog;
+using CoreCI.Worker;
 
 namespace CoreCI.Server
 {
@@ -38,11 +39,27 @@ namespace CoreCI.Server
                 _logger.Info("Starting");
 
                 IConfigurationProvider configurationProvider = new FileConfigurationProvider();
+                bool isWorkerIntegrated = bool.Parse(configurationProvider.GetSettingString("workerIntegrated"));
+
                 ServerHandler serverHandler = new ServerHandler(configurationProvider);
+                WorkerHandler workerHandler = null;
 
                 serverHandler.Init();
                 serverHandler.Start();
+
+                if (isWorkerIntegrated)
+                {
+                    workerHandler = new WorkerHandler(configurationProvider);
+                    workerHandler.Start();
+                }
+
                 UnixHelper.WaitForSignal();
+
+                if (isWorkerIntegrated)
+                {
+                    workerHandler.Stop();
+                }
+
                 serverHandler.Stop();
             }
             catch (Exception ex)
