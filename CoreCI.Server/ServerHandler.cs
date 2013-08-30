@@ -33,6 +33,16 @@ namespace CoreCI.Server
             : base("core:ci", typeof(ServerHandler).Assembly)
         {
             _configurationProvider = configurationProvider;
+
+            this.ServiceExceptionHandler += (req, ex) =>
+            {
+                _logger.Error(ex);
+                return null;
+            };
+            this.ExceptionHandler += (httpReq, httpRes, operationName, ex) =>
+            {
+                _logger.Error(ex);
+            };
         }
 
         public void Start()
