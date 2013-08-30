@@ -78,7 +78,7 @@ namespace CoreCI.Worker
                     {
                         TaskEntity task = resp.Task;
 
-                        using (var vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
+                        using (var vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, "precise64", new Uri("http://boxes.choffmeister.de/precise64.box"), 2, 1024))
                         {
                             _logger.Info("Bringing VM {0} up for task {1}", "precise64", task.Id);
 

@@ -22,7 +22,6 @@ namespace CoreCI.Contracts
     [Route("/hook/github", "POST")]
     public class HookGitHubRequest : IReturn<HookGitHubResponse>
     {
-        public HookGitHubRequestPayload Payload { get; set; }
     }
 
     public class HookGitHubResponse
@@ -36,6 +35,8 @@ namespace CoreCI.Contracts
         public string Before { get; set; }
 
         public PayloadRepository Repository { get; set; }
+
+        public string Ref { get; set; }
 
         public HookGitHubRequestPayload()
         {
