@@ -62,6 +62,7 @@
     <Compile Include="Services\WorkerService.cs" />
     <Compile Include="ServerHandler.cs" />
     <Compile Include="Services\HookGitHubService.cs" />
+    <Compile Include="Services\TaskService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

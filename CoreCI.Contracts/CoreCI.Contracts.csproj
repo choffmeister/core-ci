@@ -41,6 +41,8 @@
     <Compile Include="WorkerUpdateTaskShellRequest.cs" />
     <Compile Include="WorkerUpdateTaskRequest.cs" />
     <Compile Include="HookGitHubRequest.cs" />
+    <Compile Include="TaskListRequest.cs" />
+    <Compile Include="TaskRetrieveRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
