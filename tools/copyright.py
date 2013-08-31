@@ -3,7 +3,7 @@
 import os
 import re
 
-exclude_dirs = ['.\\lib', '.\\CoreCI.WebApp\\bower_components', '.\\CoreCI.WebApp\\node_modules']
+exclude_dirs = ['.git', 'libs', 'bower_components', 'node_modules']
 utf_header = chr(0xef)+chr(0xbb)+chr(0xbf)
 copyright = file('COPYRIGHT','r+').read()
 
@@ -31,7 +31,6 @@ def strip_empty_lines(lines):
 	return lines
 
 def update_source(filename, start, pre, end, comment_regex):
-	global exclude_dirs
 	global utf_header
 	global copyright
 
@@ -76,8 +75,9 @@ def recursive_traversal(dir):
 	for name in os.listdir(dir):
 		path = os.path.join(dir, name)
 
-		if (os.path.isdir(path) and not path in exclude_dirs):
-			recursive_traversal(path)
+		if os.path.isdir(path):
+			if not name in exclude_dirs:
+				recursive_traversal(path)
 		elif (os.path.isfile(path) and path.endswith('.cs')):
 			update_source(path, '/*', ' * ', ' */', '^(\s*//|\s*\*|\s*/\*|\s*\*/)')
 		elif (os.path.isfile(path) and path.endswith('.coffee')):
@@ -86,6 +86,7 @@ def recursive_traversal(dir):
 			update_source(path, '//-', '//- ', '//-', '^(//\-|\s+)')
 		elif (os.path.isfile(path) and path.endswith('.less')):
 			update_source(path, '/*', ' * ', ' */', '^(\s*//|\s*\*|\s*/\*|\s*\*/)')
+
 script_path = os.path.realpath(__file__)
 project_path = os.path.join(os.path.dirname(script_path), '..')
 recursive_traversal(project_path)
