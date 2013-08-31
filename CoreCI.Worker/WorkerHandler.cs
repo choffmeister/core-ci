@@ -77,10 +77,22 @@ namespace CoreCI.Worker
                     if (resp.Task != null)
                     {
                         TaskEntity task = resp.Task;
+                        int index = 1;
 
                         using (var vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, "precise64", new Uri("http://boxes.choffmeister.de/precise64.box"), 2, 1024))
                         {
                             _logger.Info("Bringing VM {0} up for task {1}", "precise64", task.Id);
+
+                            client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
+                            {
+                                Lines = new List<ShellLine>() {
+                                    new ShellLine()
+                                    {
+                                        Index = index++,
+                                        Content = "Starting VM precise64..."
+                                    }
+                                }
+                            });
 
                             vm.Up();
 
@@ -88,7 +100,6 @@ namespace CoreCI.Worker
                             {
                                 try
                                 {
-                                    int index = 0;
                                     vmShell.Connect();
 
                                     foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(task.Script))
