@@ -52,6 +52,9 @@ namespace CoreCI.Worker
             {
                 _logger.Info("Stopped");
             }
+
+            // Mono bugfix, see http://nlog-project.org/2011/10/30/using-nlog-with-mono.html
+            LogManager.Configuration = null;
         }
     }
 }
