@@ -16,9 +16,9 @@
 ###
 define ["angular"], (angular) ->
   class BaseController
-    @$inject = ["$scope", "$routeParams", "api"]
+    @$inject = ["$scope", "$routeParams", "api", "events"]
 
-    constructor: (@scope, @params, @api) ->
+    constructor: (@scope, @params, @api, @events) ->
       @scope.params = @params
       @init()
 

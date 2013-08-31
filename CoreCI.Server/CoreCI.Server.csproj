@@ -63,6 +63,8 @@
     <Compile Include="ServerHandler.cs" />
     <Compile Include="Services\HookGitHubService.cs" />
     <Compile Include="Services\TaskService.cs" />
+    <Compile Include="Services\PushService.cs" />
+    <Compile Include="Managers\PushMessageManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -76,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
+    <Folder Include="Managers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CoreCI.Contracts\CoreCI.Contracts.csproj">

@@ -17,15 +17,17 @@
 define [
   "angular"
   "./services/ApiService"
+  "./services/EventService"
   "./controllers"
   "./routes"
   "./misc"
 ],
-(angular, ApiService) ->
+(angular, ApiService, EventService) ->
   bootstrap: () ->
     # services
     angular.module("coreci.services", [])
       .factory("api", ["$http", "$q", (http, q) => new ApiService(http, q)])
+      .factory('events', ["$http", (http) -> new EventService(http)])
 
     # compose
     angular.module "coreci", [
