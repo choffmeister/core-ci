@@ -117,10 +117,32 @@ namespace CoreCI.Worker
 
                                     vmShell.Disconnect();
 
+                                    client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
+                                    {
+                                        Lines = new List<ShellLine>() {
+                                            new ShellLine()
+                                            {
+                                                Index = index++,
+                                                Content = "Exited with code 0"
+                                            }
+                                        }
+                                    });
+
                                     client.Post(new WorkerUpdateTaskRequest(_workerId, task.Id, 0));
                                 }
                                 catch (SshCommandFailedException ex)
                                 {
+                                    client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
+                                    {
+                                        Lines = new List<ShellLine>() {
+                                            new ShellLine()
+                                            {
+                                                Index = index++,
+                                                Content = "Exited with code " + ex.ExitCode.ToString()
+                                            }
+                                        }
+                                    });
+
                                     client.Post(new WorkerUpdateTaskRequest(_workerId, task.Id, ex.ExitCode));
                                 }
                             }
