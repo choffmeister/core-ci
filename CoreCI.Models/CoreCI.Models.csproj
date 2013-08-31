@@ -49,6 +49,8 @@
     <Compile Include="ShellLine.cs" />
     <Compile Include="WorkerRepository.cs" />
     <Compile Include="TaskRepository.cs" />
+    <Compile Include="TaskShellEntity.cs" />
+    <Compile Include="TaskShellRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

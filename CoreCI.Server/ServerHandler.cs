@@ -70,6 +70,7 @@ namespace CoreCI.Server
             container.Register<IConfigurationProvider>(_configurationProvider);
             container.RegisterAs<WorkerRepository, IRepository<WorkerEntity>>().ReusedWithin(ReuseScope.None);
             container.RegisterAs<TaskRepository, IRepository<TaskEntity>>().ReusedWithin(ReuseScope.None);
+            container.RegisterAs<TaskShellRepository, IRepository<TaskShellEntity>>().ReusedWithin(ReuseScope.None);
         }
     }
 }

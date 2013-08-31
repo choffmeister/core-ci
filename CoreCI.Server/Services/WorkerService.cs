@@ -31,17 +31,20 @@ namespace CoreCI.Server.Services
         private static readonly object _taskLock = new object();
         private readonly IRepository<WorkerEntity> _workerRepository;
         private readonly IRepository<TaskEntity> _taskRepository;
+        private readonly IRepository<TaskShellEntity> _taskShellRepository;
 
-        public WorkerService(IRepository<WorkerEntity> workerRepository, IRepository<TaskEntity> taskRepository)
+        public WorkerService(IRepository<WorkerEntity> workerRepository, IRepository<TaskEntity> taskRepository, IRepository<TaskShellEntity> taskShellRepository)
         {
             _workerRepository = workerRepository;
             _taskRepository = taskRepository;
+            _taskShellRepository = taskShellRepository;
         }
 
         public override void Dispose()
         {
             _workerRepository.Dispose();
             _taskRepository.Dispose();
+            _taskShellRepository.Dispose();
         }
 
         public WorkerKeepAliveResponse Post(WorkerKeepAliveRequest req)
@@ -121,13 +124,24 @@ namespace CoreCI.Server.Services
                 throw HttpError.NotFound(string.Format("Could not find task {0}", req.TaskId));
             }
 
+            TaskShellEntity taskShell = _taskShellRepository.SingleOrDefault(ts => ts.TaskId == task.Id);
+
+            if (taskShell == null)
+            {
+                taskShell = new TaskShellEntity()
+                {
+                    TaskId = task.Id
+                };
+                _taskShellRepository.Insert(taskShell);
+            }
+
             foreach (var line in req.Lines)
             {
                 // TODO: remove
                 Console.WriteLine("[{0:0000}] {2} {1}", line.Index, line.Content, line.Type == ShellLineType.StandardInput ? ">" : "<");
-                task.Output.Add(line);
+                taskShell.Output.Add(line);
             }
-            _taskRepository.Update(task);
+            _taskShellRepository.Update(taskShell);
 
             return new WorkerUpdateTaskShellResponse();
         }

@@ -19,28 +19,17 @@ using System.Collections.Generic;
 
 namespace CoreCI.Models
 {
-    public class TaskEntity : IEntity
+    public class TaskShellEntity : IEntity
     {
         public Guid Id { get; set; }
 
-        public TaskState State { get; set; }
+        public Guid TaskId { get; set; }
 
-        public Guid? WorkerId { get; set; }
+        public List<ShellLine> Output { get; set; }
 
-        public string Script { get; set; }
-
-        public int ExitCode { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime? DelegatedAt { get; set; }
-    }
-
-    public enum TaskState
-    {
-        Pending,
-        Running,
-        Succeeded,
-        Failed
+        public TaskShellEntity()
+        {
+            this.Output = new List<ShellLine>();
+        }
     }
 }

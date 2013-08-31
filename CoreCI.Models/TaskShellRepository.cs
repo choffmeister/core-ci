@@ -15,32 +15,15 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Collections.Generic;
+using CoreCI.Common;
 
 namespace CoreCI.Models
 {
-    public class TaskEntity : IEntity
+    public class TaskShellRepository : MongoDbRepository<TaskShellEntity>
     {
-        public Guid Id { get; set; }
-
-        public TaskState State { get; set; }
-
-        public Guid? WorkerId { get; set; }
-
-        public string Script { get; set; }
-
-        public int ExitCode { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime? DelegatedAt { get; set; }
-    }
-
-    public enum TaskState
-    {
-        Pending,
-        Running,
-        Succeeded,
-        Failed
+        public TaskShellRepository(IConfigurationProvider configurationProvider)
+            : base(configurationProvider, "coreciDatabase", "taskshells")
+        {
+        }
     }
 }
