@@ -1,0 +1,16 @@
+{
+  "name": "coreci-webapp",
+  "version": "0.1.0",
+  "dependencies": {
+    "requirejs": "~2.1.8",
+    "jquery": "~2.0.3",
+    "bootstrap": "~3.0.0",
+    "angular": "~1.0.8",
+    "roboto-fontface": "~0.1.2"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ]
+}

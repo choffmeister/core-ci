@@ -3,7 +3,7 @@
 import os
 import re
 
-exclude_dirs = ['.\\lib']
+exclude_dirs = ['.\\lib', '.\\CoreCI.WebApp\\bower_components', '.\\CoreCI.WebApp\\node_modules']
 utf_header = chr(0xef)+chr(0xbb)+chr(0xbf)
 copyright = file('COPYRIGHT','r+').read()
 
