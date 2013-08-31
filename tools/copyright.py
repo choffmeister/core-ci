@@ -55,8 +55,8 @@ def update_source(filename, start, pre, end, comment_regex):
 	# open file again for writing
 	file_out = file(filename, 'w')
 
-	# write UTF-8 header
-	file_out.write(utf_header)
+	# write UTF-8 header (deactivated, since grunt does not support UTF-8 header in Gruntfile)
+	# file_out.write(utf_header)
 
 	# write copyright header
 	copyright_lines = copyright.split('\n')
