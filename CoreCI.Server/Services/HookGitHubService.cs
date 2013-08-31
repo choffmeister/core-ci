@@ -51,11 +51,15 @@ namespace CoreCI.Server.Services
 
             _logger.Info("Received hook from GitHub for repository {0}/{1} with commit ID {2}", payload.Repository.Owner.Name, payload.Repository.Name, payload.After);
 
-            _taskRepository.Insert(new TaskEntity()
+            TaskEntity task = new TaskEntity()
             {
                 Script = CreateTaskScript(payload.Repository.Owner.Name, payload.Repository.Name, payload.Ref, payload.After),
                 CreatedAt = DateTime.UtcNow
-            });
+            };
+            _taskRepository.Insert(task);
+
+            PushService.Push("tasks", null);
+            PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "created");
 
             return new HookGitHubResponse();
         }
@@ -71,7 +75,8 @@ namespace CoreCI.Server.Services
 
             return string.Format(@"git clone --depth=50 --branch={2} git://github.com/{0}/{1}.git {0}/{1}
 cd {0}/{1} && git checkout -qf {3}
-cd {0}/{1} && git branch -va", repositoryOwnerName, repositoryName, branch, commitHash);
+cd {0}/{1} && git branch -va
+sudo apt-get update", repositoryOwnerName, repositoryName, branch, commitHash);
         }
     }
 }

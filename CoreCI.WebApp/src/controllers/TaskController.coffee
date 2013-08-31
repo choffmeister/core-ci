@@ -19,6 +19,11 @@ define ["basecontroller"], (BaseController) ->
     @$name = "TaskController"
 
     init: () =>
+      @events.listen "push", "task-#{@params.taskId}", () =>
+        @update()
+      @update()
+
+    update: () =>
       @api.get("tasks/#{@params.taskId}").then (res) =>
         @scope.task = res.task
         @scope.shell = res.shell

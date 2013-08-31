@@ -90,6 +90,9 @@ namespace CoreCI.Server.Services
                     task.DelegatedAt = DateTime.UtcNow;
                     _taskRepository.Update(task);
 
+                    PushService.Push("tasks", null);
+                    PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "started");
+
                     return new WorkerGetTaskResponse(task);
                 }
 
@@ -111,6 +114,9 @@ namespace CoreCI.Server.Services
             task.ExitCode = req.ExitCode;
             task.State = task.ExitCode == 0 ? TaskState.Succeeded : TaskState.Failed;
             _taskRepository.Update(task);
+
+            PushService.Push("tasks", null);
+            PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "finished");
 
             return new WorkerUpdateTaskResponse();
         }
@@ -142,6 +148,9 @@ namespace CoreCI.Server.Services
                 taskShell.Output.Add(line);
             }
             _taskShellRepository.Update(taskShell);
+
+            PushService.Push("tasks", null);
+            PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "updated");
 
             return new WorkerUpdateTaskShellResponse();
         }
