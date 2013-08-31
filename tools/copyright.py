@@ -6,16 +6,12 @@ import re
 exclude_dirs = ['.\\lib']
 utf_header = chr(0xef)+chr(0xbb)+chr(0xbf)
 copyright = file('COPYRIGHT','r+').read()
-comment_regex = re.compile('^\s*(//|\*|/*|\*/)')
 
-def is_comment_line(line):
-	return line.lstrip().startswith('//') or line.lstrip().startswith('*') or line.lstrip().startswith('/*') or line.lstrip().startswith('*/')
-
-def strip_file_comment(lines):
-	global comment_regex
+def strip_file_comment(lines, comment_regex):
+	compiled_regex = re.compile(comment_regex)
 
 	while len(lines) > 0:
-		if is_comment_line(lines[0]) or lines[0] is '':
+		if compiled_regex.match(lines[0]) is not None or lines[0] is '':
 			lines = lines[1:]
 		else:
 			break
@@ -34,7 +30,7 @@ def strip_empty_lines(lines):
 			break
 	return lines
 
-def update_source(filename):
+def update_source(filename, start, pre, end, comment_regex):
 	global exclude_dirs
 	global utf_header
 	global copyright
@@ -53,7 +49,7 @@ def update_source(filename):
 	lines = map(lambda s: s.rstrip(), lines)
 
 	# remove old file comment and strip outer empty lines
-	lines = strip_file_comment(lines)
+	lines = strip_file_comment(lines, comment_regex)
 	lines = strip_empty_lines(lines)
 
 	# open file again for writing
@@ -63,7 +59,12 @@ def update_source(filename):
 	file_out.write(utf_header)
 
 	# write copyright header
-	file_out.write(copyright)
+	copyright_lines = copyright.split('\n')
+	copyright_lines = strip_empty_lines(copyright_lines)
+	file_out.write(start + '\n')
+	for copyright_line in copyright_lines:
+		file_out.write((pre + copyright_line).rstrip() + '\n')
+	file_out.write(end + '\n')
 
 	for line in lines:
 		file_out.write(line.rstrip() + '\n')
@@ -78,8 +79,13 @@ def recursive_traversal(dir):
 		if (os.path.isdir(path) and not path in exclude_dirs):
 			recursive_traversal(path)
 		elif (os.path.isfile(path) and path.endswith('.cs')):
-			update_source(path)
-
+			update_source(path, '/*', ' * ', ' */', '^(\s*//|\s*\*|\s*/\*|\s*\*/)')
+		elif (os.path.isfile(path) and path.endswith('.coffee')):
+			update_source(path, '###', '  ', '###', '^(###|\s+)')
+		elif (os.path.isfile(path) and path.endswith('.jade')):
+			update_source(path, '//-', '//- ', '//-', '^(//\-|\s+)')
+		elif (os.path.isfile(path) and path.endswith('.less')):
+			update_source(path, '/*', ' * ', ' */', '^(\s*//|\s*\*|\s*/\*|\s*\*/)')
 script_path = os.path.realpath(__file__)
 project_path = os.path.join(os.path.dirname(script_path), '..')
 recursive_traversal(project_path)
