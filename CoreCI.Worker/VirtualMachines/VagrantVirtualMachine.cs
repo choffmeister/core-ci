@@ -144,12 +144,7 @@ namespace CoreCI.Worker.VirtualMachines
                 _isUp = false;
 
                 _connectionInfo = null;
-
-                if (this.ExecuteVagrantCommand("destroy -f") != 0)
-                {
-                    throw new VirtualMachineException("VM could ne be destroyed");
-                }
-
+                this.ExecuteVagrantCommand("destroy -f");
                 EnsureDirectoryNotExists(_folder);
             }
         }
