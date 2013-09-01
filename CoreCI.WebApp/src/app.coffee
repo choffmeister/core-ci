@@ -18,12 +18,15 @@ requirejs.config
   baseUrl: "/src"
   paths:
     jquery: "../bower_components/jquery/jquery"
+    underscore: "../bower_components/underscore/underscore"
     bootstrap: "../bower_components/bootstrap/dist/js/bootstrap"
     angular: "../bower_components/angular/angular"
     coreci: "coreci"
     basecontroller: "./controllers/BaseController"
 
   shim:
+    underscore:
+      exports: "_"
     bootstrap:
       deps: ["jquery"]
     angular:

@@ -19,8 +19,8 @@ define ["basecontroller"], (BaseController) ->
     @$name = "TaskController"
 
     init: () =>
-      @listen "push", "task-#{@params.taskId}", () => @update()
-      @update()
+      @listen "push", "task-#{@params.taskId}", @updateThrottled
+      @updateThrottled()
 
     update: () =>
       @api.get("tasks/#{@params.taskId}").then (res) =>

@@ -14,12 +14,13 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see {http://www.gnu.org/licenses/}.
 ###
-define ["angular"], (angular) ->
+define ["underscore", "angular"], (_, angular) ->
   class BaseController
     @$inject = ["$scope", "$routeParams", "api", "events"]
 
     constructor: (@scope, @params, @api, @events) ->
       @listenerIds = []
+      @updateThrottled = _.throttle(@update, 1000)
       @scope.params = @params
       @scope.$on "$destroy", () =>
         @unlisten()
@@ -30,6 +31,9 @@ define ["angular"], (angular) ->
       # do nothing
 
     dispose: () =>
+      # do nothing
+
+    update: () =>
       # do nothing
 
     listen: (namespace, name, callback) =>
