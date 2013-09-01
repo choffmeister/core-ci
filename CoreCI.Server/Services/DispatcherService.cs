@@ -25,7 +25,7 @@ using NLog;
 
 namespace CoreCI.Server.Services
 {
-    public class WorkerService : Service
+    public class DispatcherService : Service
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private static readonly object _taskLock = new object();
@@ -33,7 +33,7 @@ namespace CoreCI.Server.Services
         private readonly IRepository<TaskEntity> _taskRepository;
         private readonly IRepository<TaskShellEntity> _taskShellRepository;
 
-        public WorkerService(IRepository<WorkerEntity> workerRepository, IRepository<TaskEntity> taskRepository, IRepository<TaskShellEntity> taskShellRepository)
+        public DispatcherService(IRepository<WorkerEntity> workerRepository, IRepository<TaskEntity> taskRepository, IRepository<TaskShellEntity> taskShellRepository)
         {
             _workerRepository = workerRepository;
             _taskRepository = taskRepository;
@@ -47,7 +47,7 @@ namespace CoreCI.Server.Services
             _taskShellRepository.Dispose();
         }
 
-        public WorkerKeepAliveResponse Post(WorkerKeepAliveRequest req)
+        public DispatcherWorkerKeepAliveResponse Post(DispatcherWorkerKeepAliveRequest req)
         {
             WorkerEntity worker = _workerRepository.SingleOrDefault(w => w.Id == req.WorkerId);
 
@@ -73,10 +73,10 @@ namespace CoreCI.Server.Services
                 _workerRepository.InsertOrUpdate(worker);
             }
 
-            return new WorkerKeepAliveResponse();
+            return new DispatcherWorkerKeepAliveResponse();
         }
 
-        public WorkerGetTaskResponse Post(WorkerGetTaskRequest req)
+        public DispatcherTaskPollResponse Post(DispatcherTaskPollRequest req)
         {
             lock (_taskLock)
             {
@@ -93,14 +93,14 @@ namespace CoreCI.Server.Services
                     PushService.Push("tasks", null);
                     PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "started");
 
-                    return new WorkerGetTaskResponse(task);
+                    return new DispatcherTaskPollResponse(task);
                 }
 
-                return new WorkerGetTaskResponse();
+                return new DispatcherTaskPollResponse();
             }
         }
 
-        public WorkerUpdateTaskResponse Post(WorkerUpdateTaskRequest req)
+        public DispatcherTaskUpdateResponse Post(DispatcherTaskUpdateRequest req)
         {
             TaskEntity task = _taskRepository.Single(t => t.Id == req.TaskId);
 
@@ -118,10 +118,10 @@ namespace CoreCI.Server.Services
             PushService.Push("tasks", null);
             PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "finished");
 
-            return new WorkerUpdateTaskResponse();
+            return new DispatcherTaskUpdateResponse();
         }
 
-        public WorkerUpdateTaskShellResponse Post(WorkerUpdateTaskShellRequest req)
+        public DispatcherTaskUpdateShellResponse Post(DispatcherTaskUpdateShellRequest req)
         {
             TaskEntity task = _taskRepository.Single(t => t.Id == req.TaskId);
 
@@ -152,7 +152,7 @@ namespace CoreCI.Server.Services
             PushService.Push("tasks", null);
             PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "updated");
 
-            return new WorkerUpdateTaskShellResponse();
+            return new DispatcherTaskUpdateShellResponse();
         }
     }
 }

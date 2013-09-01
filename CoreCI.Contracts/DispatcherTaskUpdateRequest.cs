@@ -16,32 +16,28 @@
  */
 using System;
 using ServiceStack.ServiceHost;
-using CoreCI.Models;
+using System.Collections.Generic;
 
 namespace CoreCI.Contracts
 {
-    [RouteAttribute("/worker/task/get", "POST")]
-    public class WorkerGetTaskRequest : IReturn<WorkerGetTaskResponse>
+    [RouteAttribute("/dispatcher/task/update", "POST")]
+    public class DispatcherTaskUpdateRequest : IReturn<DispatcherTaskUpdateResponse>
     {
         public Guid WorkerId { get; set; }
 
-        public WorkerGetTaskRequest(Guid workerId)
+        public Guid TaskId { get; set; }
+
+        public int ExitCode { get; set; }
+
+        public DispatcherTaskUpdateRequest(Guid workerId, Guid taskId, int exitCode)
         {
             this.WorkerId = workerId;
+            this.TaskId = taskId;
+            this.ExitCode = exitCode;
         }
     }
 
-    public class WorkerGetTaskResponse
+    public class DispatcherTaskUpdateResponse
     {
-        public TaskEntity Task { get; set; }
-
-        public WorkerGetTaskResponse()
-        {
-        }
-
-        public WorkerGetTaskResponse(TaskEntity task)
-        {
-            this.Task = task;
-        }
     }
 }

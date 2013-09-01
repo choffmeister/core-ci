@@ -72,7 +72,7 @@ namespace CoreCI.Worker
             {
                 using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
                 {
-                    WorkerGetTaskResponse resp = client.Post(new WorkerGetTaskRequest(_workerId));
+                    DispatcherTaskPollResponse resp = client.Post(new DispatcherTaskPollRequest(_workerId));
 
                     if (resp.Task != null)
                     {
@@ -83,7 +83,7 @@ namespace CoreCI.Worker
                         {
                             _logger.Info("Bringing VM {0} up for task {1}", "precise64", task.Id);
 
-                            client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
+                            client.Post(new DispatcherTaskUpdateShellRequest(_workerId, task.Id)
                             {
                                 Lines = new List<ShellLine>() {
                                     new ShellLine()
@@ -108,7 +108,7 @@ namespace CoreCI.Worker
 
                                         vmShell.Execute(commandLine, ref index, line => {
                                             // TODO: throttle and group multiple lines into one request
-                                            client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
+                                            client.Post(new DispatcherTaskUpdateShellRequest(_workerId, task.Id)
                                             {
                                                 Lines = new List<ShellLine>() { line }
                                             });
@@ -117,7 +117,7 @@ namespace CoreCI.Worker
 
                                     vmShell.Disconnect();
 
-                                    client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
+                                    client.Post(new DispatcherTaskUpdateShellRequest(_workerId, task.Id)
                                     {
                                         Lines = new List<ShellLine>() {
                                             new ShellLine()
@@ -128,11 +128,11 @@ namespace CoreCI.Worker
                                         }
                                     });
 
-                                    client.Post(new WorkerUpdateTaskRequest(_workerId, task.Id, 0));
+                                    client.Post(new DispatcherTaskUpdateRequest(_workerId, task.Id, 0));
                                 }
                                 catch (SshCommandFailedException ex)
                                 {
-                                    client.Post(new WorkerUpdateTaskShellRequest(_workerId, task.Id)
+                                    client.Post(new DispatcherTaskUpdateShellRequest(_workerId, task.Id)
                                     {
                                         Lines = new List<ShellLine>() {
                                             new ShellLine()
@@ -143,7 +143,7 @@ namespace CoreCI.Worker
                                         }
                                     });
 
-                                    client.Post(new WorkerUpdateTaskRequest(_workerId, task.Id, ex.ExitCode));
+                                    client.Post(new DispatcherTaskUpdateRequest(_workerId, task.Id, ex.ExitCode));
                                 }
                             }
 
@@ -172,7 +172,7 @@ namespace CoreCI.Worker
             {
                 using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
                 {
-                    client.Post(new WorkerKeepAliveRequest(_workerId));
+                    client.Post(new DispatcherWorkerKeepAliveRequest(_workerId));
 
                     return false;
                 }

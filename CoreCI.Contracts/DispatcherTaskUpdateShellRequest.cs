@@ -21,8 +21,8 @@ using System.Collections.Generic;
 
 namespace CoreCI.Contracts
 {
-    [RouteAttribute("/worker/task/update/shell", "POST")]
-    public class WorkerUpdateTaskShellRequest : IReturn<WorkerUpdateTaskShellResponse>
+    [RouteAttribute("/dispatcher/task/update/shell", "POST")]
+    public class DispatcherTaskUpdateShellRequest : IReturn<DispatcherTaskUpdateShellResponse>
     {
         public Guid WorkerId { get; set; }
 
@@ -30,14 +30,14 @@ namespace CoreCI.Contracts
 
         public List<ShellLine> Lines { get; set; }
 
-        public WorkerUpdateTaskShellRequest(Guid workerId, Guid taskId)
+        public DispatcherTaskUpdateShellRequest(Guid workerId, Guid taskId)
         {
             this.WorkerId = workerId;
             this.TaskId = taskId;
         }
     }
 
-    public class WorkerUpdateTaskShellResponse
+    public class DispatcherTaskUpdateShellResponse
     {
     }
 }

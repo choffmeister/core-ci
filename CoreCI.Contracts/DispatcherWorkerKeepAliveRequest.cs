@@ -16,28 +16,21 @@
  */
 using System;
 using ServiceStack.ServiceHost;
-using System.Collections.Generic;
 
 namespace CoreCI.Contracts
 {
-    [RouteAttribute("/worker/task/update", "POST")]
-    public class WorkerUpdateTaskRequest : IReturn<WorkerUpdateTaskResponse>
+    [RouteAttribute("/dispatcher/worker/keepalive", "POST")]
+    public class DispatcherWorkerKeepAliveRequest : IReturn<DispatcherWorkerKeepAliveResponse>
     {
         public Guid WorkerId { get; set; }
 
-        public Guid TaskId { get; set; }
-
-        public int ExitCode { get; set; }
-
-        public WorkerUpdateTaskRequest(Guid workerId, Guid taskId, int exitCode)
+        public DispatcherWorkerKeepAliveRequest(Guid workerId)
         {
             this.WorkerId = workerId;
-            this.TaskId = taskId;
-            this.ExitCode = exitCode;
         }
     }
 
-    public class WorkerUpdateTaskResponse
+    public class DispatcherWorkerKeepAliveResponse
     {
     }
 }

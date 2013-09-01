@@ -59,12 +59,12 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\WorkerService.cs" />
     <Compile Include="ServerHandler.cs" />
     <Compile Include="Services\HookGitHubService.cs" />
     <Compile Include="Services\TaskService.cs" />
     <Compile Include="Services\PushService.cs" />
     <Compile Include="Managers\PushMessageManager.cs" />
+    <Compile Include="Services\DispatcherService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
