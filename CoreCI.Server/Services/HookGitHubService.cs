@@ -15,6 +15,7 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using System.Linq;
 using ServiceStack.ServiceInterface;
 using CoreCI.Contracts;
 using NLog;
@@ -48,13 +49,17 @@ namespace CoreCI.Server.Services
         {
             JsonSerializer<HookGitHubRequestPayload> serializer = new JsonSerializer<HookGitHubRequestPayload>();
             HookGitHubRequestPayload payload = serializer.DeserializeFromString(this.Request.FormData ["payload"]);
+            HookGitHubRequestPayload.PayloadCommit commit = payload.Commits.Single(c => c.Id == payload.After);
 
             _logger.Info("Received hook from GitHub for repository {0}/{1} with commit ID {2}", payload.Repository.Owner.Name, payload.Repository.Name, payload.After);
 
             TaskEntity task = new TaskEntity()
             {
                 Script = CreateTaskScript(payload.Repository.Owner.Name, payload.Repository.Name, payload.Ref, payload.After),
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Commit = commit.Id,
+                CommitUrl = commit.Url,
+                CommitMessage = commit.Message
             };
             _taskRepository.Insert(task);
 

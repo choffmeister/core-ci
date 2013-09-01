@@ -100,6 +100,9 @@ namespace CoreCI.Worker
                             {
                                 try
                                 {
+                                    task.StartedAt = DateTime.UtcNow;
+                                    client.Post(new DispatcherTaskUpdateStartRequest(task.Id));
+
                                     vmShell.Connect();
 
                                     foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(task.Script))
@@ -128,7 +131,7 @@ namespace CoreCI.Worker
                                         }
                                     });
 
-                                    client.Post(new DispatcherTaskUpdateRequest(_workerId, task.Id, 0));
+                                    client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, 0));
                                 }
                                 catch (SshCommandFailedException ex)
                                 {
@@ -143,7 +146,7 @@ namespace CoreCI.Worker
                                         }
                                     });
 
-                                    client.Post(new DispatcherTaskUpdateRequest(_workerId, task.Id, ex.ExitCode));
+                                    client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, ex.ExitCode));
                                 }
                             }
 

@@ -17,27 +17,25 @@
 using System;
 using ServiceStack.ServiceHost;
 using System.Collections.Generic;
+using CoreCI.Models;
 
 namespace CoreCI.Contracts
 {
-    [RouteAttribute("/dispatcher/task/update", "POST")]
-    public class DispatcherTaskUpdateRequest : IReturn<DispatcherTaskUpdateResponse>
+    [RouteAttribute("/dispatcher/task/update/finish", "POST")]
+    public class DispatcherTaskUpdateFinishRequest : IReturn<DispatcherTaskUpdateFinishResponse>
     {
-        public Guid WorkerId { get; set; }
-
         public Guid TaskId { get; set; }
 
         public int ExitCode { get; set; }
 
-        public DispatcherTaskUpdateRequest(Guid workerId, Guid taskId, int exitCode)
+        public DispatcherTaskUpdateFinishRequest(Guid taskId, int exitCode)
         {
-            this.WorkerId = workerId;
             this.TaskId = taskId;
             this.ExitCode = exitCode;
         }
     }
 
-    public class DispatcherTaskUpdateResponse
+    public class DispatcherTaskUpdateFinishResponse
     {
     }
 }

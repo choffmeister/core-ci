@@ -41,9 +41,10 @@
     <Compile Include="TaskRetrieveRequest.cs" />
     <Compile Include="PushMessageRequest.cs" />
     <Compile Include="DispatcherTaskPollRequest.cs" />
-    <Compile Include="DispatcherTaskUpdateRequest.cs" />
     <Compile Include="DispatcherTaskUpdateShellRequest.cs" />
     <Compile Include="DispatcherWorkerKeepAliveRequest.cs" />
+    <Compile Include="DispatcherTaskUpdateStartRequest.cs" />
+    <Compile Include="DispatcherTaskUpdateFinishRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

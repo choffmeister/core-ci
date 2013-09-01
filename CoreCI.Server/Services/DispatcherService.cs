@@ -87,7 +87,8 @@ namespace CoreCI.Server.Services
                     _logger.Info("Delegating task {0} to worker {1}", task.Id, req.WorkerId);
 
                     task.State = TaskState.Running;
-                    task.DelegatedAt = DateTime.UtcNow;
+                    task.DispatchedAt = DateTime.UtcNow;
+                    task.WorkerId = req.WorkerId;
                     _taskRepository.Update(task);
 
                     PushService.Push("tasks", null);
@@ -100,7 +101,27 @@ namespace CoreCI.Server.Services
             }
         }
 
-        public DispatcherTaskUpdateResponse Post(DispatcherTaskUpdateRequest req)
+        public DispatcherTaskUpdateStartResponse Post(DispatcherTaskUpdateStartRequest req)
+        {
+            TaskEntity task = _taskRepository.Single(t => t.Id == req.TaskId);
+
+            if (task == null)
+            {
+                throw HttpError.NotFound(string.Format("Could not find task {0}", req.TaskId));
+            }
+
+            _logger.Info("Task {0} started", req.TaskId);
+
+            task.StartedAt = DateTime.UtcNow;
+            _taskRepository.Update(task);
+
+            PushService.Push("tasks", null);
+            PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "finished");
+
+            return new DispatcherTaskUpdateStartResponse();
+        }
+
+        public DispatcherTaskUpdateFinishResponse Post(DispatcherTaskUpdateFinishRequest req)
         {
             TaskEntity task = _taskRepository.Single(t => t.Id == req.TaskId);
 
@@ -111,6 +132,7 @@ namespace CoreCI.Server.Services
 
             _logger.Info("Task {0} finished with exit code {1}", req.TaskId, req.ExitCode);
 
+            task.FinishedAt = DateTime.UtcNow;
             task.ExitCode = req.ExitCode;
             task.State = task.ExitCode == 0 ? TaskState.Succeeded : TaskState.Failed;
             _taskRepository.Update(task);
@@ -118,7 +140,7 @@ namespace CoreCI.Server.Services
             PushService.Push("tasks", null);
             PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "finished");
 
-            return new DispatcherTaskUpdateResponse();
+            return new DispatcherTaskUpdateFinishResponse();
         }
 
         public DispatcherTaskUpdateShellResponse Post(DispatcherTaskUpdateShellRequest req)

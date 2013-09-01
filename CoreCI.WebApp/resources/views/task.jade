@@ -15,13 +15,22 @@
 //- along with this program. If not, see {http://www.gnu.org/licenses/}.
 //-
 .container
-	h1 Task
-
-	div(ng-switch="task.state")
-		div.alert.alert-success(ng-switch-when="Succeeded") Succeeded
-		div.alert.alert-info(ng-switch-when="Running") Running
-		div.alert.alert-warning(ng-switch-when="Pending") Pending
-		div.alert.alert-danger(ng-switch-when="Failed") Failed
-
+	dl
+		dt State
+		dd(ng-switch="task.state")
+			span.label.label-success(ng-switch-when="Succeeded") Succeeded
+			span.label.label-info(ng-switch-when="Running") Running
+			span.label.label-default(ng-switch-when="Pending") Pending
+			span.label.label-danger(ng-switch-when="Failed") Failed
+		dt Run at
+		dd {{task.startedAt | date}}
+		dt Runtime
+		dd {{task.runtime}}
+		dt Commit
+		dd: a(href="{{task.commitUrl}}", target="_blank") {{task.commit}}
+		dt Message
+		dd: {{task.commitMessage}}
+hr
+.container
 	ol.shell
 		li(ng-repeat="line in shell.output") {{line.content}}

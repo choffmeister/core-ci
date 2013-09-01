@@ -29,11 +29,34 @@ namespace CoreCI.Models
 
         public string Script { get; set; }
 
-        public int ExitCode { get; set; }
+        public int? ExitCode { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
-        public DateTime? DelegatedAt { get; set; }
+        public DateTime? DispatchedAt { get; set; }
+
+        public DateTime? StartedAt { get; set; }
+
+        public DateTime? FinishedAt { get; set; }
+
+        public TimeSpan? Runtime
+        {
+            get
+            {
+                if (this.StartedAt.HasValue && this.FinishedAt.HasValue)
+                {
+                    return this.FinishedAt.Value.Subtract(this.StartedAt.Value);
+                }
+
+                return null;
+            }
+        }
+
+        public string Commit { get; set; }
+
+        public string CommitUrl { get; set; }
+
+        public string CommitMessage { get; set; }
     }
 
     public enum TaskState

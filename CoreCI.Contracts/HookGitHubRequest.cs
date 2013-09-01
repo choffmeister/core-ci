@@ -16,6 +16,7 @@
  */
 using System;
 using ServiceStack.ServiceHost;
+using System.Collections.Generic;
 
 namespace CoreCI.Contracts
 {
@@ -34,12 +35,24 @@ namespace CoreCI.Contracts
 
         public string Before { get; set; }
 
+        public List<PayloadCommit> Commits { get; set; }
+
         public PayloadRepository Repository { get; set; }
 
         public string Ref { get; set; }
 
         public HookGitHubRequestPayload()
         {
+            this.Commits = new List<PayloadCommit>();
+        }
+
+        public class PayloadCommit
+        {
+            public string Id { get; set; }
+
+            public string Message { get; set; }
+
+            public string Url { get; set; }
         }
 
         public class PayloadRepository
