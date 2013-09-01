@@ -19,8 +19,7 @@ define ["basecontroller"], (BaseController) ->
     @$name = "DashboardController"
 
     init: () =>
-      @events.listen "push", "tasks", () =>
-        @update()
+      @listen "push", "tasks", () => @update()
       @update()
 
     update: () =>

@@ -19,8 +19,7 @@ define ["basecontroller"], (BaseController) ->
     @$name = "TaskController"
 
     init: () =>
-      @events.listen "push", "task-#{@params.taskId}", () =>
-        @update()
+      @listen "push", "task-#{@params.taskId}", () => @update()
       @update()
 
     update: () =>

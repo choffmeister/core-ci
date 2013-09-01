@@ -19,8 +19,22 @@ define ["angular"], (angular) ->
     @$inject = ["$scope", "$routeParams", "api", "events"]
 
     constructor: (@scope, @params, @api, @events) ->
+      @listenerIds = []
       @scope.params = @params
+      @scope.$on "$destroy", () =>
+        @unlisten()
+        @dispose()
       @init()
 
     init: () =>
       # do nothing
+
+    dispose: () =>
+      # do nothing
+
+    listen: (namespace, name, callback) =>
+      @listenerIds.push(@events.listen(namespace, name, callback))
+
+    unlisten: () =>
+      for listenerId in @listenerIds
+        @events.unlisten(listenerId)
