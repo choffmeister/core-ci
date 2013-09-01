@@ -143,8 +143,6 @@ namespace CoreCI.Server.Services
 
             foreach (var line in req.Lines)
             {
-                // TODO: remove
-                Console.WriteLine("[{0:0000}] {2} {1}", line.Index, line.Content, line.Type == ShellLineType.StandardInput ? ">" : "<");
                 taskShell.Output.Add(line);
             }
             _taskShellRepository.Update(taskShell);
