@@ -27,7 +27,7 @@ namespace CoreCI.Models
 
         public Guid? WorkerId { get; set; }
 
-        public string Script { get; set; }
+        public TaskConfiguration Configuration { get; set; }
 
         public int? ExitCode { get; set; }
 

@@ -51,6 +51,7 @@
     <Compile Include="TaskRepository.cs" />
     <Compile Include="TaskShellEntity.cs" />
     <Compile Include="TaskShellRepository.cs" />
+    <Compile Include="TaskConfiguration.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

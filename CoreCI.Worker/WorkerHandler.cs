@@ -77,11 +77,12 @@ namespace CoreCI.Worker
                     if (resp.Task != null)
                     {
                         TaskEntity task = resp.Task;
+                        TaskConfiguration config = task.Configuration;
                         int index = 1;
 
-                        using (var vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, "precise64", new Uri("http://boxes.choffmeister.de/precise64.box"), 2, 1024))
+                        using (var vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, config.Machine, new Uri("http://boxes.choffmeister.de/" + config.Machine + ".box"), 2, 1024))
                         {
-                            _logger.Info("Bringing VM {0} up for task {1}", "precise64", task.Id);
+                            _logger.Info("Bringing VM {0} up for task {1}", config.Machine, task.Id);
 
                             client.Post(new DispatcherTaskUpdateShellRequest(_workerId, task.Id)
                             {
@@ -89,7 +90,7 @@ namespace CoreCI.Worker
                                     new ShellLine()
                                     {
                                         Index = index++,
-                                        Content = "Starting VM precise64..."
+                                        Content = "Starting VM " + config.Machine + "..."
                                     }
                                 }
                             });
@@ -105,7 +106,7 @@ namespace CoreCI.Worker
 
                                     vmShell.Connect();
 
-                                    foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(task.Script))
+                                    foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(config.Script))
                                     {
                                         _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
 
@@ -152,7 +153,7 @@ namespace CoreCI.Worker
 
                             vm.Down();
 
-                            _logger.Info("Brought VM {0} from task {1} down", "precise64", task.Id);
+                            _logger.Info("Brought VM {0} from task {1} down", config.Machine, task.Id);
                         }
 
                         return true;

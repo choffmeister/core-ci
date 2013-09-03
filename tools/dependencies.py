@@ -13,6 +13,8 @@ dependencies = [
 	('nuget', 'servicestack-ormlite-mysql', 'serviceStack.ormlite.mysql', '3.9.55'),
 	('nuget', 'mongo-csharp-driver', 'mongocsharpdriver', '1.8.1'),
 	('nuget', 'sshnet', 'ssh.net', '2013.4.7'),
+	('nuget', 'yamldotnet-core', 'yamldotnet.core', '2.2.0'),
+	('nuget', 'yamldotnet-representationmodel', 'yamldotnet.representationmodel', '2.2.0'),
 	('github', 'mono-posix', 'choffmeister/mono-posix', 'v4.0.0.0'),
 ]
 

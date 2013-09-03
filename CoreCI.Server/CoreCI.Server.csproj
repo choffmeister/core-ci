@@ -55,6 +55,12 @@
     <Reference Include="NLog">
       <HintPath>..\libs\nlog\lib\net40\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="YamlDotNet.Core">
+      <HintPath>..\libs\yamldotnet-core\lib\net35\YamlDotNet.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="YamlDotNet.RepresentationModel">
+      <HintPath>..\libs\yamldotnet-representationmodel\lib\net35\YamlDotNet.RepresentationModel.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

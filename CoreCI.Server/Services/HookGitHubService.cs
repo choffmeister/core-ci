@@ -23,6 +23,9 @@ using ServiceStack.Text;
 using ServiceStack.ServiceHost;
 using System.IO;
 using CoreCI.Models;
+using System.Net;
+using YamlDotNet.RepresentationModel;
+using System.Text;
 
 namespace CoreCI.Server.Services
 {
@@ -55,7 +58,7 @@ namespace CoreCI.Server.Services
 
             TaskEntity task = new TaskEntity()
             {
-                Script = CreateTaskScript(payload.Repository.Owner.Name, payload.Repository.Name, payload.Ref, payload.After),
+                Configuration = GetConfiguration(payload.Repository.Owner.Name, payload.Repository.Name, payload.Ref, payload.After),
                 CreatedAt = DateTime.UtcNow,
                 Commit = commit.Id,
                 CommitUrl = commit.Url,
@@ -69,7 +72,64 @@ namespace CoreCI.Server.Services
             return new HookGitHubResponse();
         }
 
-        private static string CreateTaskScript(string repositoryOwnerName, string repositoryName, string reference, string commitHash)
+        private static TaskConfiguration GetConfiguration(string repositoryOwnerName, string repositoryName, string reference, string commitHash)
+        {
+            string url = string.Format("https://raw.github.com/{0}/{1}/{2}/.core-ci.yml", repositoryOwnerName, repositoryName, commitHash);
+            string checkoutScript = CreateCheckoutScript(repositoryOwnerName, repositoryName, reference, commitHash);
+
+            try
+            {
+                _logger.Trace("Loading configuration from {0}", url);
+
+                HttpWebRequest configRequest = (HttpWebRequest)WebRequest.Create(url);
+                using (WebResponse configResponse = configRequest.GetResponse())
+                {
+                    using (StreamReader configReader = new StreamReader(configResponse.GetResponseStream()))
+                    {
+                        var yaml = new YamlStream();
+                        yaml.Load(configReader);
+                        var rootNode = (YamlMappingNode)yaml.Documents [0].RootNode;
+
+                        string machine = ((YamlScalarNode)rootNode.Children [new YamlScalarNode("machine")]).Value;
+                        string script = ((YamlScalarNode)rootNode.Children [new YamlScalarNode("script")]).Value;
+
+                        return new TaskConfiguration()
+                        {
+                            Machine = machine,
+                            Script = checkoutScript + script
+                        };
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                {
+                    var resp = (HttpWebResponse)ex.Response;
+                    if (resp.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        // project has no configuration file, use default configuration
+                        return new TaskConfiguration()
+                        {
+                            Machine = "precise64",
+                            Script = checkoutScript
+                        };
+                    }
+                }
+
+                _logger.Error(ex);
+
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+
+                throw ex;
+            }
+        }
+
+        private static string CreateCheckoutScript(string repositoryOwnerName, string repositoryName, string reference, string commitHash)
         {
             if (!reference.StartsWith("refs/heads/"))
             {
@@ -77,11 +137,13 @@ namespace CoreCI.Server.Services
             }
 
             string branch = reference.Substring("refs/heads/".Length);
+            StringBuilder script = new StringBuilder();
 
-            return string.Format(@"git clone --depth=50 --branch={2} git://github.com/{0}/{1}.git {0}/{1}
-cd {0}/{1} && git checkout -qf {3}
-cd {0}/{1} && git branch -va
-sudo apt-get update", repositoryOwnerName, repositoryName, branch, commitHash);
+            script.Append(string.Format("git clone --depth=50 --branch={2} git://github.com/{0}/{1}.git {0}/{1}\n", repositoryOwnerName, repositoryName, branch, commitHash));
+            script.Append(string.Format("cd {0}/{1} && git checkout -qf {3}\n", repositoryOwnerName, repositoryName, branch, commitHash));
+            script.Append(string.Format("cd {0}/{1} && git branch -va\n", repositoryOwnerName, repositoryName, branch, commitHash));
+
+            return script.ToString();
         }
     }
 }
