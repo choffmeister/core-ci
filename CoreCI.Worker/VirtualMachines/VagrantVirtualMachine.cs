@@ -102,9 +102,11 @@ namespace CoreCI.Worker.VirtualMachines
                 string vagrantFileBootstrapContent = GetResource("Vagrantfile-bootstrap-template.txt", publicKey);
                 File.WriteAllText(vagrantFileBootstrapPath, vagrantFileBootstrapContent);
 
-                if (this.ExecuteVagrantCommand("up") != 0)
+                StringWriter stdOutWriter = new StringWriter();
+                StringWriter stdErrorWriter = new StringWriter();
+                if (this.ExecuteVagrantCommand("up", stdOutWriter, stdErrorWriter) != 0)
                 {
-                    throw new VirtualMachineException("VM could not be started");
+                    throw new VirtualMachineException("VM could not be started\n\n" + stdErrorWriter.ToString());
                 }
 
                 StringBuilder sb = new StringBuilder();
@@ -162,7 +164,7 @@ namespace CoreCI.Worker.VirtualMachines
             }
         }
 
-        private int ExecuteVagrantCommand(string vagrantCommand, TextWriter stdOutWriter = null)
+        private int ExecuteVagrantCommand(string vagrantCommand, TextWriter stdOutWriter = null, TextWriter stdErrorWriter = null)
         {
             ProcessStartInfo psi = new ProcessStartInfo(_vagrantExecutable, vagrantCommand);
             psi.WorkingDirectory = _folder;
@@ -180,7 +182,15 @@ namespace CoreCI.Worker.VirtualMachines
                     stdOutWriter.Write(e.Data);
                 }
             };
+            p.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
+            {
+                if (stdErrorWriter != null)
+                {
+                    stdErrorWriter.Write(e.Data);
+                }
+            };
             p.BeginOutputReadLine();
+            p.BeginErrorReadLine();
             p.WaitForExit();
 
             return p.ExitCode;
