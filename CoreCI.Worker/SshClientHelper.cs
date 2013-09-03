@@ -121,7 +121,10 @@ namespace CoreCI.Worker
                     string line = sb.ToString();
                     sb.Clear();
 
-                    yield return line;
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        yield return line;
+                    }
                 }
             }
         }
