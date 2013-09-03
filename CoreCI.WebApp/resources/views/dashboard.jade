@@ -14,10 +14,10 @@
 //- You should have received a copy of the GNU General Public License
 //- along with this program. If not, see {http://www.gnu.org/licenses/}.
 //-
-.container
-	p(ng-repeat="task in tasks")
-		a(href="/task/{{task.id}}", ng-switch="task.state")
-			span.label.label-success(ng-switch-when="Succeeded") {{task.id | guidShort}}
-			span.label.label-info(ng-switch-when="Running") {{task.id | guidShort}}
-			span.label.label-default(ng-switch-when="Pending") {{task.id | guidShort}}
-			span.label.label-danger(ng-switch-when="Failed") {{task.id | guidShort}}
+.task(ng-repeat="task in tasks", data-goto="/task/{{task.id}}")
+	.container.clearfix
+		span.pull-left(ng-switch="task.state")
+			span.glyphicon.glyphicon-ok.success-colored(ng-switch-when="Succeeded")
+			span.glyphicon.glyphicon-remove.danger-colored(ng-switch-when="Failed")
+		span.pull-left {{task.commitMessage}}
+		span.pull-right {{task.createdAt | date}}
