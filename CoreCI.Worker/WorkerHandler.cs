@@ -36,7 +36,7 @@ namespace CoreCI.Worker
         private readonly Guid _workerId;
         private readonly string _serverApiBaseAddress;
         private readonly TaskLoop _keepAliveLoop;
-        private readonly TaskLoop _doWorkLoop;
+        private readonly TaskLoop _runWorkerLoop;
 
         public WorkerHandler(IConfigurationProvider configurationProvider)
         {
@@ -48,80 +48,76 @@ namespace CoreCI.Worker
             _serverApiBaseAddress = _configurationProvider.GetSettingString("workerServerApiBaseAddress");
 
             _keepAliveLoop = new TaskLoop(this.KeepAliveLoop, 1000);
-            _doWorkLoop = new TaskLoop(this.DoWorkLoop, 1000);
+            _runWorkerLoop = new TaskLoop<TaskEntity>(this.RunWorkerLoop, () =>
+            {
+                try
+                {
+                    using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
+                    {
+                        DispatcherTaskPollResponse resp = client.Post(new DispatcherTaskPollRequest(_workerId));
+
+                        return resp.Task;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+
+                    return null;
+                }
+            }, 1000);
         }
 
         public void Start()
         {
             _logger.Info("Start working");
             _keepAliveLoop.Start();
-            _doWorkLoop.Start();
+            _runWorkerLoop.Start();
             _logger.Info("Started");
         }
 
         public void Stop()
         {
             _logger.Info("Stop working");
-            _doWorkLoop.Stop();
+            _runWorkerLoop.Stop();
             _keepAliveLoop.Stop();
             _logger.Info("Stopped");
         }
 
-        private bool DoWorkLoop()
+        private bool RunWorkerLoop(TaskEntity task)
         {
             try
             {
                 using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
+                using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id))
+                using (IWorkerInstance worker = new VagrantWorkerInstance(_vagrantExecutablePath, _vagrantVirtualMachinesPath, task.Configuration.Machine))
                 {
-                    DispatcherTaskPollResponse resp = client.Post(new DispatcherTaskPollRequest(_workerId));
+                    worker.ShellOutput = shellOutput;
+                    worker.Up();
 
-                    if (resp.Task != null)
+                    try
                     {
-                        TaskEntity task = resp.Task;
-                        TaskConfiguration config = task.Configuration;
+                        client.Post(new DispatcherTaskUpdateStartRequest(task.Id));
 
-                        using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id))
-                        using (var vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, config.Machine, new Uri("http://boxes.choffmeister.de/" + config.Machine + ".box"), 2, 1024))
+                        foreach (string commandLine in ShellExtensions.SplitIntoCommandLines(task.Configuration.Script))
                         {
-                            _logger.Info("Bringing VM {0} up for task {1}", config.Machine, task.Id);
-                            shellOutput.WriteStandardInput("Starting VM {0}...", config.Machine);
-
-                            vm.Up();
-
-                            using (SshClient vmShell = vm.CreateClient())
-                            {
-                                try
-                                {
-                                    client.Post(new DispatcherTaskUpdateStartRequest(task.Id));
-                                    vmShell.Connect();
-
-                                    foreach (string commandLine in ShellExtensions.SplitIntoCommandLines(config.Script))
-                                    {
-                                        _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
-                                        vmShell.Execute(commandLine, shellOutput);
-                                    }
-
-                                    vmShell.Disconnect();
-                                    shellOutput.WriteStandardOutput("Exited with code 0");
-                                    client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, 0));
-                                }
-                                catch (ShellCommandFailedException ex)
-                                {
-                                    shellOutput.WriteStandardOutput("Exited with code {0}", ex.ExitCode);
-                                    client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, ex.ExitCode));
-                                }
-                            }
-
-                            vm.Down();
-
-                            _logger.Info("Brought VM {0} from task {1} down", config.Machine, task.Id);
+                            _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
+                            worker.Execute(commandLine);
                         }
 
-                        return true;
+                        shellOutput.WriteStandardOutput("Exited with code 0");
+                        client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, 0));
+                    }
+                    catch (ShellCommandFailedException ex)
+                    {
+                        shellOutput.WriteStandardOutput("Exited with code {0}", ex.ExitCode);
+                        client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, ex.ExitCode));
                     }
 
-                    return false;
+                    worker.Down();
                 }
+
+                return true;
             }
             catch (Exception ex)
             {

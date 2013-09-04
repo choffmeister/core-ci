@@ -61,6 +61,8 @@
     <Compile Include="Shell\ShellOutputExtensions.cs" />
     <Compile Include="Shell\ShellCommandFailedException.cs" />
     <Compile Include="Shell\ShellExtensions.cs" />
+    <Compile Include="VagrantWorkerInstance.cs" />
+    <Compile Include="IWorkerInstance.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -128,4 +128,34 @@ namespace CoreCI.Common
             }
         }
     }
+
+    /// <summary>
+    /// Task loop that evaluates a parameter before each loop.
+    /// </summary>
+    public class TaskLoop<T> : TaskLoop
+    {
+        /// <summary>
+        /// Creates a new loop task executing an action over and over again.
+        /// If the action returns false, the looping is idled for some time.
+        /// If the parameterDelegate returns null, then the action is not
+        /// invoked.
+        /// </summary>
+        /// <param name="action">The action to execute.</param>
+        /// <param name="parameterDelegate">The delegate that returns the parameter.</param>
+        /// <param name="millisecondsIdleSleep">The time to sleep in milliseconds if the action returns false.</param>
+        public TaskLoop(Func<T, bool> action, Func<T> parameterDelegate, int millisecondsIdleSleep)
+            : base(() =>
+            {
+                T para = parameterDelegate();
+
+                if (para != null)
+                {
+                    return action(para);
+                }
+
+                return false;
+            }, millisecondsIdleSleep)
+        {
+        }
+    }
 }
