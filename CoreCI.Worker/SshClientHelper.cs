@@ -22,21 +22,17 @@ using Renci.SshNet.Common;
 using CoreCI.Models;
 using System.Collections.Generic;
 using System.Text;
+using CoreCI.Worker.Shell;
 
 namespace CoreCI.Worker
 {
     public static class SshClientHelper
     {
-        public static void Execute(this SshClient client, string commandText, Action<ShellLine> callback)
+        public static void Execute(this SshClient client, string commandText, IShellOutput shellOutput)
         {
             using (SshCommand cmd = client.CreateCommand(commandText))
             {
-                callback(new ShellLine()
-                {
-                    Index = 0,
-                    Type = ShellLineType.StandardInput,
-                    Content = commandText
-                });
+                shellOutput.WriteStandardInput(commandText);
 
                 cmd.CommandTimeout = TimeSpan.FromHours(1.0);
                 DateTime startTime = DateTime.UtcNow;
@@ -52,21 +48,11 @@ namespace CoreCI.Worker
                     }
                     else if (cmd.OutputStream.Length > 0)
                     {
-                        callback(new ShellLine()
-                        {
-                            Index = 0,
-                            Type = ShellLineType.StandardOutput,
-                            Content = stdOutReader.ReadLine()
-                        });
+                        shellOutput.WriteStandardOutput(stdOutReader.ReadLine());
                     }
                     else if (cmd.ExtendedOutputStream.Length > 0)
                     {
-                        callback(new ShellLine()
-                        {
-                            Index = 0,
-                            Type = ShellLineType.StandardError,
-                            Content = stdErrReader.ReadLine()
-                        });
+                        shellOutput.WriteStandardError(stdErrReader.ReadLine());
                     }
                     else
                     {
@@ -76,22 +62,12 @@ namespace CoreCI.Worker
 
                 while (cmd.OutputStream.Length > 0)
                 {
-                    callback(new ShellLine()
-                    {
-                        Index = 0,
-                        Type = ShellLineType.StandardOutput,
-                        Content = stdOutReader.ReadLine()
-                    });
+                    shellOutput.WriteStandardOutput(stdOutReader.ReadLine());
                 }
 
                 while (cmd.ExtendedOutputStream.Length > 0)
                 {
-                    callback(new ShellLine()
-                    {
-                        Index = 0,
-                        Type = ShellLineType.StandardError,
-                        Content = stdErrReader.ReadLine()
-                    });
+                    shellOutput.WriteStandardError(stdErrReader.ReadLine());
                 }
 
                 cmd.EndExecute(asynch);

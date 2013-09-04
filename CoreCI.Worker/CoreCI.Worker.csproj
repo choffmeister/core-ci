@@ -58,6 +58,9 @@
     <Compile Include="SshClientHelper.cs" />
     <Compile Include="SshCommandFailedException.cs" />
     <Compile Include="WorkerHandler.cs" />
+    <Compile Include="Shell\IShellOutput.cs" />
+    <Compile Include="Shell\ServerShellOutput.cs" />
+    <Compile Include="Shell\ShellOutputExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -94,5 +97,8 @@
       <Project>{D64D07E2-7C2F-4363-8758-CBC0B68FA1A5}</Project>
       <Name>CoreCI.Models</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Shell\" />
   </ItemGroup>
 </Project>

@@ -23,6 +23,7 @@ using CoreCI.Models;
 using CoreCI.Worker.VirtualMachines;
 using Renci.SshNet;
 using System.Collections.Generic;
+using CoreCI.Worker.Shell;
 
 namespace CoreCI.Worker
 {
@@ -78,12 +79,12 @@ namespace CoreCI.Worker
                     {
                         TaskEntity task = resp.Task;
                         TaskConfiguration config = task.Configuration;
-                        int index = 1;
 
+                        using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id))
                         using (var vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, config.Machine, new Uri("http://boxes.choffmeister.de/" + config.Machine + ".box"), 2, 1024))
                         {
                             _logger.Info("Bringing VM {0} up for task {1}", config.Machine, task.Id);
-                            this.UpdateShell(client, task.Id, "Starting VM " + config.Machine + "...", ref index);
+                            shellOutput.WriteStandardInput("Starting VM {0}...", config.Machine);
 
                             vm.Up();
 
@@ -98,17 +99,17 @@ namespace CoreCI.Worker
                                     foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(config.Script))
                                     {
                                         _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
-                                        vmShell.Execute(commandLine, line => this.UpdateShell(client, task.Id, line.Content, ref index, line.Type));
+                                        vmShell.Execute(commandLine, shellOutput);
                                     }
 
                                     vmShell.Disconnect();
 
-                                    this.UpdateShell(client, task.Id, "Exited with code 0", ref index);
+                                    shellOutput.WriteStandardOutput("Exited with code 0");
                                     this.UpdateFinished(client, task.Id, 0);
                                 }
                                 catch (SshCommandFailedException ex)
                                 {
-                                    this.UpdateShell(client, task.Id, "Exited with code " + ex.ExitCode.ToString(), ref index);
+                                    shellOutput.WriteStandardOutput("Exited with code {0}", ex.ExitCode);
                                     this.UpdateFinished(client, task.Id, ex.ExitCode);
                                 }
                             }
@@ -140,22 +141,6 @@ namespace CoreCI.Worker
         private void UpdateFinished(JsonServiceClient client, Guid taskId, int exitCode)
         {
             client.Post(new DispatcherTaskUpdateFinishRequest(taskId, exitCode));
-        }
-
-        private void UpdateShell(JsonServiceClient client, Guid taskId, string content, ref int index, ShellLineType type = ShellLineType.StandardOutput)
-        {
-            // TODO: throttle and group multiple lines into one request
-            client.Post(new DispatcherTaskUpdateShellRequest(_workerId, taskId)
-            {
-                Lines = new List<ShellLine>() {
-                    new ShellLine()
-                    {
-                        Index = index++,
-                        Content = content,
-                        Type = type
-                    }
-                }
-            });
         }
 
         private bool KeepAliveLoop()
