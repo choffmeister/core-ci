@@ -71,6 +71,7 @@
     <Compile Include="Services\PushService.cs" />
     <Compile Include="Managers\PushMessageManager.cs" />
     <Compile Include="Services\DispatcherService.cs" />
+    <Compile Include="RepositoryExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

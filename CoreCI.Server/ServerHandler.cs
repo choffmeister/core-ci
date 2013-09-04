@@ -21,6 +21,8 @@ using CoreCI.Models;
 using ServiceStack.Text;
 using CoreCI.Common;
 using NLog;
+using ServiceStack.ServiceHost;
+using System.Net;
 
 namespace CoreCI.Server
 {
@@ -36,8 +38,17 @@ namespace CoreCI.Server
 
             this.ServiceExceptionHandler += (req, ex) =>
             {
-                _logger.Error(ex);
-                return null;
+                // HTTP exceptions are only logged to trace
+                if (ex is IHttpError == false)
+                {
+                    _logger.Error(ex);
+                }
+                else
+                {
+                    _logger.Trace(ex);
+                }
+
+                return ex;
             };
             this.ExceptionHandler += (httpReq, httpRes, operationName, ex) =>
             {

@@ -98,13 +98,7 @@ namespace CoreCI.Server.Services
 
         public DispatcherTaskUpdateStartResponse Post(DispatcherTaskUpdateStartRequest req)
         {
-            TaskEntity task = _taskRepository.Single(t => t.Id == req.TaskId);
-
-            if (task == null)
-            {
-                throw HttpError.NotFound(string.Format("Could not find task {0}", req.TaskId));
-            }
-
+            TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
             _logger.Info("Task {0} started", req.TaskId);
 
             task.StartedAt = DateTime.UtcNow;
@@ -118,13 +112,7 @@ namespace CoreCI.Server.Services
 
         public DispatcherTaskUpdateFinishResponse Post(DispatcherTaskUpdateFinishRequest req)
         {
-            TaskEntity task = _taskRepository.Single(t => t.Id == req.TaskId);
-
-            if (task == null)
-            {
-                throw HttpError.NotFound(string.Format("Could not find task {0}", req.TaskId));
-            }
-
+            TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
             _logger.Info("Task {0} finished with exit code {1}", req.TaskId, req.ExitCode);
 
             task.FinishedAt = DateTime.UtcNow;
@@ -140,13 +128,7 @@ namespace CoreCI.Server.Services
 
         public DispatcherTaskUpdateShellResponse Post(DispatcherTaskUpdateShellRequest req)
         {
-            TaskEntity task = _taskRepository.Single(t => t.Id == req.TaskId);
-
-            if (task == null)
-            {
-                throw HttpError.NotFound(string.Format("Could not find task {0}", req.TaskId));
-            }
-
+            TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
             TaskShellEntity taskShell = _taskShellRepository.SingleOrDefault(ts => ts.TaskId == task.Id);
 
             if (taskShell == null)

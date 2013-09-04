@@ -50,13 +50,7 @@ namespace CoreCI.Server.Services
 
         public TaskRetrieveResponse Get(TaskRetrieveRequest req)
         {
-            TaskEntity task = _taskRepository.SingleOrDefault(t => t.Id == req.TaskId);
-
-            if (task == null)
-            {
-                throw HttpError.NotFound(string.Format("Could not find task {0}", req.TaskId));
-            }
-
+            TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
             TaskShellEntity taskShell = _taskShellRepository.SingleOrDefault(ts => ts.TaskId == task.Id);
 
             return new TaskRetrieveResponse()
