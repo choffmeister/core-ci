@@ -96,7 +96,7 @@ namespace CoreCI.Worker
 
                                     vmShell.Connect();
 
-                                    foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(config.Script))
+                                    foreach (string commandLine in ShellExtensions.SplitIntoCommandLines(config.Script))
                                     {
                                         _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
                                         vmShell.Execute(commandLine, shellOutput);
@@ -107,7 +107,7 @@ namespace CoreCI.Worker
                                     shellOutput.WriteStandardOutput("Exited with code 0");
                                     this.UpdateFinished(client, task.Id, 0);
                                 }
-                                catch (SshCommandFailedException ex)
+                                catch (ShellCommandFailedException ex)
                                 {
                                     shellOutput.WriteStandardOutput("Exited with code {0}", ex.ExitCode);
                                     this.UpdateFinished(client, task.Id, ex.ExitCode);

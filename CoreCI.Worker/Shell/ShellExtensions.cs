@@ -22,11 +22,10 @@ using Renci.SshNet.Common;
 using CoreCI.Models;
 using System.Collections.Generic;
 using System.Text;
-using CoreCI.Worker.Shell;
 
-namespace CoreCI.Worker
+namespace CoreCI.Worker.Shell
 {
-    public static class SshClientHelper
+    public static class ShellExtensions
     {
         public static void Execute(this SshClient client, string commandText, IShellOutput shellOutput)
         {
@@ -74,7 +73,7 @@ namespace CoreCI.Worker
 
                 if (cmd.ExitStatus != 0)
                 {
-                    throw new SshCommandFailedException(cmd.ExitStatus);
+                    throw new ShellCommandFailedException(cmd.ExitStatus);
                 }
             }
         }

@@ -17,10 +17,10 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace CoreCI.Worker
+namespace CoreCI.Worker.Shell
 {
     [Serializable]
-    public class SshCommandFailedException : Exception
+    public class ShellCommandFailedException : Exception
     {
         private readonly int _exitCode;
 
@@ -32,7 +32,7 @@ namespace CoreCI.Worker
         /// <summary>
         /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
         /// </summary>
-        public SshCommandFailedException(int exitCode)
+        public ShellCommandFailedException(int exitCode)
         {
             _exitCode = exitCode;
         }
@@ -41,7 +41,7 @@ namespace CoreCI.Worker
         /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
         /// </summary>
         /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
-        public SshCommandFailedException(int exitCode, string message)
+        public ShellCommandFailedException(int exitCode, string message)
             : base (message)
         {
             _exitCode = exitCode;
@@ -52,7 +52,7 @@ namespace CoreCI.Worker
         /// </summary>
         /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
         /// <param name="inner">The exception that is the cause of the current exception. </param>
-        public SshCommandFailedException(int exitCode, string message, Exception inner)
+        public ShellCommandFailedException(int exitCode, string message, Exception inner)
             : base (message, inner)
         {
             _exitCode = exitCode;
@@ -63,7 +63,7 @@ namespace CoreCI.Worker
         /// </summary>
         /// <param name="context">The contextual information about the source or destination.</param>
         /// <param name="info">The object that holds the serialized object data.</param>
-        protected SshCommandFailedException(SerializationInfo info, StreamingContext context)
+        protected ShellCommandFailedException(SerializationInfo info, StreamingContext context)
             : base (info, context)
         {
         }

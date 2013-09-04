@@ -17,7 +17,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using CoreCI.Worker;
+using CoreCI.Worker.Shell;
 
 namespace CoreCI.Tests
 {
@@ -41,7 +41,7 @@ namespace CoreCI.Tests
 
         private static string[] Split(string script)
         {
-            return SshClientHelper.SplitIntoCommandLines(script).ToArray();
+            return ShellExtensions.SplitIntoCommandLines(script).ToArray();
         }
     }
 }
