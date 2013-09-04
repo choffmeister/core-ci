@@ -5,7 +5,10 @@ import zipfile
 import os
 
 dependencies = [
-	('nuget', 'nunit', 'nunit', '2.6.2'),
+	# current version 2.6.2 of nunit / nunit.runners is buggy under mono
+	# see https://bugs.launchpad.net/nunitv2/+bug/1076932
+	('nuget', 'nunit', 'nunit', '2.6.0.12054'),
+	('nuget', 'nunit-runners', 'nunit.runners', '2.6.0.12051'),
 	('nuget', 'nlog', 'nlog', '2.0.1.2'),
 	('nuget', 'servicestack', 'servicestack', '3.9.55'),
 	('nuget', 'servicestack-common', 'servicestack.common', '3.9.55'),
