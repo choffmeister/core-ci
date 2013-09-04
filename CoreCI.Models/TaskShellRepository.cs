@@ -19,7 +19,11 @@ using CoreCI.Common;
 
 namespace CoreCI.Models
 {
-    public class TaskShellRepository : MongoDbRepository<TaskShellEntity>
+    public interface ITaskShellRepository : IRepository<TaskShellEntity>
+    {
+    }
+
+    public class TaskShellRepository : MongoDbRepository<TaskShellEntity>, ITaskShellRepository
     {
         public TaskShellRepository(IConfigurationProvider configurationProvider)
             : base(configurationProvider, "coreciDatabase", "taskshells")

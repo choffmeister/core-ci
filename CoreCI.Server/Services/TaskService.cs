@@ -25,10 +25,10 @@ namespace CoreCI.Server.Services
 {
     public class TaskService : Service
     {
-        private readonly IRepository<TaskEntity> _taskRepository;
-        private readonly IRepository<TaskShellEntity> _taskShellRepository;
+        private readonly ITaskRepository _taskRepository;
+        private readonly ITaskShellRepository _taskShellRepository;
 
-        public TaskService(IRepository<TaskEntity> taskRepository, IRepository<TaskShellEntity> taskShellRepository)
+        public TaskService(ITaskRepository taskRepository, ITaskShellRepository taskShellRepository)
         {
             _taskRepository = taskRepository;
             _taskShellRepository = taskShellRepository;

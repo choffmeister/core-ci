@@ -36,9 +36,9 @@ namespace CoreCI.Server.Services
     public class HookGitHubService : Service
     {
         private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly IRepository<TaskEntity> _taskRepository;
+        private readonly ITaskRepository _taskRepository;
 
-        public HookGitHubService(IRepository<TaskEntity> taskRepository)
+        public HookGitHubService(ITaskRepository taskRepository)
         {
             _taskRepository = taskRepository;
         }

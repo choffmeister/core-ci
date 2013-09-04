@@ -68,9 +68,9 @@ namespace CoreCI.Server
             JsConfig.EmitCamelCaseNames = true;
 
             container.Register<IConfigurationProvider>(_configurationProvider);
-            container.RegisterAs<WorkerRepository, IRepository<WorkerEntity>>().ReusedWithin(ReuseScope.None);
-            container.RegisterAs<TaskRepository, IRepository<TaskEntity>>().ReusedWithin(ReuseScope.None);
-            container.RegisterAs<TaskShellRepository, IRepository<TaskShellEntity>>().ReusedWithin(ReuseScope.None);
+            container.RegisterAs<WorkerRepository, IWorkerRepository>().ReusedWithin(ReuseScope.None);
+            container.RegisterAs<TaskRepository, ITaskRepository>().ReusedWithin(ReuseScope.None);
+            container.RegisterAs<TaskShellRepository, ITaskShellRepository>().ReusedWithin(ReuseScope.None);
         }
     }
 }

@@ -19,7 +19,11 @@ using CoreCI.Common;
 
 namespace CoreCI.Models
 {
-    public class WorkerRepository : MongoDbRepository<WorkerEntity>
+    public interface IWorkerRepository : IRepository<WorkerEntity>
+    {
+    }
+
+    public class WorkerRepository : MongoDbRepository<WorkerEntity>, IWorkerRepository
     {
         public WorkerRepository(IConfigurationProvider configurationProvider)
             : base(configurationProvider, "coreciDatabase", "workers")

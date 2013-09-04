@@ -15,15 +15,36 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using System.Linq;
 using CoreCI.Common;
+using MongoDB.Driver.Builders;
 
 namespace CoreCI.Models
 {
-    public class TaskRepository : MongoDbRepository<TaskEntity>
+    public interface ITaskRepository : IRepository<TaskEntity>
+    {
+        TaskEntity GetPendingTask(Guid workerId);
+    }
+
+    public class TaskRepository : MongoDbRepository<TaskEntity>, ITaskRepository
     {
         public TaskRepository(IConfigurationProvider configurationProvider)
             : base(configurationProvider, "coreciDatabase", "tasks")
         {
+        }
+
+        public TaskEntity GetPendingTask(Guid workerId)
+        {
+            var query = Query<TaskEntity>.EQ(t => t.State, TaskState.Pending);
+            var sortBy = SortBy<TaskEntity>.Ascending(t => t.CreatedAt);
+            var update = Update<TaskEntity>
+                .Set(t => t.State, TaskState.Running)
+                .Set(t => t.DispatchedAt, DateTime.UtcNow)
+                .Set(t => t.WorkerId, workerId);
+
+            var result = this.Collection.FindAndModify(query, sortBy, update, true);
+
+            return result.GetModifiedDocumentAs<TaskEntity>();
         }
     }
 }

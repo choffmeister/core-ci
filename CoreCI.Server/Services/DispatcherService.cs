@@ -29,11 +29,11 @@ namespace CoreCI.Server.Services
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private static readonly object _taskLock = new object();
-        private readonly IRepository<WorkerEntity> _workerRepository;
-        private readonly IRepository<TaskEntity> _taskRepository;
-        private readonly IRepository<TaskShellEntity> _taskShellRepository;
+        private readonly IWorkerRepository _workerRepository;
+        private readonly ITaskRepository _taskRepository;
+        private readonly ITaskShellRepository _taskShellRepository;
 
-        public DispatcherService(IRepository<WorkerEntity> workerRepository, IRepository<TaskEntity> taskRepository, IRepository<TaskShellEntity> taskShellRepository)
+        public DispatcherService(IWorkerRepository workerRepository, ITaskRepository taskRepository, ITaskShellRepository taskShellRepository)
         {
             _workerRepository = workerRepository;
             _taskRepository = taskRepository;
@@ -80,16 +80,11 @@ namespace CoreCI.Server.Services
         {
             lock (_taskLock)
             {
-                TaskEntity task = _taskRepository.Where(t => t.State == TaskState.Pending).OrderBy(t => t.CreatedAt).FirstOrDefault();
+                TaskEntity task = _taskRepository.GetPendingTask(req.WorkerId);
 
                 if (task != null)
                 {
                     _logger.Info("Delegating task {0} to worker {1}", task.Id, req.WorkerId);
-
-                    task.State = TaskState.Running;
-                    task.DispatchedAt = DateTime.UtcNow;
-                    task.WorkerId = req.WorkerId;
-                    _taskRepository.Update(task);
 
                     PushService.Push("tasks", null);
                     PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "started");
