@@ -83,17 +83,7 @@ namespace CoreCI.Worker
                         using (var vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, config.Machine, new Uri("http://boxes.choffmeister.de/" + config.Machine + ".box"), 2, 1024))
                         {
                             _logger.Info("Bringing VM {0} up for task {1}", config.Machine, task.Id);
-
-                            client.Post(new DispatcherTaskUpdateShellRequest(_workerId, task.Id)
-                            {
-                                Lines = new List<ShellLine>() {
-                                    new ShellLine()
-                                    {
-                                        Index = index++,
-                                        Content = "Starting VM " + config.Machine + "..."
-                                    }
-                                }
-                            });
+                            this.UpdateShell(client, task.Id, "Starting VM " + config.Machine + "...", ref index);
 
                             vm.Up();
 
@@ -101,53 +91,25 @@ namespace CoreCI.Worker
                             {
                                 try
                                 {
-                                    task.StartedAt = DateTime.UtcNow;
-                                    client.Post(new DispatcherTaskUpdateStartRequest(task.Id));
+                                    this.UpdateStarted(client, task.Id);
 
                                     vmShell.Connect();
 
                                     foreach (string commandLine in SshClientHelper.SplitIntoCommandLines(config.Script))
                                     {
                                         _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
-
-                                        vmShell.Execute(commandLine, ref index, line => {
-                                            // TODO: throttle and group multiple lines into one request
-                                            client.Post(new DispatcherTaskUpdateShellRequest(_workerId, task.Id)
-                                            {
-                                                Lines = new List<ShellLine>() { line }
-                                            });
-                                        });
+                                        vmShell.Execute(commandLine, line => this.UpdateShell(client, task.Id, line.Content, ref index, line.Type));
                                     }
 
                                     vmShell.Disconnect();
 
-                                    client.Post(new DispatcherTaskUpdateShellRequest(_workerId, task.Id)
-                                    {
-                                        Lines = new List<ShellLine>() {
-                                            new ShellLine()
-                                            {
-                                                Index = index++,
-                                                Content = "Exited with code 0"
-                                            }
-                                        }
-                                    });
-
-                                    client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, 0));
+                                    this.UpdateShell(client, task.Id, "Exited with code 0", ref index);
+                                    this.UpdateFinished(client, task.Id, 0);
                                 }
                                 catch (SshCommandFailedException ex)
                                 {
-                                    client.Post(new DispatcherTaskUpdateShellRequest(_workerId, task.Id)
-                                    {
-                                        Lines = new List<ShellLine>() {
-                                            new ShellLine()
-                                            {
-                                                Index = index++,
-                                                Content = "Exited with code " + ex.ExitCode.ToString()
-                                            }
-                                        }
-                                    });
-
-                                    client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, ex.ExitCode));
+                                    this.UpdateShell(client, task.Id, "Exited with code " + ex.ExitCode.ToString(), ref index);
+                                    this.UpdateFinished(client, task.Id, ex.ExitCode);
                                 }
                             }
 
@@ -168,6 +130,32 @@ namespace CoreCI.Worker
 
                 return false;
             }
+        }
+
+        private void UpdateStarted(JsonServiceClient client, Guid taskId)
+        {
+            client.Post(new DispatcherTaskUpdateStartRequest(taskId));
+        }
+
+        private void UpdateFinished(JsonServiceClient client, Guid taskId, int exitCode)
+        {
+            client.Post(new DispatcherTaskUpdateFinishRequest(taskId, exitCode));
+        }
+
+        private void UpdateShell(JsonServiceClient client, Guid taskId, string content, ref int index, ShellLineType type = ShellLineType.StandardOutput)
+        {
+            // TODO: throttle and group multiple lines into one request
+            client.Post(new DispatcherTaskUpdateShellRequest(_workerId, taskId)
+            {
+                Lines = new List<ShellLine>() {
+                    new ShellLine()
+                    {
+                        Index = index++,
+                        Content = content,
+                        Type = type
+                    }
+                }
+            });
         }
 
         private bool KeepAliveLoop()

@@ -27,13 +27,13 @@ namespace CoreCI.Worker
 {
     public static class SshClientHelper
     {
-        public static void Execute(this SshClient client, string commandText, ref int index, Action<ShellLine> callback)
+        public static void Execute(this SshClient client, string commandText, Action<ShellLine> callback)
         {
             using (SshCommand cmd = client.CreateCommand(commandText))
             {
                 callback(new ShellLine()
                 {
-                    Index = index++,
+                    Index = 0,
                     Type = ShellLineType.StandardInput,
                     Content = commandText
                 });
@@ -54,7 +54,7 @@ namespace CoreCI.Worker
                     {
                         callback(new ShellLine()
                         {
-                            Index = index++,
+                            Index = 0,
                             Type = ShellLineType.StandardOutput,
                             Content = stdOutReader.ReadLine()
                         });
@@ -63,7 +63,7 @@ namespace CoreCI.Worker
                     {
                         callback(new ShellLine()
                         {
-                            Index = index++,
+                            Index = 0,
                             Type = ShellLineType.StandardError,
                             Content = stdErrReader.ReadLine()
                         });
@@ -78,7 +78,7 @@ namespace CoreCI.Worker
                 {
                     callback(new ShellLine()
                     {
-                        Index = index++,
+                        Index = 0,
                         Type = ShellLineType.StandardOutput,
                         Content = stdOutReader.ReadLine()
                     });
@@ -88,7 +88,7 @@ namespace CoreCI.Worker
                 {
                     callback(new ShellLine()
                     {
-                        Index = index++,
+                        Index = 0,
                         Type = ShellLineType.StandardError,
                         Content = stdErrReader.ReadLine()
                     });
