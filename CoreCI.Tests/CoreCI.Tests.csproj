@@ -34,9 +34,15 @@
       <HintPath>..\libs\nunit\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\libs\sshnet\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SshClientHelperTest.cs" />
+    <Compile Include="Worker\VagrantVirtualMachineTest.cs" />
+    <Compile Include="ProcessHelper.cs" />
+    <Compile Include="TemporaryHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -60,5 +66,9 @@
       <Project>{FF31BBD8-FFA1-42CA-B395-FEA78B653D47}</Project>
       <Name>CoreCI.Worker</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Helpers\" />
+    <Folder Include="Worker\" />
   </ItemGroup>
 </Project>
