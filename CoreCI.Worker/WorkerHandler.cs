@@ -92,8 +92,7 @@ namespace CoreCI.Worker
                             {
                                 try
                                 {
-                                    this.UpdateStarted(client, task.Id);
-
+                                    client.Post(new DispatcherTaskUpdateStartRequest(task.Id));
                                     vmShell.Connect();
 
                                     foreach (string commandLine in ShellExtensions.SplitIntoCommandLines(config.Script))
@@ -103,14 +102,13 @@ namespace CoreCI.Worker
                                     }
 
                                     vmShell.Disconnect();
-
                                     shellOutput.WriteStandardOutput("Exited with code 0");
-                                    this.UpdateFinished(client, task.Id, 0);
+                                    client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, 0));
                                 }
                                 catch (ShellCommandFailedException ex)
                                 {
                                     shellOutput.WriteStandardOutput("Exited with code {0}", ex.ExitCode);
-                                    this.UpdateFinished(client, task.Id, ex.ExitCode);
+                                    client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, ex.ExitCode));
                                 }
                             }
 
@@ -131,16 +129,6 @@ namespace CoreCI.Worker
 
                 return false;
             }
-        }
-
-        private void UpdateStarted(JsonServiceClient client, Guid taskId)
-        {
-            client.Post(new DispatcherTaskUpdateStartRequest(taskId));
-        }
-
-        private void UpdateFinished(JsonServiceClient client, Guid taskId, int exitCode)
-        {
-            client.Post(new DispatcherTaskUpdateFinishRequest(taskId, exitCode));
         }
 
         private bool KeepAliveLoop()
