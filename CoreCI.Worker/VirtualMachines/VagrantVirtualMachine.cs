@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Renci.SshNet;
+using NLog;
 
 namespace CoreCI.Worker.VirtualMachines
 {
@@ -30,6 +31,7 @@ namespace CoreCI.Worker.VirtualMachines
     /// </summary>
     public class VagrantVirtualMachine : IVirtualMachine
     {
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly object _lock = new object();
         private readonly string _vagrantExecutable;
         private readonly string _vagrantVirtualMachinesPath;
@@ -177,6 +179,7 @@ namespace CoreCI.Worker.VirtualMachines
 
             p.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
             {
+                _logger.Trace(e.Data);
                 if (stdOutWriter != null)
                 {
                     stdOutWriter.Write(e.Data);
@@ -184,6 +187,7 @@ namespace CoreCI.Worker.VirtualMachines
             };
             p.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
             {
+                _logger.Trace(e.Data);
                 if (stdErrorWriter != null)
                 {
                     stdErrorWriter.Write(e.Data);
@@ -214,8 +218,6 @@ namespace CoreCI.Worker.VirtualMachines
 
         private static string GetResource(string name, params object[] args)
         {
-            Assembly assembly = typeof(WorkerExecutable).Assembly;
-
             using (Stream stream = new FileStream(Path.Combine("Resources", name), FileMode.Open, FileAccess.Read))
             {
                 using (StreamReader reader = new StreamReader(stream))
