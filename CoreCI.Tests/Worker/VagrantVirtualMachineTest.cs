@@ -51,7 +51,7 @@ namespace CoreCI.Tests.Worker
         }
 
         [Test]
-        public void Test()
+        public void TestCreationOfVirtualMachine()
         {
             using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "precise64", new Uri("http://boxes.choffmeister.de/precise64.box"), 2, 1024))
             {
@@ -71,6 +71,17 @@ namespace CoreCI.Tests.Worker
                     shell.Disconnect();
                 }
 
+                vm.Down();
+            }
+        }
+
+        [Test]
+        [ExpectedException(typeof(VirtualMachineException))]
+        public void TestExceptionForUnknownBox()
+        {
+            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "unknown", new Uri("http://boxes.choffmeister.de/unknown.box"), 2, 1024))
+            {
+                vm.Up();
                 vm.Down();
             }
         }
