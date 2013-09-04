@@ -40,18 +40,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IEntity.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="MongoDbRepository.cs" />
     <Compile Include="InMemoryRepository.cs" />
-    <Compile Include="TaskEntity.cs" />
-    <Compile Include="WorkerEntity.cs" />
-    <Compile Include="ShellLine.cs" />
-    <Compile Include="WorkerRepository.cs" />
-    <Compile Include="TaskRepository.cs" />
-    <Compile Include="TaskShellEntity.cs" />
-    <Compile Include="TaskShellRepository.cs" />
-    <Compile Include="TaskConfiguration.cs" />
+    <Compile Include="Entities\TaskShellEntity.cs" />
+    <Compile Include="Entities\TaskEntity.cs" />
+    <Compile Include="Entities\WorkerEntity.cs" />
+    <Compile Include="Repositories\WorkerRepository.cs" />
+    <Compile Include="Repositories\TaskShellRepository.cs" />
+    <Compile Include="Repositories\TaskRepository.cs" />
+    <Compile Include="IEntity.cs" />
+    <Compile Include="Entities\ShellLine.cs" />
+    <Compile Include="Entities\TaskConfiguration.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -59,5 +59,18 @@
       <Project>{8AB806FC-1E14-4789-B578-DA429B2B265E}</Project>
       <Name>CoreCI.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="Entities\" />
+    <Folder Include="Repositories\" />
   </ItemGroup>
 </Project>
