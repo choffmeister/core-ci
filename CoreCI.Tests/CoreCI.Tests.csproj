@@ -44,6 +44,7 @@
     <Compile Include="Common\TaskLoopTest.cs" />
     <Compile Include="Common\Shell\ShellExtensionsTest.cs" />
     <Compile Include="WorkerInstance\Vagrant\VagrantVirtualMachineTest.cs" />
+    <Compile Include="WorkerInstance\Vagrant\SshClientExtensionsTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

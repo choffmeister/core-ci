@@ -16,18 +16,16 @@
  */
 using System;
 using NUnit.Framework;
-using System.IO;
-using System.Threading.Tasks;
-using CoreCI.Common;
-using CoreCI.Common.Shell;
 using CoreCI.WorkerInstance.Vagrant;
 using Renci.SshNet.Common;
-using System.CodeDom.Compiler;
+using CoreCI.Common;
+using CoreCI.Common.Shell;
+using System.Text;
 
 namespace CoreCI.Tests.WorkerInstance.Vagrant
 {
-    [TestFixture]
-    public class VagrantVirtualMachineTest
+    [TestFixture()]
+    public class SshClientExtensionsTest
     {
         private string _tempFolder;
 
@@ -56,7 +54,7 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
         }
 
         [Test]
-        public void TestCreationOfVirtualMachine()
+        public void TestCommandExecution()
         {
             using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
             {
@@ -66,12 +64,20 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
                 {
                     shell.Connect();
 
-                    var command = shell.CreateCommand("id");
-                    var output = command.Execute();
+                    {
+                        MemoryShellOutput shellOutput = new MemoryShellOutput();
+                        int exitCode = shell.Execute("echo Hello World", shellOutput, TimeSpan.FromSeconds(15));
 
-                    Assert.AreEqual(0, command.ExitStatus);
-                    Assert.That(output, Is.StringContaining("uid"));
-                    Assert.That(output, Is.StringContaining("coreci"));
+                        Assert.AreEqual(0, exitCode);
+                        Assert.AreEqual("Hello World", shellOutput.StandardOutput);
+                    }
+
+                    {
+                        MemoryShellOutput shellOutput = new MemoryShellOutput();
+                        int exitCode = shell.Execute("thisisaunknowncommand", shellOutput, TimeSpan.FromSeconds(15));
+
+                        Assert.AreNotEqual(0, exitCode);
+                    }
 
                     shell.Disconnect();
                 }
@@ -81,21 +87,36 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
         }
 
         [Test]
-        public void TestParallelCreationOfVirtualMachine()
+        public void TestCommandTimeout()
         {
-            var t1 = Task.Factory.StartNew(this.TestCreationOfVirtualMachine);
-            var t2 = Task.Factory.StartNew(this.TestCreationOfVirtualMachine);
-
-            Task.WaitAll(t1, t2);
-        }
-
-        [Test]
-        [ExpectedException(typeof(VagrantException))]
-        public void TestExceptionForUnknownBox()
-        {
-            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "unknown", new Uri("http://files.vagrantup.com/unknown-box-that-does-not-exist.box"), 2, 1024))
+            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
             {
                 vm.Up();
+
+                using (var shell = vm.CreateClient())
+                {
+                    shell.Connect();
+
+                    DateTime start = DateTime.Now;
+
+                    try
+                    {
+                        shell.Execute("sleep 10", new NullShellOutput(), TimeSpan.FromSeconds(1));
+
+                        Assert.Fail();
+                    }
+                    catch (SshOperationTimeoutException)
+                    {
+                        // this exception is expected
+                    }
+
+                    DateTime end = DateTime.Now;
+
+                    Assert.That((int)((end - start).TotalMilliseconds), Is.InRange(1000 - 200, 1000 + 200));
+
+                    shell.Disconnect();
+                }
+
                 vm.Down();
             }
         }

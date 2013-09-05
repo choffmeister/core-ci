@@ -15,6 +15,7 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using System.Text;
 
 namespace CoreCI.Common.Shell
 {
@@ -25,5 +26,56 @@ namespace CoreCI.Common.Shell
         void WriteStandardOutput(string s);
 
         void WriteStandardError(string s);
+    }
+
+    public class NullShellOutput : IShellOutput
+    {
+        public void WriteStandardInput(string s)
+        {
+        }
+
+        public void WriteStandardOutput(string s)
+        {
+        }
+
+        public void WriteStandardError(string s)
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    public class MemoryShellOutput : IShellOutput
+    {
+        private readonly StringBuilder _standardInput = new StringBuilder();
+        private readonly StringBuilder _standardOutput = new StringBuilder();
+        private readonly StringBuilder _standardError = new StringBuilder();
+
+        public string StandardInput { get { return _standardInput.ToString(); } }
+
+        public string StandardOutput { get { return _standardOutput.ToString(); } }
+
+        public string StandardError { get { return _standardError.ToString(); } }
+
+        public void WriteStandardInput(string s)
+        {
+            _standardInput.Append(s);
+        }
+
+        public void WriteStandardOutput(string s)
+        {
+            _standardOutput.Append(s);
+        }
+
+        public void WriteStandardError(string s)
+        {
+            _standardError.Append(s);
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }

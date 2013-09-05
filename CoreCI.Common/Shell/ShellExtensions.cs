@@ -26,57 +26,6 @@ namespace CoreCI.Common.Shell
 {
     public static class ShellExtensions
     {
-        public static void Execute(this SshClient client, string commandText, IShellOutput shellOutput)
-        {
-            using (SshCommand cmd = client.CreateCommand(commandText))
-            {
-                shellOutput.WriteStandardInput(commandText);
-
-                cmd.CommandTimeout = TimeSpan.FromHours(1.0);
-                DateTime startTime = DateTime.UtcNow;
-                IAsyncResult asynch = cmd.BeginExecute();
-                StreamReader stdOutReader = new StreamReader(cmd.OutputStream);
-                StreamReader stdErrReader = new StreamReader(cmd.ExtendedOutputStream);
-
-                while (!asynch.IsCompleted)
-                {
-                    if (DateTime.UtcNow.Subtract(startTime) > cmd.CommandTimeout)
-                    {
-                        throw new SshOperationTimeoutException();
-                    }
-                    else if (cmd.OutputStream.Length > 0)
-                    {
-                        shellOutput.WriteStandardOutput(stdOutReader.ReadLine());
-                    }
-                    else if (cmd.ExtendedOutputStream.Length > 0)
-                    {
-                        shellOutput.WriteStandardError(stdErrReader.ReadLine());
-                    }
-                    else
-                    {
-                        Thread.Sleep(10);
-                    }
-                }
-
-                while (cmd.OutputStream.Length > 0)
-                {
-                    shellOutput.WriteStandardOutput(stdOutReader.ReadLine());
-                }
-
-                while (cmd.ExtendedOutputStream.Length > 0)
-                {
-                    shellOutput.WriteStandardError(stdErrReader.ReadLine());
-                }
-
-                cmd.EndExecute(asynch);
-
-                if (cmd.ExitStatus != 0)
-                {
-                    throw new ShellCommandFailedException(cmd.ExitStatus);
-                }
-            }
-        }
-
         public static IEnumerable<string> SplitIntoCommandLines(string script)
         {
             StringBuilder sb = new StringBuilder();

@@ -19,6 +19,9 @@ using Renci.SshNet;
 using NLog;
 using CoreCI.Common.Shell;
 using CoreCI.Common;
+using System.CodeDom.Compiler;
+using System.Runtime.CompilerServices;
+using Renci.SshNet.Common;
 
 namespace CoreCI.WorkerInstance.Vagrant
 {
@@ -69,7 +72,19 @@ namespace CoreCI.WorkerInstance.Vagrant
 
         public void Execute(string commandLine)
         {
-            _shell.Execute(commandLine, this.ShellOutput);
+            try
+            {
+                int exitCode = _shell.Execute(commandLine, this.ShellOutput, TimeSpan.FromMinutes(30));
+
+                if (exitCode != 0)
+                {
+                    throw new ShellCommandFailedException(exitCode);
+                }
+            }
+            catch (SshOperationTimeoutException ex)
+            {
+                throw new ShellCommandFailedException(1, "Command timed out", ex);
+            }
         }
     }
 }
