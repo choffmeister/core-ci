@@ -43,6 +43,7 @@
     <Compile Include="FileConfigurationProvider.cs" />
     <Compile Include="ConcurrentTaskLoop.cs" />
     <Compile Include="TaskLoop.cs" />
+    <Compile Include="ProcessHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -23,6 +23,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Renci.SshNet;
 using NLog;
+using CoreCI.Common;
 
 namespace CoreCI.Worker.VirtualMachines
 {
@@ -31,7 +32,8 @@ namespace CoreCI.Worker.VirtualMachines
     /// </summary>
     public class VagrantVirtualMachine : IVirtualMachine
     {
-        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly object _upLock = new object();
         private readonly object _lock = new object();
         private readonly string _vagrantExecutable;
         private readonly string _vagrantVirtualMachinesPath;
@@ -104,36 +106,14 @@ namespace CoreCI.Worker.VirtualMachines
                 string vagrantFileBootstrapContent = GetResource("Vagrantfile-bootstrap-template.txt", publicKey);
                 File.WriteAllText(vagrantFileBootstrapPath, vagrantFileBootstrapContent);
 
-                StringWriter stdOutWriter = new StringWriter();
-                StringWriter stdErrorWriter = new StringWriter();
-                if (this.ExecuteVagrantCommand("up", stdOutWriter, stdErrorWriter) != 0)
+                // ensure that no two machines are upped in parallel
+                lock (_upLock)
                 {
-                    throw new VirtualMachineException("VM could not be started\n\n" + stdErrorWriter.ToString());
+                    this.VagrantUp();
                 }
 
-                StringBuilder sb = new StringBuilder();
-                TextWriter writer = new StringWriter(sb);
-
-                if (this.ExecuteVagrantCommand("ssh-config", writer) != 0)
-                {
-                    throw new VirtualMachineException("Could not determine SSH connection information");
-                }
-
-                string sshConfig = sb.ToString();
-                Match hostNameMatch = Regex.Match(sshConfig, @"HostName\s(?<HostName>[^\s]+)");
-                Match portMatch = Regex.Match(sshConfig, @"Port\s(?<Port>[\d]+)");
-
-                if (!hostNameMatch.Success || !portMatch.Success)
-                {
-                    throw new VirtualMachineException("Could not determine SSH connection information");
-                }
-
-                string hostName = hostNameMatch.Groups ["HostName"].Value;
-                int port = int.Parse(portMatch.Groups ["Port"].Value);
-                string userName = "coreci";
-                PrivateKeyFile privateKey = new PrivateKeyFile("Resources/id_rsa");
-
-                _connectionInfo = new ConnectionInfo(hostName, port, userName, new PrivateKeyAuthenticationMethod(userName, privateKey));
+                this.VagrantProvision();
+                _connectionInfo = this.VagrantSshConfig();
             }
         }
 
@@ -148,7 +128,7 @@ namespace CoreCI.Worker.VirtualMachines
                 _isUp = false;
 
                 _connectionInfo = null;
-                this.ExecuteVagrantCommand("destroy -f");
+                this.VagrantDown();
                 EnsureDirectoryNotExists(_folder);
             }
         }
@@ -166,38 +146,62 @@ namespace CoreCI.Worker.VirtualMachines
             }
         }
 
-        private int ExecuteVagrantCommand(string vagrantCommand, TextWriter stdOutWriter = null, TextWriter stdErrorWriter = null)
+        private void VagrantUp()
         {
-            ProcessStartInfo psi = new ProcessStartInfo(_vagrantExecutable, vagrantCommand);
-            psi.WorkingDirectory = _folder;
-            psi.UseShellExecute = false;
-            psi.RedirectStandardInput = true;
-            psi.RedirectStandardOutput = true;
-            psi.RedirectStandardError = true;
+            _logger.Info("Starting VM");
+            ProcessResult result = this.ExecuteVagrantCommand("up --no-provision");
 
-            Process p = Process.Start(psi);
-
-            p.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
+            if (!result.Success)
             {
-                _logger.Trace(e.Data);
-                if (stdOutWriter != null)
-                {
-                    stdOutWriter.Write(e.Data);
-                }
-            };
-            p.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
-            {
-                _logger.Trace(e.Data);
-                if (stdErrorWriter != null)
-                {
-                    stdErrorWriter.Write(e.Data);
-                }
-            };
-            p.BeginOutputReadLine();
-            p.BeginErrorReadLine();
-            p.WaitForExit();
+                throw new VirtualMachineException("VM could not be started\n\n" + result.Output);
+            }
+        }
 
-            return p.ExitCode;
+        private void VagrantDown()
+        {
+            this.ExecuteVagrantCommand("destroy -f");
+            _logger.Info("Destroyed VM");
+        }
+
+        private void VagrantProvision()
+        {
+            ProcessResult result = this.ExecuteVagrantCommand("provision");
+
+            if (!result.Success)
+            {
+                throw new VirtualMachineException("VM could not be provisioned\n\n" + result.Output);
+            }
+        }
+
+        private ConnectionInfo VagrantSshConfig()
+        {
+            ProcessResult result = this.ExecuteVagrantCommand("ssh-config");
+
+            if (!result.Success)
+            {
+                throw new VirtualMachineException("Could not determine SSH connection information\n\n" + result.Output);
+            }
+
+            string sshConfig = result.StdOut;
+            Match hostNameMatch = Regex.Match(sshConfig, @"HostName\s(?<HostName>[^\s]+)");
+            Match portMatch = Regex.Match(sshConfig, @"Port\s(?<Port>[\d]+)");
+
+            if (!hostNameMatch.Success || !portMatch.Success)
+            {
+                throw new VirtualMachineException("Could not determine SSH connection information\n\n" + result.Output);
+            }
+
+            string hostName = hostNameMatch.Groups ["HostName"].Value;
+            int port = int.Parse(portMatch.Groups ["Port"].Value);
+            string userName = "coreci";
+            PrivateKeyFile privateKey = new PrivateKeyFile("Resources/id_rsa");
+
+            return new ConnectionInfo(hostName, port, userName, new PrivateKeyAuthenticationMethod(userName, privateKey));
+        }
+
+        private ProcessResult ExecuteVagrantCommand(string vagrantCommand)
+        {
+            return ProcessHelper.Execute(_vagrantExecutable, vagrantCommand, _folder);
         }
 
         private static void EnsureDirectoryExists(string path)

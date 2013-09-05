@@ -41,7 +41,6 @@
   <ItemGroup>
     <Compile Include="SshClientHelperTest.cs" />
     <Compile Include="Worker\VagrantVirtualMachineTest.cs" />
-    <Compile Include="ProcessHelper.cs" />
     <Compile Include="TemporaryHelper.cs" />
     <Compile Include="Common\ConcurrentTaskLoopTest.cs" />
     <Compile Include="Common\TaskLoopTest.cs" />
@@ -70,7 +69,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Helpers\" />
     <Folder Include="Worker\" />
     <Folder Include="Common\" />
   </ItemGroup>

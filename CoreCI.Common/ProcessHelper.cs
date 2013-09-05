@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
 using System.Diagnostics;
+using System.IO;
 
-namespace CoreCI.Tests
+namespace CoreCI.Common
 {
     public static class ProcessHelper
     {
@@ -30,17 +30,35 @@ namespace CoreCI.Tests
             psi.UseShellExecute = false;
             psi.WorkingDirectory = workingDirectory;
 
+            StringWriter stdOut = new StringWriter();
+            StringWriter stdError = new StringWriter();
+            StringWriter output = new StringWriter();
+
             using (Process p = new Process())
             {
                 p.StartInfo = psi;
                 p.Start();
+
+                p.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
+                {
+                    stdOut.Write(e.Data);
+                    output.Write(e.Data);
+                };
+                p.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
+                {
+                    stdError.Write(e.Data);
+                    output.Write(e.Data);
+                };
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
                 p.WaitForExit();
 
                 return new ProcessResult()
                 {
                     ExitCode = p.ExitCode,
-                    StdOut = p.StandardOutput.ReadToEnd(),
-                    StdError = p.StandardError.ReadToEnd()
+                    StdOut = stdOut.ToString(),
+                    StdError = stdError.ToString(),
+                    Output = output.ToString()
                 };
             }
         }
@@ -50,8 +68,15 @@ namespace CoreCI.Tests
     {
         public int ExitCode { get; set; }
 
+        public bool Success
+        {
+            get { return this.ExitCode == 0; }
+        }
+
         public string StdOut { get; set; }
 
         public string StdError { get; set; }
+
+        public string Output { get; set; }
     }
 }

@@ -18,6 +18,8 @@ using System;
 using NUnit.Framework;
 using CoreCI.Worker.VirtualMachines;
 using System.IO;
+using System.Threading.Tasks;
+using CoreCI.Common;
 
 namespace CoreCI.Tests.Worker
 {
@@ -73,6 +75,15 @@ namespace CoreCI.Tests.Worker
 
                 vm.Down();
             }
+        }
+
+        [Test]
+        public void TestParallelCreationOfVirtualMachine()
+        {
+            var t1 = Task.Factory.StartNew(this.TestCreationOfVirtualMachine);
+            var t2 = Task.Factory.StartNew(this.TestCreationOfVirtualMachine);
+
+            Task.WaitAll(t1, t2);
         }
 
         [Test]
