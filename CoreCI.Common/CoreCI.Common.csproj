@@ -34,13 +34,15 @@
       <HintPath>..\libs\mono-posix\mono-posix-4.0.0.0\Mono.Posix.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PosixHelper.cs" />
-    <Compile Include="TaskLoop.cs" />
     <Compile Include="IConfigurationProvider.cs" />
     <Compile Include="FileConfigurationProvider.cs" />
+    <Compile Include="ConcurrentTaskLoop.cs" />
+    <Compile Include="TaskLoop.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

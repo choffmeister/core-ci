@@ -43,6 +43,8 @@
     <Compile Include="Worker\VagrantVirtualMachineTest.cs" />
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="TemporaryHelper.cs" />
+    <Compile Include="Common\ConcurrentTaskLoopTest.cs" />
+    <Compile Include="Common\TaskLoopTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -70,6 +72,7 @@
   <ItemGroup>
     <Folder Include="Helpers\" />
     <Folder Include="Worker\" />
+    <Folder Include="Common\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

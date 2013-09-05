@@ -36,7 +36,7 @@ namespace CoreCI.Worker
         private readonly Guid _workerId;
         private readonly string _serverApiBaseAddress;
         private readonly TaskLoop _keepAliveLoop;
-        private readonly TaskLoop _runWorkerLoop;
+        private readonly ConcurrentTaskLoop<TaskEntity> _workLoop;
 
         public WorkerHandler(IConfigurationProvider configurationProvider)
         {
@@ -47,44 +47,46 @@ namespace CoreCI.Worker
             _workerId = Guid.Parse(_configurationProvider.GetSettingString("workerId"));
             _serverApiBaseAddress = _configurationProvider.GetSettingString("workerServerApiBaseAddress");
 
-            _keepAliveLoop = new TaskLoop(this.KeepAliveLoop, 1000);
-            _runWorkerLoop = new TaskLoop<TaskEntity>(this.RunWorkerLoop, () =>
-            {
-                try
-                {
-                    using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
-                    {
-                        DispatcherTaskPollResponse resp = client.Post(new DispatcherTaskPollRequest(_workerId));
-
-                        return resp.Task;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex);
-
-                    return null;
-                }
-            }, 1000);
+            _keepAliveLoop = new TaskLoop(this.KeepAlive, 60000);
+            _workLoop = new ConcurrentTaskLoop<TaskEntity>(this.Dispatch, this.Work, 1000, 4);
         }
 
         public void Start()
         {
             _logger.Info("Start working");
+            _workLoop.Start();
             _keepAliveLoop.Start();
-            _runWorkerLoop.Start();
             _logger.Info("Started");
         }
 
         public void Stop()
         {
             _logger.Info("Stop working");
-            _runWorkerLoop.Stop();
             _keepAliveLoop.Stop();
+            _workLoop.Stop();
             _logger.Info("Stopped");
         }
 
-        private bool RunWorkerLoop(TaskEntity task)
+        private TaskEntity Dispatch()
+        {
+            try
+            {
+                using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
+                {
+                    DispatcherTaskPollResponse resp = client.Post(new DispatcherTaskPollRequest(_workerId));
+
+                    return resp.Task;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+
+                return null;
+            }
+        }
+
+        private void Work(TaskEntity task)
         {
             try
             {
@@ -116,34 +118,28 @@ namespace CoreCI.Worker
 
                     worker.Down();
                 }
-
-                return true;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
-
-                return false;
             }
         }
 
-        private bool KeepAliveLoop()
+        private bool KeepAlive()
         {
             try
             {
                 using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
                 {
                     client.Post(new DispatcherWorkerKeepAliveRequest(_workerId));
-
-                    return false;
                 }
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
-
-                return false;
             }
+
+            return false;
         }
     }
 }
