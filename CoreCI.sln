@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreCI.Models", "CoreCI.Mod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreCI.Tests", "CoreCI.Tests\CoreCI.Tests.csproj", "{987E45C8-0788-4035-B9EB-9CA93315E326}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreCI.WorkerInstance.Vagrant", "CoreCI.WorkerInstance.Vagrant\CoreCI.WorkerInstance.Vagrant.csproj", "{FF70107B-5BCF-4A5D-8954-321F999D7938}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -43,6 +45,10 @@ Global
 		{FF31BBD8-FFA1-42CA-B395-FEA78B653D47}.Debug|x86.Build.0 = Debug|x86
 		{FF31BBD8-FFA1-42CA-B395-FEA78B653D47}.Release|x86.ActiveCfg = Release|x86
 		{FF31BBD8-FFA1-42CA-B395-FEA78B653D47}.Release|x86.Build.0 = Release|x86
+		{FF70107B-5BCF-4A5D-8954-321F999D7938}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FF70107B-5BCF-4A5D-8954-321F999D7938}.Debug|x86.Build.0 = Debug|Any CPU
+		{FF70107B-5BCF-4A5D-8954-321F999D7938}.Release|x86.ActiveCfg = Release|Any CPU
+		{FF70107B-5BCF-4A5D-8954-321F999D7938}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = CoreCI.Server\CoreCI.Server.csproj

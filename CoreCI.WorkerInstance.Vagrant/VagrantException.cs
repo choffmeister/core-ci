@@ -17,53 +17,43 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace CoreCI.Worker.Shell
+namespace CoreCI.WorkerInstance.Vagrant
 {
     [Serializable]
-    public class ShellCommandFailedException : Exception
+    public class VagrantException : Exception
     {
-        private readonly int _exitCode;
-
-        public int ExitCode
-        {
-            get { return _exitCode; }
-        }
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
+        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
         /// </summary>
-        public ShellCommandFailedException(int exitCode)
+        public VagrantException()
         {
-            _exitCode = exitCode;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
+        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
         /// </summary>
         /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
-        public ShellCommandFailedException(int exitCode, string message)
+        public VagrantException(string message)
             : base (message)
         {
-            _exitCode = exitCode;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
+        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
         /// </summary>
         /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
         /// <param name="inner">The exception that is the cause of the current exception. </param>
-        public ShellCommandFailedException(int exitCode, string message, Exception inner)
+        public VagrantException(string message, Exception inner)
             : base (message, inner)
         {
-            _exitCode = exitCode;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
+        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
         /// </summary>
         /// <param name="context">The contextual information about the source or destination.</param>
         /// <param name="info">The object that holds the serialized object data.</param>
-        protected ShellCommandFailedException(SerializationInfo info, StreamingContext context)
+        protected VagrantException(SerializationInfo info, StreamingContext context)
             : base (info, context)
         {
         }

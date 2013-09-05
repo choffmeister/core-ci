@@ -16,21 +16,14 @@
  */
 using System;
 
-namespace CoreCI.Models
+namespace CoreCI.Common.Shell
 {
-    public class ShellLine
+    public interface IShellOutput : IDisposable
     {
-        public int Index { get; set; }
+        void WriteStandardInput(string s);
 
-        public ShellLineType Type { get; set; }
+        void WriteStandardOutput(string s);
 
-        public string Content { get; set; }
-    }
-
-    public enum ShellLineType
-    {
-        StandardInput,
-        StandardOutput,
-        StandardError
+        void WriteStandardError(string s);
     }
 }

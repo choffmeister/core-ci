@@ -17,43 +17,53 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace CoreCI.Worker.VirtualMachines
+namespace CoreCI.Common.Shell
 {
     [Serializable]
-    public class VirtualMachineException : Exception
+    public class ShellCommandFailedException : Exception
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
-        /// </summary>
-        public VirtualMachineException()
+        private readonly int _exitCode;
+
+        public int ExitCode
         {
+            get { return _exitCode; }
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
+        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
+        /// </summary>
+        public ShellCommandFailedException(int exitCode)
+        {
+            _exitCode = exitCode;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
         /// </summary>
         /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
-        public VirtualMachineException(string message)
+        public ShellCommandFailedException(int exitCode, string message)
             : base (message)
         {
+            _exitCode = exitCode;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
+        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
         /// </summary>
         /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
         /// <param name="inner">The exception that is the cause of the current exception. </param>
-        public VirtualMachineException(string message, Exception inner)
+        public ShellCommandFailedException(int exitCode, string message, Exception inner)
             : base (message, inner)
         {
+            _exitCode = exitCode;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
+        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
         /// </summary>
         /// <param name="context">The contextual information about the source or destination.</param>
         /// <param name="info">The object that holds the serialized object data.</param>
-        protected VirtualMachineException(SerializationInfo info, StreamingContext context)
+        protected ShellCommandFailedException(SerializationInfo info, StreamingContext context)
             : base (info, context)
         {
         }

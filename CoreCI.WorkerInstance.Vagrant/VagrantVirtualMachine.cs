@@ -25,7 +25,7 @@ using Renci.SshNet;
 using NLog;
 using CoreCI.Common;
 
-namespace CoreCI.Worker.VirtualMachines
+namespace CoreCI.WorkerInstance.Vagrant
 {
     /// <summary>
     /// Implementation of a virtual machine using Vagrant.
@@ -153,7 +153,7 @@ namespace CoreCI.Worker.VirtualMachines
 
             if (!result.Success)
             {
-                throw new VirtualMachineException("VM could not be started\n\n" + result.Output);
+                throw new VagrantException("VM could not be started\n\n" + result.Output);
             }
         }
 
@@ -169,7 +169,7 @@ namespace CoreCI.Worker.VirtualMachines
 
             if (!result.Success)
             {
-                throw new VirtualMachineException("VM could not be provisioned\n\n" + result.Output);
+                throw new VagrantException("VM could not be provisioned\n\n" + result.Output);
             }
         }
 
@@ -179,7 +179,7 @@ namespace CoreCI.Worker.VirtualMachines
 
             if (!result.Success)
             {
-                throw new VirtualMachineException("Could not determine SSH connection information\n\n" + result.Output);
+                throw new VagrantException("Could not determine SSH connection information\n\n" + result.Output);
             }
 
             string sshConfig = result.StdOut;
@@ -188,7 +188,7 @@ namespace CoreCI.Worker.VirtualMachines
 
             if (!hostNameMatch.Success || !portMatch.Success)
             {
-                throw new VirtualMachineException("Could not determine SSH connection information\n\n" + result.Output);
+                throw new VagrantException("Could not determine SSH connection information\n\n" + result.Output);
             }
 
             string hostName = hostNameMatch.Groups ["HostName"].Value;

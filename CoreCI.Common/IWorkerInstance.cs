@@ -15,20 +15,18 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.IO;
-using ServiceStack.ServiceClient.Web;
-using CoreCI.Models;
-using CoreCI.Contracts;
-using System.Collections.Generic;
+using CoreCI.Common.Shell;
 
-namespace CoreCI.Worker.Shell
+namespace CoreCI.Common
 {
-    public interface IShellOutput : IDisposable
+    public interface IWorkerInstance : IDisposable
     {
-        void WriteStandardInput(string s);
+        IShellOutput ShellOutput { get; set; }
 
-        void WriteStandardOutput(string s);
+        void Up();
 
-        void WriteStandardError(string s);
+        void Down();
+
+        void Execute(string commandLine);
     }
 }

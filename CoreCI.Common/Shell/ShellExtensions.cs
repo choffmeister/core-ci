@@ -19,11 +19,10 @@ using System.IO;
 using System.Threading;
 using Renci.SshNet;
 using Renci.SshNet.Common;
-using CoreCI.Models;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CoreCI.Worker.Shell
+namespace CoreCI.Common.Shell
 {
     public static class ShellExtensions
     {

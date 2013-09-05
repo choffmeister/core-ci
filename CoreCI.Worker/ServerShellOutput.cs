@@ -17,11 +17,11 @@
 using System;
 using System.IO;
 using ServiceStack.ServiceClient.Web;
-using CoreCI.Models;
-using CoreCI.Contracts;
 using System.Collections.Generic;
+using CoreCI.Common.Shell;
+using CoreCI.Contracts;
 
-namespace CoreCI.Worker.Shell
+namespace CoreCI.Worker
 {
     public class ServerShellOutput : IShellOutput
     {

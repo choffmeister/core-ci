@@ -15,13 +15,12 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using CoreCI.Worker.Shell;
-using ServiceStack.ServiceClient.Web;
-using CoreCI.Worker.VirtualMachines;
 using Renci.SshNet;
 using NLog;
+using CoreCI.Common.Shell;
+using CoreCI.Common;
 
-namespace CoreCI.Worker
+namespace CoreCI.WorkerInstance.Vagrant
 {
     public class VagrantWorkerInstance : IWorkerInstance
     {

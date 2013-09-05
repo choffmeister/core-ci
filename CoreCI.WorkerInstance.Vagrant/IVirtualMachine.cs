@@ -15,22 +15,33 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using CoreCI.Worker.Shell;
-using ServiceStack.ServiceClient.Web;
-using CoreCI.Worker.VirtualMachines;
 using Renci.SshNet;
-using NLog;
 
-namespace CoreCI.Worker
+namespace CoreCI.WorkerInstance.Vagrant
 {
-    public interface IWorkerInstance : IDisposable
+    /// <summary>
+    /// The base interface for virtual machines.
+    /// </summary>
+    public interface IVirtualMachine : IDisposable
     {
-        IShellOutput ShellOutput { get; set; }
+        ConnectionInfo ConnectionInfo { get; }
 
+        /// <summary>
+        /// Creates and starts the virtual machine. Must not be called,
+        /// when already up.
+        /// </summary>
         void Up();
 
+        /// <summary>
+        /// Stops and destroys the virtual machine. Must not be called,
+        /// when already down or not started yet.
+        /// </summary>
         void Down();
 
-        void Execute(string commandLine);
+        /// <summary>
+        /// Creates a SSH client to connect to the virtual machine.
+        /// </summary>
+        /// <returns>The client.</returns>
+        SshClient CreateClient();
     }
 }

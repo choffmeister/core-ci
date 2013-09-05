@@ -52,32 +52,11 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VirtualMachines\IVirtualMachine.cs" />
-    <Compile Include="VirtualMachines\VagrantVirtualMachine.cs" />
-    <Compile Include="VirtualMachines\VirtualMachineException.cs" />
     <Compile Include="WorkerHandler.cs" />
-    <Compile Include="Shell\IShellOutput.cs" />
-    <Compile Include="Shell\ServerShellOutput.cs" />
-    <Compile Include="Shell\ShellOutputExtensions.cs" />
-    <Compile Include="Shell\ShellCommandFailedException.cs" />
-    <Compile Include="Shell\ShellExtensions.cs" />
-    <Compile Include="VagrantWorkerInstance.cs" />
-    <Compile Include="IWorkerInstance.cs" />
+    <Compile Include="ServerShellOutput.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <None Include="Resources\id_rsa">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\id_rsa.pub">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Vagrantfile-bootstrap-template.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Vagrantfile-template.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="App.config" />
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -99,8 +78,9 @@
       <Project>{D64D07E2-7C2F-4363-8758-CBC0B68FA1A5}</Project>
       <Name>CoreCI.Models</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Shell\" />
+    <ProjectReference Include="..\CoreCI.WorkerInstance.Vagrant\CoreCI.WorkerInstance.Vagrant.csproj">
+      <Project>{FF70107B-5BCF-4A5D-8954-321F999D7938}</Project>
+      <Name>CoreCI.WorkerInstance.Vagrant</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

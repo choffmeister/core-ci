@@ -20,10 +20,10 @@ using NLog;
 using ServiceStack.ServiceClient.Web;
 using CoreCI.Contracts;
 using CoreCI.Models;
-using CoreCI.Worker.VirtualMachines;
 using Renci.SshNet;
 using System.Collections.Generic;
-using CoreCI.Worker.Shell;
+using CoreCI.Common.Shell;
+using CoreCI.WorkerInstance.Vagrant;
 
 namespace CoreCI.Worker
 {

@@ -39,11 +39,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SshClientHelperTest.cs" />
-    <Compile Include="Worker\VagrantVirtualMachineTest.cs" />
     <Compile Include="TemporaryHelper.cs" />
     <Compile Include="Common\ConcurrentTaskLoopTest.cs" />
     <Compile Include="Common\TaskLoopTest.cs" />
+    <Compile Include="Common\Shell\ShellExtensionsTest.cs" />
+    <Compile Include="WorkerInstance\Vagrant\VagrantVirtualMachineTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -67,10 +67,16 @@
       <Project>{FF31BBD8-FFA1-42CA-B395-FEA78B653D47}</Project>
       <Name>CoreCI.Worker</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CoreCI.WorkerInstance.Vagrant\CoreCI.WorkerInstance.Vagrant.csproj">
+      <Project>{FF70107B-5BCF-4A5D-8954-321F999D7938}</Project>
+      <Name>CoreCI.WorkerInstance.Vagrant</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Worker\" />
     <Folder Include="Common\" />
+    <Folder Include="Common\Shell\" />
+    <Folder Include="WorkerInstance\" />
+    <Folder Include="WorkerInstance\Vagrant\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

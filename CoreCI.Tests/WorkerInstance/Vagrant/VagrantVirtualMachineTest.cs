@@ -16,12 +16,12 @@
  */
 using System;
 using NUnit.Framework;
-using CoreCI.Worker.VirtualMachines;
 using System.IO;
 using System.Threading.Tasks;
 using CoreCI.Common;
+using CoreCI.WorkerInstance.Vagrant;
 
-namespace CoreCI.Tests.Worker
+namespace CoreCI.Tests.WorkerInstance.Vagrant
 {
     [TestFixture]
     public class VagrantVirtualMachineTest
@@ -55,7 +55,7 @@ namespace CoreCI.Tests.Worker
         [Test]
         public void TestCreationOfVirtualMachine()
         {
-            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "precise64", new Uri("http://boxes.choffmeister.de/precise64.box"), 2, 1024))
+            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
             {
                 vm.Up();
 
@@ -87,10 +87,10 @@ namespace CoreCI.Tests.Worker
         }
 
         [Test]
-        [ExpectedException(typeof(VirtualMachineException))]
+        [ExpectedException(typeof(VagrantException))]
         public void TestExceptionForUnknownBox()
         {
-            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "unknown", new Uri("http://boxes.choffmeister.de/unknown.box"), 2, 1024))
+            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "unknown", new Uri("http://files.vagrantup.com/unknown-box-that-does-not-exist.box"), 2, 1024))
             {
                 vm.Up();
                 vm.Down();

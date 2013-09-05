@@ -66,4 +66,11 @@ namespace CoreCI.Models
         Succeeded,
         Failed
     }
+
+    public class TaskConfiguration
+    {
+        public string Machine { get; set; }
+
+        public string Script { get; set; }
+    }
 }

@@ -35,6 +35,9 @@
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\libs\sshnet\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -44,6 +47,12 @@
     <Compile Include="ConcurrentTaskLoop.cs" />
     <Compile Include="TaskLoop.cs" />
     <Compile Include="ProcessHelper.cs" />
+    <Compile Include="Shell\IShellOutput.cs" />
+    <Compile Include="Shell\ShellCommandFailedException.cs" />
+    <Compile Include="Shell\ShellExtensions.cs" />
+    <Compile Include="Shell\ShellOutputExtensions.cs" />
+    <Compile Include="Shell\ShellLine.cs" />
+    <Compile Include="IWorkerInstance.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

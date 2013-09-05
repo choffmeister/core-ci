@@ -16,12 +16,21 @@
  */
 using System;
 
-namespace CoreCI.Models
+namespace CoreCI.Common.Shell
 {
-    public class TaskConfiguration
+    public class ShellLine
     {
-        public string Machine { get; set; }
+        public int Index { get; set; }
 
-        public string Script { get; set; }
+        public ShellLineType Type { get; set; }
+
+        public string Content { get; set; }
+    }
+
+    public enum ShellLineType
+    {
+        StandardInput,
+        StandardOutput,
+        StandardError
     }
 }

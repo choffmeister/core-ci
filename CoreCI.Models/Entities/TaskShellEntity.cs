@@ -16,6 +16,7 @@
  */
 using System;
 using System.Collections.Generic;
+using CoreCI.Common.Shell;
 
 namespace CoreCI.Models
 {

@@ -17,12 +17,12 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using CoreCI.Worker.Shell;
+using CoreCI.Common.Shell;
 
-namespace CoreCI.Tests
+namespace CoreCI.Tests.Common.Shell
 {
     [TestFixture]
-    public class SshClientHelperTest
+    public class ShellExtensionsTest
     {
         [Test]
         public void TestSplittingIntoCommandLines()

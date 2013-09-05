@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D34081AB-46F0-4830-8DEE-711D96276B7C}</ProjectGuid>
+    <ProjectGuid>{FF70107B-5BCF-4A5D-8954-321F999D7938}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>CoreCI.Contracts</RootNamespace>
-    <AssemblyName>CoreCI.Contracts</AssemblyName>
+    <RootNamespace>CoreCI.WorkerInstance.Vagrant</RootNamespace>
+    <AssemblyName>CoreCI.WorkerInstance.Vagrant</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,31 +30,39 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="ServiceStack.Interfaces">
-      <HintPath>..\libs\servicestack-common\lib\net35\ServiceStack.Interfaces.dll</HintPath>
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\libs\sshnet\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\libs\nlog\lib\net40\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="HookGitHubRequest.cs" />
-    <Compile Include="TaskListRequest.cs" />
-    <Compile Include="TaskRetrieveRequest.cs" />
-    <Compile Include="PushMessageRequest.cs" />
-    <Compile Include="DispatcherTaskPollRequest.cs" />
-    <Compile Include="DispatcherTaskUpdateShellRequest.cs" />
-    <Compile Include="DispatcherWorkerKeepAliveRequest.cs" />
-    <Compile Include="DispatcherTaskUpdateStartRequest.cs" />
-    <Compile Include="DispatcherTaskUpdateFinishRequest.cs" />
+    <Compile Include="VagrantVirtualMachine.cs" />
+    <Compile Include="IVirtualMachine.cs" />
+    <Compile Include="VagrantWorkerInstance.cs" />
+    <Compile Include="VagrantException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\CoreCI.Models\CoreCI.Models.csproj">
-      <Project>{D64D07E2-7C2F-4363-8758-CBC0B68FA1A5}</Project>
-      <Name>CoreCI.Models</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CoreCI.Common\CoreCI.Common.csproj">
       <Project>{8AB806FC-1E14-4789-B578-DA429B2B265E}</Project>
       <Name>CoreCI.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\id_rsa">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\id_rsa.pub">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Vagrantfile-bootstrap-template.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Vagrantfile-template.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
