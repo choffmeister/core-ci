@@ -17,8 +17,6 @@
 using System;
 using System.IO;
 using System.Threading;
-using Renci.SshNet;
-using Renci.SshNet.Common;
 using System.Collections.Generic;
 using System.Text;
 

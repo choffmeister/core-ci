@@ -35,9 +35,6 @@
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="Renci.SshNet">
-      <HintPath>..\libs\sshnet\lib\net40\Renci.SshNet.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
