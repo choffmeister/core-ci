@@ -23,17 +23,25 @@ using CoreCI.Common;
 using NLog;
 using ServiceStack.ServiceHost;
 using System.Net;
+using Microsoft.Practices.Unity;
 
 namespace CoreCI.Server
 {
     public class ServerHandler : AppHostHttpListenerBase
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly IUnityContainer _unityContainer;
         private readonly IConfigurationProvider _configurationProvider;
+
+        public IUnityContainer UnityContainer
+        {
+            get { return _unityContainer; }
+        }
 
         public ServerHandler(IConfigurationProvider configurationProvider)
             : base("core:ci", typeof(ServerHandler).Assembly)
         {
+            _unityContainer = new UnityContainer();
             _configurationProvider = configurationProvider;
 
             this.ServiceExceptionHandler += (req, ex) =>
@@ -78,10 +86,12 @@ namespace CoreCI.Server
             JsConfig.DateHandler = JsonDateHandler.ISO8601;
             JsConfig.EmitCamelCaseNames = true;
 
-            container.Register<IConfigurationProvider>(_configurationProvider);
-            container.RegisterAs<WorkerRepository, IWorkerRepository>().ReusedWithin(ReuseScope.None);
-            container.RegisterAs<TaskRepository, ITaskRepository>().ReusedWithin(ReuseScope.None);
-            container.RegisterAs<TaskShellRepository, ITaskShellRepository>().ReusedWithin(ReuseScope.None);
+            _unityContainer.RegisterInstance<IConfigurationProvider>(_configurationProvider);
+            _unityContainer.RegisterType<IWorkerRepository, WorkerRepository>();
+            _unityContainer.RegisterType<ITaskRepository, TaskRepository>();
+            _unityContainer.RegisterType<ITaskShellRepository, TaskShellRepository>();
+
+            container.Adapter = new UnityContainerAdapter(_unityContainer);
         }
     }
 }
