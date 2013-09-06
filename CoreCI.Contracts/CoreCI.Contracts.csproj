@@ -36,7 +36,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="HookGitHubRequest.cs" />
     <Compile Include="TaskListRequest.cs" />
     <Compile Include="TaskRetrieveRequest.cs" />
     <Compile Include="PushMessageRequest.cs" />
@@ -45,6 +44,7 @@
     <Compile Include="DispatcherWorkerKeepAliveRequest.cs" />
     <Compile Include="DispatcherTaskUpdateStartRequest.cs" />
     <Compile Include="DispatcherTaskUpdateFinishRequest.cs" />
+    <Compile Include="HookRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
