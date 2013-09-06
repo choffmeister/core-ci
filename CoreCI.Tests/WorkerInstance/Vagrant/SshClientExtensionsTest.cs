@@ -28,6 +28,7 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
     public class SshClientExtensionsTest
     {
         private string _tempFolder;
+        private IVirtualMachine _vm;
 
         [TestFixtureSetUp]
         public void SetUp()
@@ -45,79 +46,68 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
             }
 
             _tempFolder = TemporaryHelper.CreateTempFolder();
+            _vm = new VagrantVirtualMachine("vagrant", _tempFolder, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024);
+            _vm.Up();
         }
 
         [TestFixtureTearDown]
         public void TearDown()
         {
+            _vm.Down();
             TemporaryHelper.DeleteTempFolder(_tempFolder);
         }
 
         [Test]
         public void TestCommandExecution()
         {
-            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
+            using (var shell = _vm.CreateClient())
             {
-                vm.Up();
+                shell.Connect();
 
-                using (var shell = vm.CreateClient())
                 {
-                    shell.Connect();
+                    MemoryShellOutput shellOutput = new MemoryShellOutput();
+                    int exitCode = shell.Execute("echo Hello World", shellOutput, TimeSpan.FromSeconds(15));
 
-                    {
-                        MemoryShellOutput shellOutput = new MemoryShellOutput();
-                        int exitCode = shell.Execute("echo Hello World", shellOutput, TimeSpan.FromSeconds(15));
-
-                        Assert.AreEqual(0, exitCode);
-                        Assert.AreEqual("Hello World", shellOutput.StandardOutput);
-                    }
-
-                    {
-                        MemoryShellOutput shellOutput = new MemoryShellOutput();
-                        int exitCode = shell.Execute("thisisaunknowncommand", shellOutput, TimeSpan.FromSeconds(15));
-
-                        Assert.AreNotEqual(0, exitCode);
-                    }
-
-                    shell.Disconnect();
+                    Assert.AreEqual(0, exitCode);
+                    Assert.AreEqual("Hello World", shellOutput.StandardOutput);
                 }
 
-                vm.Down();
+                {
+                    MemoryShellOutput shellOutput = new MemoryShellOutput();
+                    int exitCode = shell.Execute("thisisaunknowncommand", shellOutput, TimeSpan.FromSeconds(15));
+
+                    Assert.AreNotEqual(0, exitCode);
+                }
+
+                shell.Disconnect();
             }
         }
 
         [Test]
         public void TestCommandTimeout()
         {
-            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
+            using (var shell = _vm.CreateClient())
             {
-                vm.Up();
+                shell.Connect();
 
-                using (var shell = vm.CreateClient())
+                DateTime start = DateTime.Now;
+
+                try
                 {
-                    shell.Connect();
+                    shell.Execute("sleep 10", new NullShellOutput(), TimeSpan.FromSeconds(1));
 
-                    DateTime start = DateTime.Now;
-
-                    try
-                    {
-                        shell.Execute("sleep 10", new NullShellOutput(), TimeSpan.FromSeconds(1));
-
-                        Assert.Fail();
-                    }
-                    catch (SshOperationTimeoutException)
-                    {
-                        // this exception is expected
-                    }
-
-                    DateTime end = DateTime.Now;
-
-                    Assert.That((int)((end - start).TotalMilliseconds), Is.InRange(1000 - 200, 1000 + 200));
-
-                    shell.Disconnect();
+                    Assert.Fail();
+                }
+                catch (SshOperationTimeoutException)
+                {
+                    // this exception is expected
                 }
 
-                vm.Down();
+                DateTime end = DateTime.Now;
+
+                Assert.That((int)((end - start).TotalMilliseconds), Is.InRange(1000 - 200, 1000 + 200));
+
+                shell.Disconnect();
             }
         }
     }
