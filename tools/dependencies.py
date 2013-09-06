@@ -10,6 +10,7 @@ dependencies = [
 	('nuget', 'nunit', 'nunit', '2.6.0.12054'),
 	('nuget', 'nunit-runners', 'nunit.runners', '2.6.0.12051'),
 	('nuget', 'nlog', 'nlog', '2.0.1.2'),
+	('nuget', 'commonservicelocator', 'commonservicelocator', '1.0'),
 	('nuget', 'unity', 'unity', '2.1.505.2'),
 	('nuget', 'servicestack', 'servicestack', '3.9.55'),
 	('nuget', 'servicestack-common', 'servicestack.common', '3.9.55'),
