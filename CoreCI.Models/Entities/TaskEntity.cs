@@ -23,6 +23,10 @@ namespace CoreCI.Models
     {
         public Guid Id { get; set; }
 
+        public Guid ProjectId { get; set; }
+
+        public string Branch { get; set; }
+
         public TaskState State { get; set; }
 
         public Guid? WorkerId { get; set; }

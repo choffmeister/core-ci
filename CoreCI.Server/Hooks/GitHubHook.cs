@@ -34,15 +34,18 @@ namespace CoreCI.Server.Hooks
     public class GitHubHook : IHook
     {
         private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly IRepository<ProjectEntity> _projectRepository;
         private readonly IRepository<TaskEntity> _taskRepository;
 
-        public GitHubHook(IRepository<TaskEntity> taskRepository)
+        public GitHubHook(IRepository<ProjectEntity> projectRepository, IRepository<TaskEntity> taskRepository)
         {
+            _projectRepository = projectRepository;
             _taskRepository = taskRepository;
         }
 
         public void Dispose()
         {
+            _projectRepository.Dispose();
             _taskRepository.Dispose();
         }
 
@@ -50,22 +53,51 @@ namespace CoreCI.Server.Hooks
         {
             JsonSerializer<GitHubHookPayload> serializer = new JsonSerializer<GitHubHookPayload>();
             GitHubHookPayload payload = serializer.DeserializeFromString(request.FormData ["payload"]);
+            string projectName = string.Format("{0}/{1}", payload.Repository.Owner.Name, payload.Repository.Name);
+            string branch = ConvertReferenceToBranch(payload.Ref);
             GitHubHookPayload.PayloadCommit commit = payload.Commits.Single(c => c.Id == payload.After);
 
-            _logger.Info("Received hook from GitHub for repository {0}/{1} with commit ID {2}", payload.Repository.Owner.Name, payload.Repository.Name, payload.After);
+            _logger.Info("Received hook from GitHub for repository {0} with commit ID {1}", projectName, commit.Id);
 
-            TaskEntity task = new TaskEntity()
-            {
-                Configuration = GetConfiguration(payload.Repository.Owner.Name, payload.Repository.Name, payload.Ref, payload.After),
-                CreatedAt = DateTime.UtcNow,
-                Commit = commit.Id,
-                CommitUrl = commit.Url,
-                CommitMessage = commit.Message
-            };
-            _taskRepository.Insert(task);
+            ProjectEntity project = CreateOrGetProject(projectName);
+            TaskEntity task = CreateTask(project.Id, branch, payload, commit);
 
             PushService.Push("tasks", null);
             PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "created");
+        }
+
+        private ProjectEntity CreateOrGetProject(string name)
+        {
+            ProjectEntity project = _projectRepository.SingleOrDefault(p => p.Name == name);
+
+            if (project == null)
+            {
+                project = new ProjectEntity()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = name
+                };
+                _projectRepository.Insert(project);
+            }
+
+            return project;
+        }
+
+        private TaskEntity CreateTask(Guid projectId, string branch, GitHubHookPayload payload, GitHubHookPayload.PayloadCommit commit)
+        {
+            TaskEntity task = new TaskEntity()
+            {
+                CreatedAt = DateTime.UtcNow,
+                ProjectId = projectId,
+                Branch = branch,
+                Commit = commit.Id,
+                CommitUrl = commit.Url,
+                CommitMessage = commit.Message,
+                Configuration = GetConfiguration(payload.Repository.Owner.Name, payload.Repository.Name, branch, payload.After)
+            };
+            _taskRepository.Insert(task);
+
+            return task;
         }
 
         private static string GetConfigurationRaw(string repositoryOwnerName, string repositoryName, string commitHash)
@@ -136,14 +168,8 @@ namespace CoreCI.Server.Hooks
             }
         }
 
-        private static string CreateCheckoutScript(string repositoryOwnerName, string repositoryName, string reference, string commitHash)
+        private static string CreateCheckoutScript(string repositoryOwnerName, string repositoryName, string branch, string commitHash)
         {
-            if (!reference.StartsWith("refs/heads/"))
-            {
-                throw new Exception("Reference must start with refs/heads/");
-            }
-
-            string branch = reference.Substring("refs/heads/".Length);
             StringBuilder script = new StringBuilder();
 
             script.Append(string.Format("git clone --depth=50 --branch={2} git://github.com/{0}/{1}.git {0}/{1}\n", repositoryOwnerName, repositoryName, branch, commitHash));
@@ -151,6 +177,16 @@ namespace CoreCI.Server.Hooks
             script.Append(string.Format("cd {0}/{1} && git branch -va\n", repositoryOwnerName, repositoryName, branch, commitHash));
 
             return script.ToString();
+        }
+
+        private static string ConvertReferenceToBranch(string reference)
+        {
+            if (!reference.StartsWith("refs/heads/", StringComparison.InvariantCulture))
+            {
+                throw new Exception("Reference must start with refs/heads/");
+            }
+
+            return reference.Substring("refs/heads/".Length);
         }
     }
 

@@ -50,6 +50,8 @@
     <Compile Include="Repositories\TaskShellRepository.cs" />
     <Compile Include="Repositories\TaskRepository.cs" />
     <Compile Include="IEntity.cs" />
+    <Compile Include="Entities\ProjectEntity.cs" />
+    <Compile Include="Repositories\ProjectRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
