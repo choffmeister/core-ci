@@ -86,10 +86,14 @@ namespace CoreCI.Server
             JsConfig.DateHandler = JsonDateHandler.ISO8601;
             JsConfig.EmitCamelCaseNames = true;
 
-            _unityContainer.RegisterInstance<IConfigurationProvider>(_configurationProvider);
-            _unityContainer.RegisterType<IWorkerRepository, WorkerRepository>();
-            _unityContainer.RegisterType<ITaskRepository, TaskRepository>();
-            _unityContainer.RegisterType<ITaskShellRepository, TaskShellRepository>();
+            _unityContainer
+                .RegisterInstance<IConfigurationProvider>(_configurationProvider)
+                .RegisterType<IWorkerRepository, WorkerRepository>()
+                .RegisterType<ITaskRepository, TaskRepository>()
+                .RegisterType<ITaskShellRepository, TaskShellRepository>()
+                .RegisterType<IRepository<WorkerEntity>, WorkerRepository>()
+                .RegisterType<IRepository<TaskEntity>, TaskRepository>()
+                .RegisterType<IRepository<TaskShellEntity>, TaskShellRepository>();
 
             container.Adapter = new UnityContainerAdapter(_unityContainer);
         }

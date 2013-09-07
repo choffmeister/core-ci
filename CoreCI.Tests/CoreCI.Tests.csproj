@@ -37,6 +37,9 @@
     <Reference Include="Renci.SshNet">
       <HintPath>..\libs\sshnet\lib\net40\Renci.SshNet.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceStack.ServiceInterface">
+      <HintPath>..\libs\servicestack\lib\net35\ServiceStack.ServiceInterface.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TemporaryHelper.cs" />
@@ -45,6 +48,7 @@
     <Compile Include="Common\Shell\ShellExtensionsTest.cs" />
     <Compile Include="WorkerInstance\Vagrant\VagrantVirtualMachineTest.cs" />
     <Compile Include="WorkerInstance\Vagrant\SshClientExtensionsTest.cs" />
+    <Compile Include="Server\Hooks\GitHubHookTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -78,6 +82,8 @@
     <Folder Include="Common\Shell\" />
     <Folder Include="WorkerInstance\" />
     <Folder Include="WorkerInstance\Vagrant\" />
+    <Folder Include="Server\" />
+    <Folder Include="Server\Hooks\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

@@ -34,9 +34,9 @@ namespace CoreCI.Server.Hooks
     public class GitHubHook : IHook
     {
         private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly ITaskRepository _taskRepository;
+        private readonly IRepository<TaskEntity> _taskRepository;
 
-        public GitHubHook(ITaskRepository taskRepository)
+        public GitHubHook(IRepository<TaskEntity> taskRepository)
         {
             _taskRepository = taskRepository;
         }
