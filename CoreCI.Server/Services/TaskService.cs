@@ -48,6 +48,14 @@ namespace CoreCI.Server.Services
             };
         }
 
+        public TaskListByProjectResponse Get(TaskListByProjectRequest req)
+        {
+            return new TaskListByProjectResponse()
+            {
+                Tasks = _taskRepository.Where(t => t.ProjectId == req.ProjectId).OrderByDescending(t => t.CreatedAt).ToList()
+            };
+        }
+
         public TaskRetrieveResponse Get(TaskRetrieveRequest req)
         {
             TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
