@@ -25,8 +25,8 @@ namespace CoreCI.Models
 
     public class TaskShellRepository : MongoDbRepository<TaskShellEntity>, ITaskShellRepository
     {
-        public TaskShellRepository(string connectionString)
-            : base(connectionString, "taskshells")
+        public TaskShellRepository(string connectionString, string collectionName)
+            : base(connectionString, collectionName)
         {
         }
 

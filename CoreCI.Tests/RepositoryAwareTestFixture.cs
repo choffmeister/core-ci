@@ -50,12 +50,12 @@ namespace CoreCI.Tests
         [SetUpAttribute]
         public void SetUp()
         {
-            string connectionString = "Server=mongodb://localhost;Database=coreci-test-" + Guid.NewGuid().ToString();
+            string connectionString = "Server=mongodb://localhost;Database=coreci-test";
 
-            _workerRepository = new WorkerRepository(connectionString);
-            _projectRepository = new ProjectRepository(connectionString);
-            _taskRepository = new TaskRepository(connectionString);
-            _taskShellRepository = new TaskShellRepository(connectionString);
+            _workerRepository = new WorkerRepository(connectionString, "workers-" + Guid.NewGuid().ToString());
+            _projectRepository = new ProjectRepository(connectionString, "projects-" + Guid.NewGuid().ToString());
+            _taskRepository = new TaskRepository(connectionString, "tasks-" + Guid.NewGuid().ToString());
+            _taskShellRepository = new TaskShellRepository(connectionString, "taskshells-" + Guid.NewGuid().ToString());
         }
 
         [TearDown]

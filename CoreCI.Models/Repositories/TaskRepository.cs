@@ -28,8 +28,8 @@ namespace CoreCI.Models
 
     public class TaskRepository : MongoDbRepository<TaskEntity>, ITaskRepository
     {
-        public TaskRepository(string connectionString)
-            : base(connectionString, "tasks")
+        public TaskRepository(string connectionString, string collectionName)
+            : base(connectionString, collectionName)
         {
         }
 
