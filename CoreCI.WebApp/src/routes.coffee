@@ -20,6 +20,7 @@ define ["angular"], (angular) ->
       routeProvider
         .when("/", { redirectTo: "/dashboard" })
         .when("/dashboard", { templateUrl: "/views/dashboard.html", controller: "DashboardController" })
+        .when("/project/:projectId", { templateUrl: "/views/project.html", controller: "ProjectController" })
         .when("/task/:taskId", { templateUrl: "/views/task.html", controller: "TaskController" })
         .otherwise({ templateUrl: "/views/notfound.html" })
 

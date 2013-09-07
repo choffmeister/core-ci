@@ -78,6 +78,8 @@ namespace CoreCI.Server.Hooks
                     Name = name
                 };
                 _projectRepository.Insert(project);
+
+                PushService.Push("projects", null);
             }
 
             return project;

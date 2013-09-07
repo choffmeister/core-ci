@@ -19,9 +19,9 @@ define ["basecontroller"], (BaseController) ->
     @$name = "DashboardController"
 
     init: () =>
-      @listen "push", "tasks", @updateThrottled
+      @listen "push", "projects", @updateThrottled
       @updateThrottled()
 
     update: () =>
-      @api.get("tasks").then (res) =>
-        @scope.tasks = res.tasks
+      @api.get("projects").then (res) =>
+        @scope.projects = res.projects

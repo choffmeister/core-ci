@@ -14,7 +14,13 @@
 //- You should have received a copy of the GNU General Public License
 //- along with this program. If not, see {http://www.gnu.org/licenses/}.
 //-
-.task(ng-repeat="project in projects", data-goto="/project/{{project.id}}")
+.task(ng-repeat="task in tasks", data-goto="/task/{{task.id}}")
 	.container.clearfix
-		span.pull-left.glyphicon.glyphicon-bookmark
-		span.pull-left {{project.name}}
+		span.pull-left(ng-switch="task.state")
+			span.glyphicon.glyphicon-ok.success-colored(ng-switch-when="Succeeded")
+			span.glyphicon.glyphicon-refresh(ng-switch-when="Running")
+			span.glyphicon.glyphicon-pushpin(ng-switch-when="Pending")
+			span.glyphicon.glyphicon-remove.danger-colored(ng-switch-when="Failed")
+
+		span.pull-left {{task.commitMessage}}
+		span.pull-right {{task.createdAt | date}}
