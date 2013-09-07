@@ -54,6 +54,7 @@
     <Compile Include="Server\Hooks\GitHubHookTest.cs" />
     <Compile Include="RepositoryAwareTestFixture.cs" />
     <Compile Include="Models\Repositories\TaskRepositoryTest.cs" />
+    <Compile Include="Models\MongoDbRepositoryTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
