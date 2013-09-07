@@ -101,10 +101,13 @@ namespace CoreCI.Worker
                     {
                         client.Post(new DispatcherTaskUpdateStartRequest(task.Id));
 
-                        foreach (string commandLine in ShellExtensions.SplitIntoCommandLines(task.Configuration.Script))
+                        foreach (string script in new string[] { task.Configuration.CheckoutScript, task.Configuration.TestScript })
                         {
-                            _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
-                            worker.Execute(commandLine);
+                            foreach (string commandLine in ShellExtensions.SplitIntoCommandLines(script))
+                            {
+                                _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
+                                worker.Execute(commandLine);
+                            }
                         }
 
                         shellOutput.WriteStandardOutput("Exited with code 0");

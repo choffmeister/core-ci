@@ -40,6 +40,9 @@
     <Reference Include="ServiceStack.ServiceInterface">
       <HintPath>..\libs\servicestack\lib\net35\ServiceStack.ServiceInterface.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceStack.Interfaces">
+      <HintPath>..\libs\servicestack-common\lib\net35\ServiceStack.Interfaces.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TemporaryHelper.cs" />

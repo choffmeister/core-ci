@@ -42,8 +42,7 @@ namespace CoreCI.Tests.Server.Hooks
             Assert.AreEqual(1, taskRepository.Count());
             TaskEntity task = taskRepository.Single();
             Assert.AreEqual("precise64-mono", task.Configuration.Machine);
-
-            // TODO: test more task properties
+            Assert.AreEqual("sudo apt-get update\nid\necho Hello World\n", task.Configuration.TestScript);
         }
     }
 }

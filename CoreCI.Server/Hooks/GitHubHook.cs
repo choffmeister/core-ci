@@ -120,7 +120,8 @@ namespace CoreCI.Server.Hooks
                 return new TaskConfiguration()
                 {
                     Machine = machine,
-                    Script = checkoutScript + script
+                    CheckoutScript = checkoutScript,
+                    TestScript = script
                 };
             }
             else
@@ -129,7 +130,8 @@ namespace CoreCI.Server.Hooks
                 return new TaskConfiguration()
                 {
                     Machine = "precise64",
-                    Script = checkoutScript
+                    CheckoutScript = checkoutScript,
+                    TestScript = ""
                 };
             }
         }
