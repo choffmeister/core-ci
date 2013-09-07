@@ -34,10 +34,10 @@ namespace CoreCI.Server.Hooks
     public class GitHubHook : IHook
     {
         private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly IRepository<ProjectEntity> _projectRepository;
-        private readonly IRepository<TaskEntity> _taskRepository;
+        private readonly IProjectRepository _projectRepository;
+        private readonly ITaskRepository _taskRepository;
 
-        public GitHubHook(IRepository<ProjectEntity> projectRepository, IRepository<TaskEntity> taskRepository)
+        public GitHubHook(IProjectRepository projectRepository, ITaskRepository taskRepository)
         {
             _projectRepository = projectRepository;
             _taskRepository = taskRepository;

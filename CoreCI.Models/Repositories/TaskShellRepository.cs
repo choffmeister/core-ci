@@ -25,6 +25,11 @@ namespace CoreCI.Models
 
     public class TaskShellRepository : MongoDbRepository<TaskShellEntity>, ITaskShellRepository
     {
+        public TaskShellRepository(string connectionString)
+            : base(connectionString, "taskshells")
+        {
+        }
+
         public TaskShellRepository(IConfigurationProvider configurationProvider)
             : base(configurationProvider, "coreciDatabase", "taskshells")
         {

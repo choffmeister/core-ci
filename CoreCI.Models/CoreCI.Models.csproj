@@ -42,7 +42,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="MongoDbRepository.cs" />
-    <Compile Include="InMemoryRepository.cs" />
     <Compile Include="Entities\TaskShellEntity.cs" />
     <Compile Include="Entities\TaskEntity.cs" />
     <Compile Include="Entities\WorkerEntity.cs" />

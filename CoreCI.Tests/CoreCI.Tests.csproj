@@ -52,6 +52,7 @@
     <Compile Include="WorkerInstance\Vagrant\VagrantVirtualMachineTest.cs" />
     <Compile Include="WorkerInstance\Vagrant\SshClientExtensionsTest.cs" />
     <Compile Include="Server\Hooks\GitHubHookTest.cs" />
+    <Compile Include="RepositoryAwareTestFixture.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

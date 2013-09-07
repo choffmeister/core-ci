@@ -73,18 +73,14 @@ namespace CoreCI.Models
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoDbRepository{TEntity}"/> class.
-        /// The connection string is requested from the configuration provider.
         /// </summary>
         /// <param name="configurationProvider">The configuration provider.</param>
-        /// <param name="connectionStringName">Name of the connection string.</param>
+        /// <param name="connectionString">The connection string.</param>
         /// <param name="collectionName">Name of the collection.</param>
         /// <exception cref="System.NotImplementedException">MongoDB connection with credentials has not been implemented yet</exception>
         /// <exception cref="System.Exception"></exception>
-        public MongoDbRepository(IConfigurationProvider configurationProvider, string connectionStringName, string collectionName)
+        public MongoDbRepository(string connectionString, string collectionName)
         {
-            // read connection string
-            string connectionString = configurationProvider.GetConnectionString(connectionStringName);
-
             // split connection string by regex
             Match match = _connectionStringRegex.Match(connectionString);
 
@@ -118,6 +114,20 @@ namespace CoreCI.Models
                 // connection string is invalid
                 throw new Exception(string.Format("Cannot parse connection string '{0}'", connectionString));
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoDbRepository{TEntity}"/> class.
+        /// The connection string is requested from the configuration provider.
+        /// </summary>
+        /// <param name="configurationProvider">The configuration provider.</param>
+        /// <param name="connectionStringName">Name of the connection string.</param>
+        /// <param name="collectionName">Name of the collection.</param>
+        /// <exception cref="System.NotImplementedException">MongoDB connection with credentials has not been implemented yet</exception>
+        /// <exception cref="System.Exception"></exception>
+        public MongoDbRepository(IConfigurationProvider configurationProvider, string connectionStringName, string collectionName)
+            : this(configurationProvider.GetConnectionString(connectionStringName), collectionName)
+        {
         }
 
         /// <summary>

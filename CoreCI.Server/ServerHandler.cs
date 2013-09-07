@@ -91,11 +91,7 @@ namespace CoreCI.Server
                 .RegisterType<IWorkerRepository, WorkerRepository>()
                 .RegisterType<IProjectRepository, ProjectRepository>()
                 .RegisterType<ITaskRepository, TaskRepository>()
-                .RegisterType<ITaskShellRepository, TaskShellRepository>()
-                .RegisterType<IRepository<WorkerEntity>, WorkerRepository>()
-                .RegisterType<IRepository<ProjectEntity>, ProjectRepository>()
-                .RegisterType<IRepository<TaskEntity>, TaskRepository>()
-                .RegisterType<IRepository<TaskShellEntity>, TaskShellRepository>();
+                .RegisterType<ITaskShellRepository, TaskShellRepository>();
 
             container.Adapter = new UnityContainerAdapter(_unityContainer);
         }
