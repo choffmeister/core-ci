@@ -20,16 +20,14 @@ using CoreCI.Models;
 
 namespace CoreCI.Contracts
 {
-    [Route("/tasks/{TaskId}", "GET")]
-    public class TaskRetrieveRequest : IReturn<TaskRetrieveResponse>
+    [Route("/projects/{ProjectId}", "GET")]
+    public class ProjectRetrieveRequest : IReturn<ProjectRetrieveResponse>
     {
-        public Guid TaskId { get; set; }
+        public Guid ProjectId { get; set; }
     }
 
-    public class TaskRetrieveResponse
+    public class ProjectRetrieveResponse
     {
-        public TaskEntity Task { get; set; }
-
-        public TaskShellEntity Shell { get; set; }
+        public ProjectEntity Project { get; set; }
     }
 }

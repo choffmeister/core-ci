@@ -21,13 +21,13 @@ using CoreCI.Models;
 
 namespace CoreCI.Contracts
 {
-    [Route("/tasks", "GET")]
-    public class TaskListRequest : IReturn<TaskListResponse>
+    [Route("/projects", "GET")]
+    public class ProjectListRequest : IReturn<ProjectListResponse>
     {
     }
 
-    public class TaskListResponse
+    public class ProjectListResponse
     {
-        public List<TaskEntity> Tasks { get; set; }
+        public List<ProjectEntity> Projects { get; set; }
     }
 }

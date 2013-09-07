@@ -82,6 +82,7 @@
     <Compile Include="Hooks\IHook.cs" />
     <Compile Include="Hooks\HookAttribute.cs" />
     <Compile Include="Services\HookService.cs" />
+    <Compile Include="Services\ProjectService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

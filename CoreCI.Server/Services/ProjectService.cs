@@ -23,40 +23,35 @@ using ServiceStack.Common.Web;
 
 namespace CoreCI.Server.Services
 {
-    public class TaskService : Service
+    public class ProjectService : Service
     {
-        private readonly ITaskRepository _taskRepository;
-        private readonly ITaskShellRepository _taskShellRepository;
+        private readonly IProjectRepository _projectRepository;
 
-        public TaskService(ITaskRepository taskRepository, ITaskShellRepository taskShellRepository)
+        public ProjectService(IProjectRepository projectRepository)
         {
-            _taskRepository = taskRepository;
-            _taskShellRepository = taskShellRepository;
+            _projectRepository = projectRepository;
         }
 
         public override void Dispose()
         {
-            _taskRepository.Dispose();
-            _taskShellRepository.Dispose();
+            _projectRepository.Dispose();
         }
 
-        public TaskListResponse Get(TaskListRequest req)
+        public ProjectListResponse Get(ProjectListRequest req)
         {
-            return new TaskListResponse()
+            return new ProjectListResponse()
             {
-                Tasks = _taskRepository.OrderByDescending(t => t.CreatedAt).ToList()
+                Projects = _projectRepository.OrderBy(p => p.Name).ToList()
             };
         }
 
-        public TaskRetrieveResponse Get(TaskRetrieveRequest req)
+        public ProjectRetrieveResponse Get(ProjectRetrieveRequest req)
         {
-            TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
-            TaskShellEntity taskShell = _taskShellRepository.SingleOrDefault(ts => ts.TaskId == task.Id);
+            ProjectEntity project = _projectRepository.GetEntityById(req.ProjectId);
 
-            return new TaskRetrieveResponse()
+            return new ProjectRetrieveResponse()
             {
-                Task = task,
-                Shell = taskShell
+                Project = project
             };
         }
     }
