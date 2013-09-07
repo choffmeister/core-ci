@@ -53,6 +53,7 @@
     <Compile Include="WorkerInstance\Vagrant\SshClientExtensionsTest.cs" />
     <Compile Include="Server\Hooks\GitHubHookTest.cs" />
     <Compile Include="RepositoryAwareTestFixture.cs" />
+    <Compile Include="Models\Repositories\TaskRepositoryTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -88,6 +89,8 @@
     <Folder Include="WorkerInstance\Vagrant\" />
     <Folder Include="Server\" />
     <Folder Include="Server\Hooks\" />
+    <Folder Include="Models\" />
+    <Folder Include="Models\Repositories\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
