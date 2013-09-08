@@ -51,10 +51,10 @@
     <Compile Include="Common\Shell\ShellExtensionsTest.cs" />
     <Compile Include="WorkerInstance\Vagrant\VagrantVirtualMachineTest.cs" />
     <Compile Include="WorkerInstance\Vagrant\SshClientExtensionsTest.cs" />
-    <Compile Include="Server\Hooks\GitHubHookTest.cs" />
     <Compile Include="RepositoryAwareTestFixture.cs" />
     <Compile Include="Models\Repositories\TaskRepositoryTest.cs" />
     <Compile Include="Models\MongoDbRepositoryTest.cs" />
+    <Compile Include="Server\GitHub\GitHubHookTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -89,9 +89,9 @@
     <Folder Include="WorkerInstance\" />
     <Folder Include="WorkerInstance\Vagrant\" />
     <Folder Include="Server\" />
-    <Folder Include="Server\Hooks\" />
     <Folder Include="Models\" />
     <Folder Include="Models\Repositories\" />
+    <Folder Include="Server\GitHub\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

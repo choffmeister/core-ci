@@ -17,7 +17,7 @@
 using System;
 using ServiceStack.ServiceHost;
 
-namespace CoreCI.Server.Hooks
+namespace CoreCI.Server
 {
     public interface IHook : IDisposable
     {

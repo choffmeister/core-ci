@@ -16,7 +16,7 @@
  */
 using System;
 
-namespace CoreCI.Server.Hooks
+namespace CoreCI.Server
 {
     [AttributeUsage (AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class HookAttribute : Attribute

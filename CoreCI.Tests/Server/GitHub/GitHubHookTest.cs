@@ -22,7 +22,7 @@ using NUnit.Framework;
 using ServiceStack.ServiceInterface.Testing;
 using System.Threading.Tasks;
 
-namespace CoreCI.Tests.Server.Hooks
+namespace CoreCI.Tests.Server.GitHub
 {
     [TestFixture]
     public class GitHubHookTest : RepositoryAwareTestFixture
