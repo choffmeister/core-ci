@@ -28,7 +28,7 @@ namespace CoreCI.Models
 
     public class TaskRepository : MongoDbRepository<TaskEntity>, ITaskRepository
     {
-        public TaskRepository(string connectionString, string collectionName)
+        protected TaskRepository(string connectionString, string collectionName)
             : base(connectionString, collectionName)
         {
         }
@@ -36,6 +36,11 @@ namespace CoreCI.Models
         public TaskRepository(IConfigurationProvider configurationProvider)
             : base(configurationProvider, "coreciDatabase", "tasks")
         {
+        }
+
+        public static TaskRepository CreateTemporary(string connectionString)
+        {
+            return new TaskRepository(connectionString, string.Format("{0}-{1}", "tasks", Guid.NewGuid()));
         }
 
         public TaskEntity GetPendingTask(Guid workerId)

@@ -52,10 +52,10 @@ namespace CoreCI.Tests
         {
             string connectionString = "Server=mongodb://localhost;Database=coreci-test";
 
-            _workerRepository = new WorkerRepository(connectionString, "workers-" + Guid.NewGuid().ToString());
-            _projectRepository = new ProjectRepository(connectionString, "projects-" + Guid.NewGuid().ToString());
-            _taskRepository = new TaskRepository(connectionString, "tasks-" + Guid.NewGuid().ToString());
-            _taskShellRepository = new TaskShellRepository(connectionString, "taskshells-" + Guid.NewGuid().ToString());
+            _workerRepository = CoreCI.Models.WorkerRepository.CreateTemporary(connectionString);
+            _projectRepository = CoreCI.Models.ProjectRepository.CreateTemporary(connectionString);
+            _taskRepository = CoreCI.Models.TaskRepository.CreateTemporary(connectionString);
+            _taskShellRepository = CoreCI.Models.TaskShellRepository.CreateTemporary(connectionString);
         }
 
         [TearDown]

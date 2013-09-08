@@ -25,7 +25,7 @@ namespace CoreCI.Models
 
     public class WorkerRepository : MongoDbRepository<WorkerEntity>, IWorkerRepository
     {
-        public WorkerRepository(string connectionString, string collectionName)
+        protected WorkerRepository(string connectionString, string collectionName)
             : base(connectionString, collectionName)
         {
         }
@@ -33,6 +33,11 @@ namespace CoreCI.Models
         public WorkerRepository(IConfigurationProvider configurationProvider)
             : base(configurationProvider, "coreciDatabase", "workers")
         {
+        }
+
+        public static WorkerRepository CreateTemporary(string connectionString)
+        {
+            return new WorkerRepository(connectionString, string.Format("{0}-{1}", "workers", Guid.NewGuid()));
         }
     }
 }

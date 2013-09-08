@@ -25,7 +25,7 @@ namespace CoreCI.Models
 
     public class ProjectRepository : MongoDbRepository<ProjectEntity>, IProjectRepository
     {
-        public ProjectRepository(string connectionString, string collectionName)
+        protected ProjectRepository(string connectionString, string collectionName)
             : base(connectionString, collectionName)
         {
         }
@@ -33,6 +33,11 @@ namespace CoreCI.Models
         public ProjectRepository(IConfigurationProvider configurationProvider)
             : base(configurationProvider, "coreciDatabase", "projects")
         {
+        }
+
+        public static ProjectRepository CreateTemporary(string connectionString)
+        {
+            return new ProjectRepository(connectionString, string.Format("{0}-{1}", "projects", Guid.NewGuid()));
         }
     }
 }

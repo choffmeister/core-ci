@@ -25,7 +25,7 @@ namespace CoreCI.Models
 
     public class TaskShellRepository : MongoDbRepository<TaskShellEntity>, ITaskShellRepository
     {
-        public TaskShellRepository(string connectionString, string collectionName)
+        protected TaskShellRepository(string connectionString, string collectionName)
             : base(connectionString, collectionName)
         {
         }
@@ -33,6 +33,11 @@ namespace CoreCI.Models
         public TaskShellRepository(IConfigurationProvider configurationProvider)
             : base(configurationProvider, "coreciDatabase", "taskshells")
         {
+        }
+
+        public static TaskShellRepository CreateTemporary(string connectionString)
+        {
+            return new TaskShellRepository(connectionString, string.Format("{0}-{1}", "taskshells", Guid.NewGuid()));
         }
     }
 }
