@@ -24,6 +24,7 @@ using System.Text.RegularExpressions;
 using Renci.SshNet;
 using NLog;
 using CoreCI.Common;
+using System.Security.Cryptography;
 
 namespace CoreCI.WorkerInstance.Vagrant
 {
@@ -44,6 +45,8 @@ namespace CoreCI.WorkerInstance.Vagrant
         private readonly int _cpuCount;
         private readonly int _memorySize;
         private bool _isUp;
+        private string _publicKey;
+        private string _privateKey;
         private ConnectionInfo _connectionInfo;
 
         public ConnectionInfo ConnectionInfo
@@ -95,7 +98,10 @@ namespace CoreCI.WorkerInstance.Vagrant
                 }
                 _isUp = true;
 
-                string publicKey = GetResource("id_rsa.pub");
+                _logger.Trace("Generating new RSA key");
+                RSA rsa = new RSACryptoServiceProvider(768);
+                _publicKey = rsa.ToOpenSshPublicKeyFileString(string.Format("{0}@core-ci", _id));
+                _privateKey = rsa.ToOpenSshPrivateKeyFileString();
 
                 EnsureDirectoryExists(_folder);
                 string vagrantFilePath = Path.Combine(_folder, "Vagrantfile");
@@ -103,7 +109,7 @@ namespace CoreCI.WorkerInstance.Vagrant
                 File.WriteAllText(vagrantFilePath, vagrantFileContent);
 
                 string vagrantFileBootstrapPath = Path.Combine(_folder, "Vagrantfile-bootstrap.sh");
-                string vagrantFileBootstrapContent = GetResource("Vagrantfile-bootstrap-template.txt", publicKey);
+                string vagrantFileBootstrapContent = GetResource("Vagrantfile-bootstrap-template.txt", _publicKey);
                 File.WriteAllText(vagrantFileBootstrapPath, vagrantFileBootstrapContent);
 
                 // ensure that no two machines are upped in parallel
@@ -194,7 +200,7 @@ namespace CoreCI.WorkerInstance.Vagrant
             string hostName = hostNameMatch.Groups ["HostName"].Value;
             int port = int.Parse(portMatch.Groups ["Port"].Value);
             string userName = "coreci";
-            PrivateKeyFile privateKey = new PrivateKeyFile("Resources/id_rsa");
+            PrivateKeyFile privateKey = new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(_privateKey)));
 
             return new ConnectionInfo(hostName, port, userName, new PrivateKeyAuthenticationMethod(userName, privateKey));
         }

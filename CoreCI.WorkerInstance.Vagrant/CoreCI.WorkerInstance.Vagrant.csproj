@@ -53,12 +53,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\id_rsa">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\id_rsa.pub">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Resources\Vagrantfile-bootstrap-template.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
