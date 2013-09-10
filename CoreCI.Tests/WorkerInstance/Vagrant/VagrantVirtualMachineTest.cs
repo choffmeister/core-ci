@@ -39,7 +39,7 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
                 // try if vagrant --version can be executed
                 var result = ProcessHelper.Execute("vagrant", "--version");
                 Assert.AreEqual(0, result.ExitCode);
-                Assert.That(result.StdOut, Is.StringStarting("Vagrant version"));
+                Assert.That(result.StdOut, Is.StringStarting("Vagrant"));
             }
             catch
             {
@@ -52,7 +52,11 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
         [TestFixtureTearDown]
         public void TearDown()
         {
-            TemporaryHelper.DeleteTempFolder(_tempFolder);
+            if (_tempFolder != null)
+            {
+                TemporaryHelper.DeleteTempFolder(_tempFolder);
+                _tempFolder = null;
+            }
         }
 
         [Test]
