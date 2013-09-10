@@ -35,6 +35,9 @@
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\libs\sshnet\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -50,6 +53,8 @@
     <Compile Include="Shell\ShellOutputExtensions.cs" />
     <Compile Include="Shell\ShellLine.cs" />
     <Compile Include="IWorkerInstance.cs" />
+    <Compile Include="RSAExtensions.cs" />
+    <Compile Include="FixedDerData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
