@@ -52,7 +52,11 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
         [TestFixtureTearDown]
         public void TearDown()
         {
-            TemporaryHelper.DeleteTempFolder(_tempFolder);
+            if (_tempFolder != null)
+            {
+                TemporaryHelper.DeleteTempFolder(_tempFolder);
+                _tempFolder = null;
+            }
         }
 
         [Test]
