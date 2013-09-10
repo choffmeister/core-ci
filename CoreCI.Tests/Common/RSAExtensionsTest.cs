@@ -15,10 +15,12 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using NUnit.Framework;
-using CoreCI.Common;
-using System.Security.Cryptography;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using CoreCI.Common;
+using NUnit.Framework;
+using Renci.SshNet.Security;
 
 namespace CoreCI.Tests.Common
 {
@@ -52,23 +54,51 @@ namespace CoreCI.Tests.Common
         }
 
         [Test]
-        public void TestCase()
+        public void TestPrivateKeyCreation()
         {
             var rsa = new RSACryptoServiceProvider(1024);
 
-            var publicKeyString = rsa.ToOpenSshPublicKeyFileString("test@test");
             var privateKeyString = rsa.ToOpenSshPrivateKeyFileString();
-
-            var publicKeyPath = Path.Combine(_tempFolder, "id_rsa.pub");
             var privateKeyPath = Path.Combine(_tempFolder, "id_rsa");
-
-            File.WriteAllText(publicKeyPath, publicKeyString);
             File.WriteAllText(privateKeyPath, privateKeyString);
 
             var result = ProcessHelper.Execute("openssl", "rsa -check -in " + privateKeyPath);
 
             Assert.AreEqual(0, result.ExitCode);
             Assert.That(result.StdOut, Is.StringStarting("RSA key ok"));
+
+            string[] lines = privateKeyString.Split(new string[]
+            {
+                "\r\n",
+                "\n"
+            }, StringSplitOptions.RemoveEmptyEntries);
+            string base64 = string.Join("", lines.Skip(1).Take(lines.Length - 2));
+            byte[] binary = Convert.FromBase64String(base64);
+
+            RsaKey rsaKey = new RsaKey(binary);
+
+            Assert.AreEqual(1, rsaKey.D.Sign);
+            Assert.AreEqual(1, rsaKey.DP.Sign);
+            Assert.AreEqual(1, rsaKey.DQ.Sign);
+            Assert.AreEqual(1, rsaKey.Exponent.Sign);
+            Assert.AreEqual(1, rsaKey.InverseQ.Sign);
+            Assert.AreEqual(1, rsaKey.Modulus.Sign);
+            Assert.AreEqual(1, rsaKey.P.Sign);
+            Assert.AreEqual(1, rsaKey.Q.Sign);
+        }
+
+        [Test]
+        public void TestPublicKeyCreation()
+        {
+            var rsa = new RSACryptoServiceProvider(1024);
+
+            var publicKeyString = rsa.ToOpenSshPublicKeyFileString("test@test");
+
+            var publicKeyPath = Path.Combine(_tempFolder, "id_rsa.pub");
+
+            File.WriteAllText(publicKeyPath, publicKeyString);
+
+            Assert.Inconclusive("Did not check if result is correct");
         }
     }
 }

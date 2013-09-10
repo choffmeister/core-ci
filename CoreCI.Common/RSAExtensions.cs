@@ -55,16 +55,18 @@ namespace CoreCI.Common
         {
             RSAParameters privateKey = rsa.ExportParameters(true);
 
+            // adding a zero byte at the end of each BigInteger to ensure, that
+            // the number is recognized as positive number
             FixedDerData der = new FixedDerData();
             der.Write(new BigInteger(0));
-            der.Write(new BigInteger(privateKey.Modulus.Reverse().ToArray()));
-            der.Write(new BigInteger(privateKey.Exponent.Reverse().ToArray()));
-            der.Write(new BigInteger(privateKey.D.Reverse().ToArray()));
-            der.Write(new BigInteger(privateKey.P.Reverse().ToArray()));
-            der.Write(new BigInteger(privateKey.Q.Reverse().ToArray()));
-            der.Write(new BigInteger(privateKey.DP.Reverse().ToArray()));
-            der.Write(new BigInteger(privateKey.DQ.Reverse().ToArray()));
-            der.Write(new BigInteger(privateKey.InverseQ.Reverse().ToArray()));
+            der.Write(new BigInteger(privateKey.Modulus.Reverse().Concat(new byte[] { 0 }).ToArray()));
+            der.Write(new BigInteger(privateKey.Exponent.Reverse().Concat(new byte[] { 0 }).ToArray()));
+            der.Write(new BigInteger(privateKey.D.Reverse().Concat(new byte[] { 0 }).ToArray()));
+            der.Write(new BigInteger(privateKey.P.Reverse().Concat(new byte[] { 0 }).ToArray()));
+            der.Write(new BigInteger(privateKey.Q.Reverse().Concat(new byte[] { 0 }).ToArray()));
+            der.Write(new BigInteger(privateKey.DP.Reverse().Concat(new byte[] { 0 }).ToArray()));
+            der.Write(new BigInteger(privateKey.DQ.Reverse().Concat(new byte[] { 0 }).ToArray()));
+            der.Write(new BigInteger(privateKey.InverseQ.Reverse().Concat(new byte[] { 0 }).ToArray()));
 
             byte[] raw = der.Encode();
             string derBase64 = Convert.ToBase64String(raw);
