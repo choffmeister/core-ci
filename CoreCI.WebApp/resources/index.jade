@@ -23,10 +23,11 @@ html
         link(rel="stylesheet", href="/styles/main.css")
         script(data-main="/src/app", src="/bower_components/requirejs/require.js", async)
     body
-        header.container
-            include partials/header
-        hr.header-seperator
-        section(ng-view)
-        hr.footer-seperator
-        footer.container
-            include partials/footer
+        div#wrap
+            header.clearfix
+                div.container
+                    include partials/header
+            section(ng-view).clearfix
+        footer.clearfix
+            div.container
+                include partials/footer
