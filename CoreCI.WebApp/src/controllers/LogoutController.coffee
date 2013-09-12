@@ -14,20 +14,9 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see {http://www.gnu.org/licenses/}.
 ###
-define [
-  "angular"
-  "./controllers/AuthenticationController"
-  "./controllers/DashboardController"
-  "./controllers/LoginController"
-  "./controllers/LogoutController"
-  "./controllers/ProjectController"
-  "./controllers/TaskController"
-],
-(angular, controllers...) ->
-  # register module
-  module = angular.module("coreci.controllers", [])
+define ["basecontroller"], (BaseController) ->
+  class LogoutController extends BaseController
+    @$name = "LogoutController"
 
-  # register all controllers
-  for controller in controllers
-    controllerName = controller.$name
-    module.controller(controllerName, controller)
+    init: () =>
+      @events.emit "authentication", "logout", null

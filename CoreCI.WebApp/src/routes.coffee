@@ -19,6 +19,9 @@ define ["angular"], (angular) ->
     .config ["$routeProvider", "$locationProvider", (routeProvider, locationProvider) ->
       routeProvider
         .when("/", { redirectTo: "/dashboard" })
+        .when("/login", { templateUrl: "/views/login.html", controller: "LoginController" })
+        .when("/logout", { templateUrl: "/views/logout.html", controller: "LogoutController" })
+        .when("/auth/:provider", { templateUrl: "/views/authentication.html", controller: "AuthenticationController" })
         .when("/dashboard", { templateUrl: "/views/dashboard.html", controller: "DashboardController" })
         .when("/project/:projectId", { templateUrl: "/views/project.html", controller: "ProjectController" })
         .when("/task/:taskId", { templateUrl: "/views/task.html", controller: "TaskController" })

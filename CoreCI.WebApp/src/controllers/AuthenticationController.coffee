@@ -14,20 +14,10 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see {http://www.gnu.org/licenses/}.
 ###
-define [
-  "angular"
-  "./controllers/AuthenticationController"
-  "./controllers/DashboardController"
-  "./controllers/LoginController"
-  "./controllers/LogoutController"
-  "./controllers/ProjectController"
-  "./controllers/TaskController"
-],
-(angular, controllers...) ->
-  # register module
-  module = angular.module("coreci.controllers", [])
+define ["basecontroller"], (BaseController) ->
+  class AuthenticationController extends BaseController
+    @$name = "AuthenticationController"
 
-  # register all controllers
-  for controller in controllers
-    controllerName = controller.$name
-    module.controller(controllerName, controller)
+    init: () =>
+      if @params.provider?
+        window.location.href = "/api/auth/#{@params.provider}"
