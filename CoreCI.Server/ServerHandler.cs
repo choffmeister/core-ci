@@ -56,9 +56,10 @@ namespace CoreCI.Server
                     _logger.Trace(ex);
                 }
 
-                return ex;
+                // return with default exception handling
+                return DtoUtils.HandleException(this, req, ex);
             };
-            this.ExceptionHandler += (httpReq, httpRes, operationName, ex) =>
+            this.ExceptionHandler += (req, res, operationName, ex) =>
             {
                 _logger.Error(ex);
             };
