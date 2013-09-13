@@ -23,22 +23,29 @@ define ["basecontroller"], (BaseController) ->
       @scope.submit = @submit
 
     submit: () =>
-      data =
-        userName: @scope.userName
-        password: @scope.password
-        rememberMe: false
+      if @scope.userName? and @scope.password?
+        data =
+          userName: @scope.userName
+          password: @scope.password
+          rememberMe: false
 
-      @api.post("auth", data).then (res) =>
-        @events.emit "authentication", "login", {
-          userName: res.userName
-        }
-        @location.path("/")
-      , (error) =>
-        if error.status is 401
-          @scope.message =
-            text: "Invalid user name or password."
-            type: "warning"
-        else
-          @scope.message =
-            text: "An unknown error occured."
-            type: "error"
+        @api.post("auth", data).then (res) =>
+          @events.emit "authentication", "login", {
+            userName: res.userName
+          }
+          @location.path("/")
+        , (error) =>
+          if error.status is 401
+            @scope.message =
+              text: "Invalid user name or password."
+              type: "warning"
+          else
+            @scope.message =
+              text: "An unknown error occured."
+              type: "error"
+      else
+        @scope.message =
+          text: "Please enter your user name and your password."
+          type: "warning"
+
+      @scope.password = null

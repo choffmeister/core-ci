@@ -15,9 +15,21 @@
   along with this program. If not, see {http://www.gnu.org/licenses/}.
 ###
 define ["basecontroller"], (BaseController) ->
-  class LogoutController extends BaseController
-    @$name = "LogoutController"
+  class MainController extends BaseController
+    @$name = "MainController"
 
     init: () =>
-      @events.emit "authentication", "logout", null
-      @location.path("/")
+      @scope.isAuthenticated = false
+      @scope.user = null
+
+      @events.listen "authentication", "login", @onLogin
+      @events.listen "authentication", "logout", @onLogout
+
+    onLogin: (data) =>
+      @scope.isAuthenticated = true
+      @scope.user =
+        userName: data.userName
+
+    onLogout: () =>
+      @scope.isAuthenticated = false
+      @scope.user = null

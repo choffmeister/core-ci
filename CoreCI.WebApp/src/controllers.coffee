@@ -20,6 +20,7 @@ define [
   "./controllers/DashboardController"
   "./controllers/LoginController"
   "./controllers/LogoutController"
+  "./controllers/MainController"
   "./controllers/ProjectController"
   "./controllers/RegisterController"
   "./controllers/TaskController"

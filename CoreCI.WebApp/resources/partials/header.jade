@@ -17,5 +17,6 @@
 a#brand.pull-left(href="/") core:ci
 nav.pull-right
 	ul
-		li: a(href="/login") Login
-		li: a(href="/register") Register
+		li: a(href="/login", ng-show="isAuthenticated == false") Login
+		li: a(href="/register", ng-show="isAuthenticated == false") Register
+		li: a(href="/logout", ng-show="isAuthenticated == true") Logout
