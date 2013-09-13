@@ -42,8 +42,8 @@ namespace CoreCI.Server.Services
             UserEntity newUser = new UserEntity()
             {
                 Id = Guid.NewGuid(),
-                UserName = req.UserName,
-                Email = req.Email,
+                UserName = Normalize(req.UserName),
+                Email = Normalize(req.Email),
                 PasswordHash = req.Password,
                 PasswordSalt = string.Empty,
                 PasswordHashAlgorithm = "plain"
@@ -53,6 +53,11 @@ namespace CoreCI.Server.Services
             _userRepository.Insert(newUser);
 
             return new RegisterResponse();
+        }
+
+        private static string Normalize(string str)
+        {
+            return str.ToLowerInvariant().Trim();
         }
     }
 }
