@@ -14,14 +14,12 @@
 //- You should have received a copy of the GNU General Public License
 //- along with this program. If not, see {http://www.gnu.org/licenses/}.
 //-
+include ../mixins/inputelements
+
 .container.container-page
 	div.alert.alert-warning(ng-show="message.type == 'warning'") {{message.text}}
 	div.alert.alert-danger(ng-show="message.type == 'error'") {{message.text}}
 	form(ng-submit="submit()", autocomplete="off", role="form")
-		div.form-group
-			label(for="userName") User name
-			input#userName.form-control.input-lg(type="text", placeholder="Your user name", ng-model="userName")
-		div.form-group
-			label(for="password") Password
-			input#userName.form-control.input-lg(type="password", placeholder="Your password", ng-model="password")
-		button.btn.btn-primary.input-lg(type="submit") Login
+		+input-text("userName", "User name", "Your user name")(ng-model="userName").input-lg
+		+input-password("password", "Password", "Your password")(ng-model="password").input-lg
+		+input-submit("Login").btn-primary.input-lg

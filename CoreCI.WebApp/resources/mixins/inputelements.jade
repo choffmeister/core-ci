@@ -1,0 +1,63 @@
+//-
+//- Copyright (C) 2013 Christian Hoffmeister
+//-
+//- This program is free software: you can redistribute it and/or modify
+//- it under the terms of the GNU General Public License as published by
+//- the Free Software Foundation, either version 3 of the License, or
+//- (at your option) any later version.
+//-
+//- This program is distributed in the hope that it will be useful,
+//- but WITHOUT ANY WARRANTY; without even the implied warranty of
+//- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//- GNU General Public License for more details.
+//-
+//- You should have received a copy of the GNU General Public License
+//- along with this program. If not, see {http://www.gnu.org/licenses/}.
+//-
+mixin form-control(id, label)
+    div(class="form-group", attributes)
+        label(for="#{id}")= label
+        block
+
+mixin form-control-unlabeled()
+    div(class="form-group", attributes)
+        block
+
+mixin input-text(id, label, placeholder)
+    +form-control(id, label)
+        input.form-control(type="text", id="#{id}", name="#{id}", placeholder="#{placeholder}", attributes)
+
+mixin input-password(id, label, placeholder)
+    +form-control(id, label)
+        input.form-control(type="password", id="#{id}", name="#{id}", placeholder="#{placeholder}", attributes)
+
+mixin input-textarea(id, label, placeholder, rows)
+    +form-control(id, label)
+        textarea.form-control(id="#{id}", name="#{id}", rows="#{rows}", placeholder="#{placeholder}", attributes)
+
+mixin input-number(id, label, placeholder)
+    +form-control(id, label)
+        input.form-control(type="number", id="#{id}", name="#{id}", placeholder="#{placeholder}", attributes)
+
+mixin input-email(id, label, placeholder)
+    +form-control(id, label)
+        input.form-control(type="email", id="#{id}", name="#{id}", placeholder="#{placeholder}", attributes)
+
+mixin input-checkbox(id, label, name)
+    +form-control(id, label)
+        div.checkbox
+            label
+                input(type="checkbox", name="#{id}", attributes)
+                span= name
+
+mixin input-radio(id, label, entries)
+    +form-control(id, label)
+        each entry in entries
+            div.radio
+                label
+                    input(type="radio", name="#{id}", value="#{entry[0]}", attributes)
+                    span= entry[1]
+
+mixin input-submit(label)
+    +form-control-unlabeled
+        button.btn(type="submit", attributes)= label
