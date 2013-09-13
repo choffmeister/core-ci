@@ -21,6 +21,7 @@ define [
   "./controllers/LoginController"
   "./controllers/LogoutController"
   "./controllers/ProjectController"
+  "./controllers/RegisterController"
   "./controllers/TaskController"
 ],
 (angular, controllers...) ->

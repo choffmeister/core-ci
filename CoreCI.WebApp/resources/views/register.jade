@@ -14,8 +14,14 @@
 //- You should have received a copy of the GNU General Public License
 //- along with this program. If not, see {http://www.gnu.org/licenses/}.
 //-
-a#brand.pull-left(href="/") core:ci
-nav.pull-right
-	ul
-		li: a(href="/login") Login
-		li: a(href="/register") Register
+include ../mixins/inputelements
+
+.container.container-page
+	div.alert.alert-warning(ng-show="message.type == 'warning'") {{message.text}}
+	div.alert.alert-danger(ng-show="message.type == 'error'") {{message.text}}
+	form(ng-submit="submit()", autocomplete="off", role="form")
+		+input-text("userName", "User name", "Choose a user name")(ng-model="userName")
+		+input-email("email", "E-Mail", "Your E-Mail address")(ng-model="email")
+		+input-password("password", "Password", "Choose a password")(ng-model="password")
+		+input-password("passwordRepeated", "Password repeated", "Repeat your chosen password")(ng-model="passwordRepeated")
+		+input-submit("Register").btn-primary.input-lg

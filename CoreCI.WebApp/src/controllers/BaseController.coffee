@@ -16,9 +16,9 @@
 ###
 define ["underscore", "angular"], (_, angular) ->
   class BaseController
-    @$inject = ["$scope", "$routeParams", "api", "events"]
+    @$inject = ["$scope", "$routeParams", "$location", "api", "events"]
 
-    constructor: (@scope, @params, @api, @events) ->
+    constructor: (@scope, @params, @location, @api, @events) ->
       @listenerIds = []
       @updateThrottled = _.throttle(@update, 1000)
       @scope.params = @params
