@@ -24,6 +24,8 @@ using NLog;
 using ServiceStack.ServiceHost;
 using System.Net;
 using Microsoft.Practices.Unity;
+using ServiceStack.ServiceInterface.Auth;
+using ServiceStack.ServiceInterface;
 
 namespace CoreCI.Server
 {
@@ -89,12 +91,18 @@ namespace CoreCI.Server
 
             _unityContainer
                 .RegisterInstance<IConfigurationProvider>(_configurationProvider)
+                .RegisterType<IUserRepository, UserRepository>()
                 .RegisterType<IWorkerRepository, WorkerRepository>()
                 .RegisterType<IProjectRepository, ProjectRepository>()
                 .RegisterType<ITaskRepository, TaskRepository>()
                 .RegisterType<ITaskShellRepository, TaskShellRepository>();
 
             container.Adapter = new UnityContainerAdapter(_unityContainer);
+
+            this.Plugins.Add(new AuthFeature(() => new AuthUserSession(), new IAuthProvider[]
+            {
+                new AuthProvider(_unityContainer)
+            }));
         }
     }
 }

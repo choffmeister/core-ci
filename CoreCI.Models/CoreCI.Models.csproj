@@ -51,6 +51,8 @@
     <Compile Include="IEntity.cs" />
     <Compile Include="Entities\ProjectEntity.cs" />
     <Compile Include="Repositories\ProjectRepository.cs" />
+    <Compile Include="Repositories\UserRepository.cs" />
+    <Compile Include="Entities\UserEntity.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
