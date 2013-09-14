@@ -14,23 +14,15 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see {http://www.gnu.org/licenses/}.
 ###
-define [
-  "angular"
-  "./controllers/DashboardController"
-  "./controllers/ConnectController"
-  "./controllers/LoginController"
-  "./controllers/LogoutController"
-  "./controllers/MainController"
-  "./controllers/ProfileController"
-  "./controllers/ProjectController"
-  "./controllers/RegisterController"
-  "./controllers/TaskController"
-],
-(angular, controllers...) ->
-  # register module
-  module = angular.module("coreci.controllers", [])
+define ["basecontroller"], (BaseController) ->
+  class ProfileController extends BaseController
+    @$name = "ProfileController"
 
-  # register all controllers
-  for controller in controllers
-    controllerName = controller.$name
-    module.controller(controllerName, controller)
+    init: () =>
+      if @params.userName?
+        @api.get("profile/#{@params.userName}").then (res) =>
+          @scope.user = res.user
+      else
+        @api.get("profile").then (res) =>
+          @scope.user = res.user
+          @scope.connectors = res.connectors

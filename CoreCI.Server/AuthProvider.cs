@@ -55,7 +55,7 @@ namespace CoreCI.Server
                 UserEntity user = userRepository.Single(u => u.UserName.ToLower() == session.UserAuthName.ToLower());
 
                 session.UserAuthId = user.Id.ToString();
-                session.UserName = user.UserName;
+                session.UserAuthName = user.UserName;
                 session.Email = user.Email;
 
                 authService.SaveSession(session, TimeSpan.FromMinutes(30));

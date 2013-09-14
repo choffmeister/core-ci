@@ -86,6 +86,7 @@
     <Compile Include="AuthProvider.cs" />
     <Compile Include="Services\RegisterService.cs" />
     <Compile Include="GitHub\GitHubConnector.cs" />
+    <Compile Include="Services\ProfileService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
