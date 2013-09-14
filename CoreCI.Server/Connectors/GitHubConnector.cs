@@ -59,7 +59,6 @@ namespace CoreCI.Server.Connectors
             _projectRepository = projectRepository;
             _taskRepository = taskRepository;
 
-
             _serverDomainPublic = configurationProvider.GetSettingString("serverDomainPublic");
             _serverApiPublicBaseAddress = configurationProvider.GetSettingString("serverApiPublicBaseAddress");
 
@@ -160,6 +159,10 @@ namespace CoreCI.Server.Connectors
             if (project == null)
                 throw new ArgumentException("Invalid token", "token");
 
+            ConnectorEntity connector = _connectorRepository.Single(c => c.Id == project.ConnectorId);
+
+            string accessToken = connector.Options ["AccessToken"];
+
             TaskEntity task = new TaskEntity()
             {
                 CreatedAt = DateTime.UtcNow,
@@ -168,7 +171,7 @@ namespace CoreCI.Server.Connectors
                 Commit = commitHash,
                 CommitUrl = commit.Child("url"),
                 CommitMessage = commit.Child("message"),
-                Configuration = GetConfiguration(ownerName, repositoryName, branchName, commitHash)
+                Configuration = GetConfiguration(accessToken, ownerName, repositoryName, branchName, commitHash)
             };
             _taskRepository.Insert(task);
 
@@ -256,10 +259,10 @@ namespace CoreCI.Server.Connectors
             _projectRepository.Delete(project);
         }
 
-        private TaskConfiguration GetConfiguration(string ownerName, string repositoryName, string reference, string commitHash)
+        private TaskConfiguration GetConfiguration(string accessToken, string ownerName, string repositoryName, string reference, string commitHash)
         {
             string checkoutScript = CreateCheckoutScript(ownerName, repositoryName, reference, commitHash);
-            string configurationRaw = GetConfigurationRaw(ownerName, repositoryName, commitHash);
+            string configurationRaw = GitHubOAuth2Client.GetContent(accessToken, ownerName, repositoryName, ".core-ci.yml", commitHash);
 
             if (configurationRaw != null)
             {
@@ -287,41 +290,6 @@ namespace CoreCI.Server.Connectors
                     CheckoutScript = checkoutScript,
                     TestScript = ""
                 };
-            }
-        }
-
-        private static string GetConfigurationRaw(string ownerName, string repositoryName, string commitHash)
-        {
-            // TODO: use GitHub access_token
-            string url = string.Format("https://raw.github.com/{0}/{1}/{2}/.core-ci.yml", ownerName, repositoryName, commitHash);
-
-            try
-            {
-                _logger.Trace("Loading configuration from {0}", url);
-
-                HttpWebRequest configRequest = (HttpWebRequest)WebRequest.Create(url);
-                using (WebResponse configResponse = configRequest.GetResponse())
-                {
-                    using (StreamReader configReader = new StreamReader(configResponse.GetResponseStream()))
-                    {
-                        return configReader.ReadToEnd();
-                    }
-                }
-            }
-            catch (WebException ex)
-            {
-                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
-                {
-                    var resp = (HttpWebResponse)ex.Response;
-                    if (resp.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        return null;
-                    }
-                }
-
-                _logger.Error(ex);
-
-                throw ex;
             }
         }
 

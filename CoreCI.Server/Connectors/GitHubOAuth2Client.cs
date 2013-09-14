@@ -18,6 +18,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ServiceStack.Text;
+using System.Net;
+using System.Text;
 
 namespace CoreCI.Server.Connectors
 {
@@ -27,6 +29,7 @@ namespace CoreCI.Server.Connectors
         public const string AccessTokenUrl = "https://github.com/login/oauth/access_token?client_id={0}&client_secret={1}&code={2}";
         public const string UserProfileUrl = "https://api.github.com/user?access_token={0}";
         public const string RepositoriesUrl = "https://api.github.com/user/repos?access_token={0}";
+        public const string GetContentUrl = "https://api.github.com/repos/{1}/{2}/contents/{3}?access_token={0}&ref={4}";
         public const string CreateHookUrl = "https://api.github.com/repos/{1}/{2}/hooks?access_token={0}";
         public const string ListHooksUrl = "https://api.github.com/repos/{1}/{2}/hooks?access_token={0}";
         public const string DeleteHookUrl = "https://api.github.com/repos/{1}/{2}/hooks/{3}?access_token={0}";
@@ -66,6 +69,41 @@ namespace CoreCI.Server.Connectors
             var userProfile = JsonObject.Parse(userProfileUrl.GetJsonFromUrl());
 
             return userProfile;
+        }
+
+        public static string GetContent(string accessToken, string ownerName, string repositoryName, string path, string reference)
+        {
+            try
+            {
+                string getContentUrl = string.Format(GetContentUrl, accessToken, ownerName, repositoryName, path, reference);
+
+                var content = JsonObject.Parse(getContentUrl.GetJsonFromUrl());
+                string encoding = content.Get("encoding");
+                string encodedContent = content.Get("content");
+
+                switch (encoding)
+                {
+                    case "base64":
+                        string base64 = encodedContent.Replace("\n", "");
+
+                        return Encoding.UTF8.GetString(Convert.FromBase64String(base64));
+                    default:
+                        throw new NotSupportedException(string.Format("Encoding '{0}' is not supported", encoding));
+                }
+            }
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                {
+                    var resp = (HttpWebResponse)ex.Response;
+                    if (resp.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        return null;
+                    }
+                }
+
+                throw ex;
+            }
         }
 
         public static void RemoveHooks(string accessToken, string ownerName, string repositoryName, Func<JsonObject, bool> predicate)
