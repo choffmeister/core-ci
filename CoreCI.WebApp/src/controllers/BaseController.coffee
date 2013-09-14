@@ -36,6 +36,11 @@ define ["underscore", "angular"], (_, angular) ->
     update: () =>
       # do nothing
 
+    emitMessage: (type, text) =>
+      @events.emit "message", type,
+        type: type
+        text: text
+
     listen: (namespace, name, callback) =>
       @listenerIds.push(@events.listen(namespace, name, callback))
 

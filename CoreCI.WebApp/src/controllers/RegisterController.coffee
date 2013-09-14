@@ -30,6 +30,7 @@ define ["basecontroller"], (BaseController) ->
           password: @scope.password
 
         @api.post("register", data, false).then (res) =>
+          @emitMessage "success", "You have registered successfully. Use your credentials to log in."
           @location.path("/login")
         , (error) =>
           if error.status is 400

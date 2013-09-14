@@ -1,0 +1,30 @@
+//-
+//- Copyright (C) 2013 Christian Hoffmeister
+//-
+//- This program is free software: you can redistribute it and/or modify
+//- it under the terms of the GNU General Public License as published by
+//- the Free Software Foundation, either version 3 of the License, or
+//- (at your option) any later version.
+//-
+//- This program is distributed in the hope that it will be useful,
+//- but WITHOUT ANY WARRANTY; without even the implied warranty of
+//- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//- GNU General Public License for more details.
+//-
+//- You should have received a copy of the GNU General Public License
+//- along with this program. If not, see {http://www.gnu.org/licenses/}.
+//-
+div.container.container-page(ng-show="messages.length > 0")
+	div(ng-repeat="message in messages", ng-switch="message.type")
+		div.alert.alert-danger(ng-switch-when="error")
+			button.close(type="button", aria-hidden="true", ng-click="dismissMessage(message)") &times;
+			| {{message.text}}
+		div.alert.alert-warning(ng-switch-when="warning")
+			button.close(type="button", aria-hidden="true", ng-click="dismissMessage(message)") &times;
+			| {{message.text}}
+		div.alert.alert-success(ng-switch-when="success")
+			button.close(type="button", aria-hidden="true", ng-click="dismissMessage(message)") &times;
+			| {{message.text}}
+		div.alert.alert-info(ng-switch-when="info")
+			button.close(type="button", aria-hidden="true", ng-click="dismissMessage(message)") &times;
+			| {{message.text}}

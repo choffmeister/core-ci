@@ -19,11 +19,15 @@ define ["basecontroller"], (BaseController) ->
     @$name = "MainController"
 
     init: () =>
+      @scope.messages = []
       @scope.isAuthenticated = false
       @scope.user = null
 
-      @events.listen "authentication", "login", @onLogin
-      @events.listen "authentication", "logout", @onLogout
+      @scope.dismissMessage = @dismissMessage
+
+      @listen "authentication", "login", @onLogin
+      @listen "authentication", "logout", @onLogout
+      @listen "message", "*", @onMessage
 
     onLogin: (data) =>
       @scope.isAuthenticated = true
@@ -33,3 +37,11 @@ define ["basecontroller"], (BaseController) ->
     onLogout: () =>
       @scope.isAuthenticated = false
       @scope.user = null
+
+    onMessage: (data) =>
+      @scope.messages.push(data)
+
+    dismissMessage: (messageToDismiss) =>
+      for message, i in @scope.messages
+        if message == messageToDismiss
+          @scope.messages.splice i, 1
