@@ -26,6 +26,8 @@ namespace CoreCI.Common.Shell
     {
         public static IEnumerable<string> SplitIntoCommandLines(string script)
         {
+            script = script != null ? script + "\n" : "\n";
+
             StringBuilder sb = new StringBuilder();
             StringReader reader = new StringReader(script);
             string rawLine = null;

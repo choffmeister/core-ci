@@ -29,7 +29,8 @@ namespace CoreCI.WorkerInstance.Vagrant
         {
             using (SshCommand cmd = client.CreateCommand(commandText))
             {
-                shellOutput.WriteStandardInput(commandText);
+                if (shellOutput != null)
+                    shellOutput.WriteStandardInput(commandText);
 
                 cmd.CommandTimeout = timeout;
                 DateTime startTime = DateTime.UtcNow;
@@ -45,11 +46,15 @@ namespace CoreCI.WorkerInstance.Vagrant
                     }
                     else if (cmd.OutputStream.Length > 0)
                     {
-                        shellOutput.WriteStandardOutput(stdOutReader.ReadLine());
+                        string content = stdOutReader.ReadLine();
+                        if (shellOutput != null)
+                            shellOutput.WriteStandardOutput(content);
                     }
                     else if (cmd.ExtendedOutputStream.Length > 0)
                     {
-                        shellOutput.WriteStandardError(stdErrReader.ReadLine());
+                        string content = stdErrReader.ReadLine();
+                        if (shellOutput != null)
+                            shellOutput.WriteStandardError(content);
                     }
                     else
                     {
@@ -59,12 +64,16 @@ namespace CoreCI.WorkerInstance.Vagrant
 
                 while (cmd.OutputStream.Length > 0)
                 {
-                    shellOutput.WriteStandardOutput(stdOutReader.ReadLine());
+                    string content = stdOutReader.ReadLine();
+                    if (shellOutput != null)
+                        shellOutput.WriteStandardOutput(content);
                 }
 
                 while (cmd.ExtendedOutputStream.Length > 0)
                 {
-                    shellOutput.WriteStandardError(stdErrReader.ReadLine());
+                    string content = stdErrReader.ReadLine();
+                    if (shellOutput != null)
+                        shellOutput.WriteStandardError(content);
                 }
 
                 cmd.EndExecute(asynch);
