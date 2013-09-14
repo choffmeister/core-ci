@@ -39,34 +39,61 @@ namespace CoreCI.Server.Services
         [Authenticate]
         public object Get(ConnectorConnectRequest req)
         {
-            var connectorDescriptor = typeof(IConnector).Assembly.GetTypes()
-                .Where(t => typeof(IConnector).IsAssignableFrom(t))
-                .Select(t => new {
-                    ConnectorType = t,
-                    ConnectorAttribute = t.GetCustomAttributes(typeof(ConnectorAttribute), false).SingleOrDefault() as ConnectorAttribute
-                })
-                .Where(hd => hd.ConnectorAttribute != null)
-                .SingleOrDefault(hd => hd.ConnectorAttribute.Name == req.ConnectorName);
+            ConnectorDescriptor desc = GetConnectorDescriptor(req.ConnectorName);
 
-            if (connectorDescriptor == null)
-            {
-                throw HttpError.NotFound(string.Format("Unknown connector {0}", req.ConnectorName));
-            }
-
-            using (IConnector connector = (IConnector)_container.Resolve(connectorDescriptor.ConnectorType))
+            using (IConnector connector = (IConnector)_container.Resolve(desc.Type))
             {
                 IAuthSession session = this.GetSession();
                 IHttpRequest request = this.Request;
 
-                object result = connector.Connect(session, request);
-
-                if (result != null)
-                {
-                    return result;
-                }
-
-                return new ConnectorConnectResponse();
+                return connector.Connect(session, request);
             }
+        }
+
+        public object Post(ConnectorProcessHookRequest req)
+        {
+            ConnectorDescriptor desc = GetConnectorDescriptor(req.ConnectorName);
+
+            using (IConnector connector = (IConnector)_container.Resolve(desc.Type))
+            {
+                IHttpRequest request = this.Request;
+
+                return connector.ProcessHook(request);
+            }
+        }
+
+        private static ConnectorDescriptor GetConnectorDescriptor(string name)
+        {
+            ConnectorDescriptor connectorDescriptor = ConnectorDescriptor.GetByName(name);
+
+            if (connectorDescriptor == null)
+            {
+                throw HttpError.NotFound(string.Format("Unknown connector {0}", name));
+            }
+
+            return connectorDescriptor;
+        }
+    }
+
+    internal class ConnectorDescriptor
+    {
+        public Type Type { get; set; }
+
+        public ConnectorAttribute Meta { get; set; }
+
+        public ConnectorDescriptor(Type type)
+        {
+            this.Type = type;
+            this.Meta = type.GetCustomAttributes(typeof(ConnectorAttribute), false).SingleOrDefault() as ConnectorAttribute;
+        }
+
+        public static ConnectorDescriptor GetByName(string name)
+        {
+            return typeof(IConnector).Assembly.GetTypes()
+                .Where(t => typeof(IConnector).IsAssignableFrom(t))
+                .Select(t => new ConnectorDescriptor(t))
+                .Where(hd => hd.Meta != null)
+                .SingleOrDefault(hd => hd.Meta.Name == name);
         }
     }
 }

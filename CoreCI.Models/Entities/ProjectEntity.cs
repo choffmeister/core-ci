@@ -29,5 +29,7 @@ namespace CoreCI.Models
         public string Name { get; set; }
 
         public string Token { get; set; }
+
+        public bool IsPrivate { get; set; }
     }
 }

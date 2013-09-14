@@ -24,6 +24,12 @@ using ServiceStack.ServiceInterface.Auth;
 using CoreCI.Models;
 using System.Collections.Generic;
 using NLog;
+using System.IO;
+using ServiceStack.Common.Web;
+using System.Text;
+using YamlDotNet.RepresentationModel;
+using CoreCI.Server.Services;
+using System.Net;
 
 namespace CoreCI.Server.GitHub
 {
@@ -34,6 +40,8 @@ namespace CoreCI.Server.GitHub
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IUserRepository _userRepository;
         private readonly IConnectorRepository _connectorRepository;
+        private readonly IProjectRepository _projectRepository;
+        private readonly ITaskRepository _taskRepository;
         private readonly string _gitHubConsumerKey;
         private readonly string _gitHubConsumerSecret;
         private readonly string _gitHubScopes;
@@ -44,11 +52,13 @@ namespace CoreCI.Server.GitHub
         public const string UserProfileUrl = "https://api.github.com/user";
         public const string RepositoriesUrl = "https://api.github.com/user/repos";
 
-        public GitHubConnector(IConfigurationProvider configurationProvider, IUserRepository userRepository, IConnectorRepository connectorRepository)
+        public GitHubConnector(IConfigurationProvider configurationProvider, IUserRepository userRepository, IConnectorRepository connectorRepository, IProjectRepository projectRepository, ITaskRepository taskRepository)
         {
             _configurationProvider = configurationProvider;
             _userRepository = userRepository;
             _connectorRepository = connectorRepository;
+            _projectRepository = projectRepository;
+            _taskRepository = taskRepository;
 
             _gitHubConsumerKey = configurationProvider.GetSettingString("oauthGitHubConsumerKey");
             _gitHubConsumerSecret = configurationProvider.GetSettingString("oauthGitHubConsumerSecret");
@@ -61,6 +71,8 @@ namespace CoreCI.Server.GitHub
             _configurationProvider.Dispose();
             _userRepository.Dispose();
             _connectorRepository.Dispose();
+            _projectRepository.Dispose();
+            _taskRepository.Dispose();
         }
 
         public object Connect(IAuthSession session, IHttpRequest req)
@@ -129,6 +141,63 @@ namespace CoreCI.Server.GitHub
             }
         }
 
+        public object ProcessHook(IHttpRequest req)
+        {
+            _logger.Info("Received hook");
+
+            string tokenString = req.GetParam("token");
+            string payloadString = req.GetParam("payload");
+
+            if (tokenString == null)
+                throw new ArgumentException("Hook request misses token", "token");
+            if (payloadString == null)
+                throw new ArgumentException("Payload request misses payload", "payload");
+
+            JsonObject payload = JsonObject.Parse(payloadString);
+            string ownerName = payload.Object("repository").Object("owner").Child("name");
+            string repositoryName = payload.Object("repository").Child("name");
+            string commitHash = payload.Child("after");
+            JsonObject commit = payload.ArrayObjects("commits").Single(n => n.Child("id") == commitHash);
+            string reference = payload.Child("ref");
+            bool isPrivate = bool.Parse(payload.Object("repository").Child("private"));
+            string projectName = string.Format("{0}/{1}", ownerName, repositoryName);
+            string branchName = ConvertReferenceToBranch(reference);
+
+            ProjectEntity project = _projectRepository.SingleOrDefault(p => p.Token == tokenString);
+
+            //if (project == null)
+            //throw new ArgumentException("Invalid token", "token");
+            if (project == null)
+            {
+                project = new ProjectEntity()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = projectName,
+                    Token = tokenString,
+                    UserId = Guid.Empty,
+                    IsPrivate = isPrivate
+                };
+                _projectRepository.Insert(project);
+            }
+
+            TaskEntity task = new TaskEntity()
+            {
+                CreatedAt = DateTime.UtcNow,
+                ProjectId = project.Id,
+                Branch = branchName,
+                Commit = commitHash,
+                CommitUrl = commit.Child("url"),
+                CommitMessage = commit.Child("message"),
+                Configuration = GetConfiguration(ownerName, repositoryName, branchName, commitHash)
+            };
+            _taskRepository.Insert(task);
+
+            PushService.Push("tasks", null);
+            PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "created");
+
+            return null;
+        }
+
         public static JsonObject GetRepositories(string accessToken)
         {
             string repositoryUrl = RepositoriesUrl.AddQueryParam("access_token", accessToken);
@@ -145,6 +214,96 @@ namespace CoreCI.Server.GitHub
             var userProfile = JsonObject.Parse(userProfileString);
 
             return userProfile;
+        }
+
+        private TaskConfiguration GetConfiguration(string ownerName, string repositoryName, string reference, string commitHash)
+        {
+            string checkoutScript = CreateCheckoutScript(ownerName, repositoryName, reference, commitHash);
+            string configurationRaw = GetConfigurationRaw(ownerName, repositoryName, commitHash);
+
+            if (configurationRaw != null)
+            {
+                var yaml = new YamlStream();
+                var configReader = new StringReader(configurationRaw);
+                yaml.Load(configReader);
+                var rootNode = (YamlMappingNode)yaml.Documents [0].RootNode;
+
+                string machine = ((YamlScalarNode)rootNode.Children [new YamlScalarNode("machine")]).Value;
+                string script = ((YamlScalarNode)rootNode.Children [new YamlScalarNode("script")]).Value;
+
+                return new TaskConfiguration()
+                {
+                    Machine = machine,
+                    CheckoutScript = checkoutScript,
+                    TestScript = script
+                };
+            }
+            else
+            {
+                // project has no configuration file, use default configuration
+                return new TaskConfiguration()
+                {
+                    Machine = "precise64",
+                    CheckoutScript = checkoutScript,
+                    TestScript = ""
+                };
+            }
+        }
+
+        private static string GetConfigurationRaw(string ownerName, string repositoryName, string commitHash)
+        {
+            // TODO: use GitHub access_token
+            string url = string.Format("https://raw.github.com/{0}/{1}/{2}/.core-ci.yml", ownerName, repositoryName, commitHash);
+
+            try
+            {
+                _logger.Trace("Loading configuration from {0}", url);
+
+                HttpWebRequest configRequest = (HttpWebRequest)WebRequest.Create(url);
+                using (WebResponse configResponse = configRequest.GetResponse())
+                {
+                    using (StreamReader configReader = new StreamReader(configResponse.GetResponseStream()))
+                    {
+                        return configReader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                {
+                    var resp = (HttpWebResponse)ex.Response;
+                    if (resp.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        return null;
+                    }
+                }
+
+                _logger.Error(ex);
+
+                throw ex;
+            }
+        }
+
+        private static string CreateCheckoutScript(string ownerName, string repositoryName, string branchName, string commitHash)
+        {
+            StringBuilder script = new StringBuilder();
+
+            script.Append(string.Format("git clone --depth=50 --branch={2} git://github.com/{0}/{1}.git {0}/{1}\n", ownerName, repositoryName, branchName, commitHash));
+            script.Append(string.Format("cd {0}/{1} && git checkout -qf {3}\n", ownerName, repositoryName, branchName, commitHash));
+            script.Append(string.Format("cd {0}/{1} && git branch -va\n", ownerName, repositoryName, branchName, commitHash));
+
+            return script.ToString();
+        }
+
+        private static string ConvertReferenceToBranch(string reference)
+        {
+            if (!reference.StartsWith("refs/heads/", StringComparison.InvariantCulture))
+            {
+                throw new Exception("Reference must start with refs/heads/");
+            }
+
+            return reference.Substring("refs/heads/".Length);
         }
     }
 }

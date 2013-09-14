@@ -22,10 +22,22 @@ namespace CoreCI.Tests
 {
     public class RepositoryAwareTestFixture
     {
+        private IConnectorRepository _connectorRepository;
+        private IUserRepository _userRepository;
         private IWorkerRepository _workerRepository;
         private IProjectRepository _projectRepository;
         private ITaskRepository _taskRepository;
         private ITaskShellRepository _taskShellRepository;
+
+        public IConnectorRepository ConnectorRepository
+        {
+            get { return _connectorRepository; }
+        }
+
+        public IUserRepository UserRepository
+        {
+            get { return _userRepository; }
+        }
 
         public IWorkerRepository WorkerRepository
         {
@@ -52,6 +64,8 @@ namespace CoreCI.Tests
         {
             string connectionString = "Server=mongodb://localhost;Database=coreci-test";
 
+            _connectorRepository = CoreCI.Models.ConnectorRepository.CreateTemporary(connectionString);
+            _userRepository = CoreCI.Models.UserRepository.CreateTemporary(connectionString);
             _workerRepository = CoreCI.Models.WorkerRepository.CreateTemporary(connectionString);
             _projectRepository = CoreCI.Models.ProjectRepository.CreateTemporary(connectionString);
             _taskRepository = CoreCI.Models.TaskRepository.CreateTemporary(connectionString);
@@ -61,11 +75,15 @@ namespace CoreCI.Tests
         [TearDown]
         public void TearDown()
         {
+            _connectorRepository.Clear();
+            _userRepository.Clear();
             _workerRepository.Clear();
             _projectRepository.Clear();
             _taskRepository.Clear();
             _taskShellRepository.Clear();
 
+            _connectorRepository.Dispose();
+            _userRepository.Dispose();
             _workerRepository.Dispose();
             _projectRepository.Dispose();
             _taskRepository.Dispose();

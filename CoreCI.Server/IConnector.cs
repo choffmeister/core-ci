@@ -25,6 +25,8 @@ namespace CoreCI.Server
     public interface IConnector : IDisposable
     {
         object Connect(IAuthSession session, IHttpRequest request);
+
+        object ProcessHook(IHttpRequest request);
     }
 
     public static class ConnectorExtensions

@@ -44,13 +44,13 @@
     <Compile Include="DispatcherWorkerKeepAliveRequest.cs" />
     <Compile Include="DispatcherTaskUpdateStartRequest.cs" />
     <Compile Include="DispatcherTaskUpdateFinishRequest.cs" />
-    <Compile Include="HookRequest.cs" />
     <Compile Include="ProjectListRequest.cs" />
     <Compile Include="ProjectRetrieveRequest.cs" />
     <Compile Include="TaskListByProjectRequest.cs" />
     <Compile Include="RegisterRequest.cs" />
     <Compile Include="ProfileRetrieveRequest.cs" />
     <Compile Include="ConnectorConnectRequest.cs" />
+    <Compile Include="ConnectorProcessHookRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

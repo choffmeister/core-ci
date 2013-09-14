@@ -14,19 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using ServiceStack.ServiceHost;
-using System.Collections.Generic;
+using CoreCI.Common;
 
-namespace CoreCI.Contracts
+namespace CoreCI.Tests
 {
-    [Route("/hook/{HookName}", "POST")]
-    public class HookRequest : IReturn<HookResponse>
+    public class MockConfigurationProvider : IConfigurationProvider
     {
-        public string HookName { get; set; }
-    }
+        public string GetConnectionString(string name, bool throwIfNotExistent = true)
+        {
+            return string.Empty;
+        }
 
-    public class HookResponse
-    {
+        public string GetSettingString(string key, bool throwIfNotExistent = true)
+        {
+            return string.Empty;
+        }
+
+        public string GetPath(string key, bool throwIfNotExistent = true)
+        {
+            return string.Empty;
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }

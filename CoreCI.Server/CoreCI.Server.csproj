@@ -78,18 +78,14 @@
     <Compile Include="Services\DispatcherService.cs" />
     <Compile Include="RepositoryExtensions.cs" />
     <Compile Include="UnityContainerAdapter.cs" />
-    <Compile Include="Services\HookService.cs" />
     <Compile Include="Services\ProjectService.cs" />
-    <Compile Include="HookAttribute.cs" />
-    <Compile Include="IHook.cs" />
-    <Compile Include="GitHub\GitHubHook.cs" />
     <Compile Include="AuthProvider.cs" />
     <Compile Include="Services\RegisterService.cs" />
-    <Compile Include="GitHub\GitHubConnector.cs" />
     <Compile Include="Services\ProfileService.cs" />
     <Compile Include="Services\ConnectorService.cs" />
     <Compile Include="IConnector.cs" />
     <Compile Include="ConnectorAttribute.cs" />
+    <Compile Include="GitHub\GitHubConnector.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

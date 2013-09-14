@@ -21,12 +21,8 @@ using System.Collections.Generic;
 namespace CoreCI.Contracts
 {
     [Route("/connector/{ConnectorName}/connect")]
-    public class ConnectorConnectRequest : IReturn<ConnectorConnectResponse>
+    public class ConnectorConnectRequest : IReturnVoid
     {
         public string ConnectorName { get; set; }
-    }
-
-    public class ConnectorConnectResponse
-    {
     }
 }

@@ -15,22 +15,14 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using ServiceStack.ServiceHost;
+using System.Collections.Generic;
 
-namespace CoreCI.Server
+namespace CoreCI.Contracts
 {
-    [AttributeUsage (AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    public sealed class HookAttribute : Attribute
+    [Route("/connector/{ConnectorName}/hook")]
+    public class ConnectorProcessHookRequest : IReturnVoid
     {
-        private readonly string _name;
-
-        public string Name
-        {
-            get { return _name; }
-        }
-
-        public HookAttribute(string name)
-        {
-            this._name = name;
-        }
+        public string ConnectorName { get; set; }
     }
 }
