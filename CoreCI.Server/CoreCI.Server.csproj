@@ -86,6 +86,7 @@
     <Compile Include="Connectors\GitHubConnector.cs" />
     <Compile Include="Connectors\IConnector.cs" />
     <Compile Include="Connectors\ConnectorAttribute.cs" />
+    <Compile Include="Connectors\GitHubOAuth2Client.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

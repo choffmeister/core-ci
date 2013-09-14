@@ -48,16 +48,6 @@ namespace CoreCI.Server.Connectors
         private readonly string _gitHubScopes;
         private readonly string _gitHubRedirectUrl;
         public const string Name = "github";
-        public const string AuthorizeUrl = "https://github.com/login/oauth/authorize";
-        public const string AccessTokenUrl = "https://github.com/login/oauth/access_token";
-        public const string UserProfileUrl = "https://api.github.com/user";
-        public const string RepositoriesUrl = "https://api.github.com/user/repos";
-        public const string CreateHookUrl = "https://api.github.com/repos/{0}/{1}/hooks";
-        public const string ListHooksUrl = "https://api.github.com/repos/{0}/{1}/hooks";
-        public const string DeleteHookUrl = "https://api.github.com/repos/{0}/{1}/hooks/{2}";
-        public const string CreateKeyUrl = "https://api.github.com/repos/{0}/{1}/keys";
-        public const string ListKeysUrl = "https://api.github.com/repos/{0}/{1}/keys";
-        public const string DeleteKeyUrl = "https://api.github.com/repos/{0}/{1}/keys/{2}";
 
         public GitHubConnector(IConfigurationProvider configurationProvider, IUserRepository userRepository, IConnectorRepository connectorRepository, IProjectRepository projectRepository, ITaskRepository taskRepository)
         {
@@ -89,17 +79,11 @@ namespace CoreCI.Server.Connectors
 
             if (code != null)
             {
-                string accessTokenUrl = AccessTokenUrl
-                    .AddQueryParam("client_id", _gitHubConsumerKey)
-                    .AddQueryParam("client_secret", _gitHubConsumerSecret)
-                    .AddQueryParam("code", code);
-
-                var accessTokenResponse = JsonObject.Parse(accessTokenUrl.GetJsonFromUrl());
-                string accessToken = accessTokenResponse ["access_token"];
+                string accessToken = GitHubOAuth2Client.GetAccessToken(_gitHubConsumerKey, _gitHubConsumerSecret, code);
 
                 if (accessToken != null)
                 {
-                    var userProfile = GetUserProfile(accessToken);
+                    var userProfile = GitHubOAuth2Client.GetUserProfile(accessToken);
 
                     DateTime now = DateTime.UtcNow;
                     UserEntity user = _userRepository.Single(u => u.Id == Guid.Parse(session.UserAuthId));
@@ -141,11 +125,7 @@ namespace CoreCI.Server.Connectors
             }
             else
             {
-                string authorizeUrl = AuthorizeUrl
-                    .AddQueryParam("client_id", _gitHubConsumerKey)
-                    .AddQueryParam("scope", _gitHubScopes);
-
-                return this.Redirect(authorizeUrl);
+                return this.Redirect(GitHubOAuth2Client.GetAuthorizeUrl(_gitHubConsumerKey, _gitHubScopes));
             }
         }
 
@@ -201,7 +181,7 @@ namespace CoreCI.Server.Connectors
             if (connector.Provider != Name)
                 throw new InvalidOperationException();
 
-            return GetRepositories(connector.Options ["AccessToken"])
+            return GitHubOAuth2Client.GetRepositories(connector.Options ["AccessToken"])
                 .Select(r => r.Child("name"))
                 .ToList();
         }
@@ -241,10 +221,10 @@ namespace CoreCI.Server.Connectors
 
             _projectRepository.Insert(project);
 
-            CleanUpHooks(accessToken, gitHubUserName, projectName);
-            CreateHook(accessToken, gitHubUserName, projectName, token, project.Id, "http://home.choffmeister.com:8080/api/connector/github/hook");
-            CleanUpKeys(accessToken, gitHubUserName, projectName);
-            CreateKey(accessToken, gitHubUserName, projectName, project.Options ["PublicKey"]);
+            GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, projectName, h => h.Child("url").Contains("choffmeister"));
+            GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, projectName, h => h.Child("title").Contains("choffmeister"));
+            GitHubOAuth2Client.CreateHook(accessToken, gitHubUserName, projectName, "http://home.choffmeister.com:8080/api/connector/github/hook?token=" + token);
+            GitHubOAuth2Client.CreateKey(accessToken, gitHubUserName, projectName, project.Options ["PublicKey"]);
 
             _logger.Info("Created hook");
             return project;
@@ -264,84 +244,10 @@ namespace CoreCI.Server.Connectors
             string gitHubUserName = connector.Options ["UserName"];
             string accessToken = connector.Options ["AccessToken"];
 
-            CleanUpHooks(accessToken, gitHubUserName, project.Name);
-            CleanUpKeys(accessToken, gitHubUserName, project.Name);
+            GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, project.Name, h => h.Child("url").Contains("choffmeister"));
+            GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, project.Name, h => h.Child("title").Contains("choffmeister"));
 
             _projectRepository.Delete(project);
-        }
-
-        private static void CleanUpHooks(string accessToken, string ownerName, string repositoryName)
-        {
-            // delete all existing hooks to our url
-            string listHooksUrl = string.Format(ListHooksUrl, ownerName, repositoryName)
-                .AddQueryParam("access_token", accessToken);
-
-            JsonArrayObjects hooks = JsonArrayObjects.Parse(listHooksUrl.GetJsonFromUrl());
-            foreach (JsonObject hook in hooks.Where(h => h.Child("url").Contains("choffmeister")))
-            {
-                string deleteHookUrl = string.Format(DeleteHookUrl, ownerName, repositoryName, hook.Child("id"))
-                    .AddQueryParam("access_token", accessToken);
-
-                deleteHookUrl.DeleteFromUrl();
-            }
-        }
-
-        private static void CreateHook(string accessToken, string ownerName, string repositoryName, string token, Guid projectId, string url)
-        {
-            string createHookUrl = string.Format(CreateHookUrl, ownerName, repositoryName)
-                .AddQueryParam("access_token", accessToken);
-
-            createHookUrl.PostJsonToUrl(new
-            {
-                name = "web",
-                active = false,
-                events = new List<string>() { "push" },
-                config = new Dictionary<string, string>() { { "url", url.AddQueryParam("token", token) } },
-            });
-        }
-
-        private static void CleanUpKeys(string accessToken, string ownerName, string repositoryName)
-        {
-            string listKeysUrl = string.Format(ListKeysUrl, ownerName, repositoryName)
-                .AddQueryParam("access_token", accessToken);
-
-            JsonArrayObjects keys = JsonArrayObjects.Parse(listKeysUrl.GetJsonFromUrl());
-            foreach (JsonObject key in keys.Where(h => h.Child("title").Contains("choffmeister")))
-            {
-                string deleteKeyUrl = string.Format(DeleteKeyUrl, ownerName, repositoryName, key.Child("id"))
-                    .AddQueryParam("access_token", accessToken);
-
-                deleteKeyUrl.DeleteFromUrl();
-            }
-        }
-
-        private static void CreateKey(string accessToken, string ownerName, string repositoryName, string publicKeyString)
-        {
-            string createKeyUrl = string.Format(CreateKeyUrl, ownerName, repositoryName)
-                .AddQueryParam("access_token", accessToken);
-
-            createKeyUrl.PostJsonToUrl(new
-            {
-                key = publicKeyString
-            });
-        }
-
-        private static JsonArrayObjects GetRepositories(string accessToken)
-        {
-            string repositoryUrl = RepositoriesUrl.AddQueryParam("access_token", accessToken);
-            var repositoriesString = repositoryUrl.GetJsonFromUrl();
-            var repositories = JsonArrayObjects.Parse(repositoriesString);
-
-            return repositories;
-        }
-
-        private static JsonObject GetUserProfile(string accessToken)
-        {
-            string userProfileUrl = UserProfileUrl.AddQueryParam("access_token", accessToken);
-            var userProfileString = userProfileUrl.GetJsonFromUrl();
-            var userProfile = JsonObject.Parse(userProfileString);
-
-            return userProfile;
         }
 
         private TaskConfiguration GetConfiguration(string ownerName, string repositoryName, string reference, string commitHash)
