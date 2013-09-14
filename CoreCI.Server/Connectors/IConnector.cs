@@ -33,6 +33,8 @@ namespace CoreCI.Server.Connectors
         List<string> ListProjects(IAuthSession session, Guid connectorId);
 
         void AddProject(IAuthSession session, Guid connectorId, string projectName);
+
+        void RemoveProject(IAuthSession session, Guid connectorId, Guid projectId);
     }
 
     public static class ConnectorExtensions

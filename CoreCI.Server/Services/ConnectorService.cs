@@ -94,6 +94,21 @@ namespace CoreCI.Server.Services
             }
         }
 
+        [Authenticate]
+        public ConnectorRemoveProjectResponse Delete(ConnectorRemoveProjectRequest req)
+        {
+            ConnectorDescriptor desc = GetConnectorDescriptor(req.ConnectorName);
+
+            using (IConnector connector = (IConnector)_container.Resolve(desc.Type))
+            {
+                IAuthSession session = this.GetSession();
+
+                connector.RemoveProject(session, req.ConnectorId, req.ProjectId);
+
+                return new ConnectorRemoveProjectResponse();
+            }
+        }
+
         private static ConnectorDescriptor GetConnectorDescriptor(string name)
         {
             ConnectorDescriptor connectorDescriptor = ConnectorDescriptor.GetByName(name);

@@ -15,6 +15,7 @@
 //- along with this program. If not, see {http://www.gnu.org/licenses/}.
 //-
 .container.container-page
+	h3 User
 	p Username {{user.userName}}
 hr
 .container.container-page
@@ -25,3 +26,9 @@ hr
 			| ({{connector.options.UserName}}) -&gt;
 			a(href="/project/add/{{connector.provider}}/{{connector.id}}") Add project
 	p: a(href="/connect/github") Connect with GitHub
+hr
+.container.container-page
+	h3 Projects
+	div(ng-repeat="project in projects")
+		div {{project.fullName}}
+			button(ng-click="removeProject(project)") Remove

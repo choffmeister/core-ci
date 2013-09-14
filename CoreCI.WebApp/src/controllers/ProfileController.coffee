@@ -19,6 +19,8 @@ define ["basecontroller"], (BaseController) ->
     @$name = "ProfileController"
 
     init: () =>
+      @scope.removeProject = @removeProject
+
       if @params.userName?
         @api.get("profile/#{@params.userName}").then (res) =>
           @scope.user = res.user
@@ -26,3 +28,8 @@ define ["basecontroller"], (BaseController) ->
         @api.get("profile").then (res) =>
           @scope.user = res.user
           @scope.connectors = res.connectors
+          @scope.projects = res.projects
+
+    removeProject: (project) =>
+      @api.delete("/connector/github/#{project.connectorId}/projects/remove/#{project.id}").then (res) =>
+        @emitMessage "success", "You have removed your project."

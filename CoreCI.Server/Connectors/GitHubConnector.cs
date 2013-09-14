@@ -249,6 +249,26 @@ namespace CoreCI.Server.Connectors
             _logger.Info("Created hook");
         }
 
+        public void RemoveProject(IAuthSession session, Guid connectorId, Guid projectId)
+        {
+            Guid userId = Guid.Parse(session.UserAuthId);
+            ConnectorEntity connector = _connectorRepository.Single(c => c.Id == connectorId);
+            ProjectEntity project = _projectRepository.Single(p => p.Id == projectId);
+
+            if (connector.UserId != userId)
+                throw HttpError.NotFound("Unknown connector");
+            if (connector.Provider != Name)
+                throw new InvalidOperationException();
+
+            string gitHubUserName = connector.Options ["UserName"];
+            string accessToken = connector.Options ["AccessToken"];
+
+            CleanUpHooks(accessToken, gitHubUserName, project.Name);
+            CleanUpKeys(accessToken, gitHubUserName, project.Name);
+
+            _projectRepository.Delete(project);
+        }
+
         private static void CleanUpHooks(string accessToken, string ownerName, string repositoryName)
         {
             // delete all existing hooks to our url
