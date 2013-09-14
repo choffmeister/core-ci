@@ -31,7 +31,7 @@ using YamlDotNet.RepresentationModel;
 using CoreCI.Server.Services;
 using System.Net;
 
-namespace CoreCI.Server.GitHub
+namespace CoreCI.Server.Connectors
 {
     [Connector("github")]
     public class GitHubConnector : IConnector

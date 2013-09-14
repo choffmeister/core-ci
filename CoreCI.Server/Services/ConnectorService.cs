@@ -24,6 +24,7 @@ using CoreCI.Contracts;
 using ServiceStack.Common.Web;
 using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.ServiceHost;
+using CoreCI.Server.Connectors;
 
 namespace CoreCI.Server.Services
 {

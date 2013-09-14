@@ -15,22 +15,27 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using ServiceStack.ServiceHost;
+using ServiceStack.ServiceInterface.Auth;
+using ServiceStack.Common.Web;
+using System.Net;
 
-namespace CoreCI.Server
+namespace CoreCI.Server.Connectors
 {
-    [AttributeUsage (AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    public sealed class ConnectorAttribute : Attribute
+    public interface IConnector : IDisposable
     {
-        private readonly string _name;
+        object Connect(IAuthSession session, IHttpRequest request);
 
-        public string Name
-        {
-            get { return _name; }
-        }
+        object ProcessHook(IHttpRequest request);
+    }
 
-        public ConnectorAttribute(string name)
+    public static class ConnectorExtensions
+    {
+        public static IHttpResult Redirect(this IConnector connector, string url, string message = null)
         {
-            this._name = name;
+            HttpResult httpResult = new HttpResult(HttpStatusCode.Found, message);
+            httpResult.Headers.Add("Location", url);
+            return httpResult;
         }
     }
 }

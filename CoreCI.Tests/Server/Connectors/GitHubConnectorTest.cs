@@ -20,10 +20,10 @@ using CoreCI.Models;
 using NUnit.Framework;
 using ServiceStack.ServiceInterface.Testing;
 using System.Threading.Tasks;
-using CoreCI.Server.GitHub;
+using CoreCI.Server.Connectors;
 using CoreCI.Common;
 
-namespace CoreCI.Tests.Server.GitHub
+namespace CoreCI.Tests.Server.Connectors
 {
     [TestFixture]
     public class GitHubConnectorTest : RepositoryAwareTestFixture

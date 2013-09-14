@@ -83,9 +83,9 @@
     <Compile Include="Services\RegisterService.cs" />
     <Compile Include="Services\ProfileService.cs" />
     <Compile Include="Services\ConnectorService.cs" />
-    <Compile Include="IConnector.cs" />
-    <Compile Include="ConnectorAttribute.cs" />
-    <Compile Include="GitHub\GitHubConnector.cs" />
+    <Compile Include="Connectors\GitHubConnector.cs" />
+    <Compile Include="Connectors\IConnector.cs" />
+    <Compile Include="Connectors\ConnectorAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -100,7 +100,7 @@
   <ItemGroup>
     <Folder Include="Services\" />
     <Folder Include="Managers\" />
-    <Folder Include="GitHub\" />
+    <Folder Include="Connectors\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CoreCI.Contracts\CoreCI.Contracts.csproj">
