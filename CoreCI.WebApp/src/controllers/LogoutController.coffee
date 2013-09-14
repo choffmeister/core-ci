@@ -19,5 +19,6 @@ define ["basecontroller"], (BaseController) ->
     @$name = "LogoutController"
 
     init: () =>
-      @events.emit "authentication", "logout", null
-      @location.path("/")
+      @api.get("auth/logout").then (res) =>
+        @events.emit "authentication", "logout", null
+        @location.path("/")
