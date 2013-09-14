@@ -75,6 +75,8 @@ namespace CoreCI.Models
     {
         public string Machine { get; set; }
 
+        public string SecretStartupScript { get; set; }
+
         public string CheckoutScript { get; set; }
 
         public string TestScript { get; set; }

@@ -159,6 +159,9 @@ namespace CoreCI.Server.Connectors
             if (project == null)
                 throw new ArgumentException("Invalid token", "token");
 
+            string publicKeyFileString = project.Options ["PublicKey"];
+            string privateKeyFileString = project.Options ["PrivateKey"];
+
             ConnectorEntity connector = _connectorRepository.Single(c => c.Id == project.ConnectorId);
 
             string accessToken = connector.Options ["AccessToken"];
@@ -171,7 +174,7 @@ namespace CoreCI.Server.Connectors
                 Commit = commitHash,
                 CommitUrl = commit.Child("url"),
                 CommitMessage = commit.Child("message"),
-                Configuration = GetConfiguration(accessToken, ownerName, repositoryName, branchName, commitHash)
+                Configuration = GetConfiguration(accessToken, ownerName, repositoryName, branchName, commitHash, publicKeyFileString, privateKeyFileString)
             };
             _taskRepository.Insert(task);
 
@@ -259,8 +262,9 @@ namespace CoreCI.Server.Connectors
             _projectRepository.Delete(project);
         }
 
-        private TaskConfiguration GetConfiguration(string accessToken, string ownerName, string repositoryName, string reference, string commitHash)
+        private TaskConfiguration GetConfiguration(string accessToken, string ownerName, string repositoryName, string reference, string commitHash, string publicKeyFileString, string privateKeyFileString)
         {
+            string secretStartupScript = CreateSecretStartupScript(publicKeyFileString, privateKeyFileString);
             string checkoutScript = CreateCheckoutScript(ownerName, repositoryName, reference, commitHash);
             string configurationRaw = GitHubOAuth2Client.GetContent(accessToken, ownerName, repositoryName, ".core-ci.yml", commitHash);
 
@@ -277,6 +281,7 @@ namespace CoreCI.Server.Connectors
                 return new TaskConfiguration()
                 {
                     Machine = machine,
+                    SecretStartupScript = secretStartupScript,
                     CheckoutScript = checkoutScript,
                     TestScript = script
                 };
@@ -287,17 +292,31 @@ namespace CoreCI.Server.Connectors
                 return new TaskConfiguration()
                 {
                     Machine = "precise64",
+                    SecretStartupScript = secretStartupScript,
                     CheckoutScript = checkoutScript,
                     TestScript = ""
                 };
             }
         }
 
+        private static string CreateSecretStartupScript(string publicKeyFileString, string privateKeyFileString)
+        {
+            StringBuilder script = new StringBuilder();
+
+            script.Append("mkdir -p .ssh\n");
+            script.Append(string.Format("echo \"{0}\" > .ssh/id_rsa.pub\n", publicKeyFileString));
+            script.Append(string.Format("echo \"{0}\" > .ssh/id_rsa\n", privateKeyFileString));
+            script.Append("chmod 600 .ssh/id_rsa\n");
+            script.Append("chmod 644 .ssh/id_rsa.pub\n");
+
+            return script.ToString();
+        }
+
         private static string CreateCheckoutScript(string ownerName, string repositoryName, string branchName, string commitHash)
         {
             StringBuilder script = new StringBuilder();
 
-            script.Append(string.Format("git clone --depth=50 --branch={2} git://github.com/{0}/{1}.git {0}/{1}\n", ownerName, repositoryName, branchName, commitHash));
+            script.Append(string.Format("git clone --depth=50 --branch={2} git@github.com:{0}/{1}.git {0}/{1}\n", ownerName, repositoryName, branchName, commitHash));
             script.Append(string.Format("cd {0}/{1} && git checkout -qf {3}\n", ownerName, repositoryName, branchName, commitHash));
             script.Append(string.Format("cd {0}/{1} && git branch -va\n", ownerName, repositoryName, branchName, commitHash));
 
