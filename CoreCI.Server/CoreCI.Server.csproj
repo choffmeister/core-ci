@@ -87,6 +87,9 @@
     <Compile Include="Services\RegisterService.cs" />
     <Compile Include="GitHub\GitHubConnector.cs" />
     <Compile Include="Services\ProfileService.cs" />
+    <Compile Include="Services\ConnectorService.cs" />
+    <Compile Include="IConnector.cs" />
+    <Compile Include="ConnectorAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

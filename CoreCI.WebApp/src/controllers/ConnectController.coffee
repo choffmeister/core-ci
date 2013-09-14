@@ -20,4 +20,4 @@ define ["basecontroller"], (BaseController) ->
 
     init: () =>
       if @params.provider?
-        window.location.href = "/api/connect/#{@params.provider}"
+        window.location.href = "/api/connector/#{@params.provider}/connect"

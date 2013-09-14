@@ -27,7 +27,8 @@ using NLog;
 
 namespace CoreCI.Server.GitHub
 {
-    public class GitHubConnector : Service
+    [Connector("github")]
+    public class GitHubConnector : IConnector
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IConfigurationProvider _configurationProvider;
@@ -41,7 +42,7 @@ namespace CoreCI.Server.GitHub
         public const string AuthorizeUrl = "https://github.com/login/oauth/authorize";
         public const string AccessTokenUrl = "https://github.com/login/oauth/access_token";
         public const string UserProfileUrl = "https://api.github.com/user";
-        public const string RepositoriesUrl = "https://api.github.com/repos";
+        public const string RepositoriesUrl = "https://api.github.com/user/repos";
 
         public GitHubConnector(IConfigurationProvider configurationProvider, IUserRepository userRepository, IConnectorRepository connectorRepository)
         {
@@ -55,17 +56,16 @@ namespace CoreCI.Server.GitHub
             _gitHubRedirectUrl = configurationProvider.GetSettingString("oauthGitHubRedirectUrl", false);
         }
 
-        public override void Dispose()
+        public void Dispose()
         {
             _configurationProvider.Dispose();
             _userRepository.Dispose();
             _connectorRepository.Dispose();
         }
 
-        [Authenticate]
-        public object Get(GitHubConnectorConnectRequest req)
+        public object Connect(IAuthSession session, IHttpRequest req)
         {
-            string code = this.Request.QueryString.Get("code");
+            string code = req.QueryString.Get("code");
 
             if (code != null)
             {
@@ -82,7 +82,6 @@ namespace CoreCI.Server.GitHub
                     var userProfile = GetUserProfile(accessToken);
 
                     DateTime now = DateTime.UtcNow;
-                    IAuthSession session = this.GetSession();
                     UserEntity user = _userRepository.Single(u => u.Id == Guid.Parse(session.UserAuthId));
                     ConnectorEntity connector = _connectorRepository.SingleOrDefault(c => c.Provider == Name && c.ProviderUserIdentifier == userProfile ["id"]);
 
@@ -130,6 +129,15 @@ namespace CoreCI.Server.GitHub
             }
         }
 
+        public static JsonObject GetRepositories(string accessToken)
+        {
+            string repositoryUrl = RepositoriesUrl.AddQueryParam("access_token", accessToken);
+            var repositoriesString = repositoryUrl.GetJsonFromUrl();
+            var repositories = JsonObject.Parse(repositoriesString);
+
+            return repositories;
+        }
+
         public static JsonObject GetUserProfile(string accessToken)
         {
             string userProfileUrl = UserProfileUrl.AddQueryParam("access_token", accessToken);
@@ -138,10 +146,5 @@ namespace CoreCI.Server.GitHub
 
             return userProfile;
         }
-    }
-
-    [Route("/connect/github", "GET")]
-    public class GitHubConnectorConnectRequest : IReturnVoid
-    {
     }
 }

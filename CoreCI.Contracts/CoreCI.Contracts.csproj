@@ -50,6 +50,7 @@
     <Compile Include="TaskListByProjectRequest.cs" />
     <Compile Include="RegisterRequest.cs" />
     <Compile Include="ProfileRetrieveRequest.cs" />
+    <Compile Include="ConnectorConnectRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
