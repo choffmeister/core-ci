@@ -22,11 +22,12 @@ define ["angular"], (angular) ->
         .when("/login", { templateUrl: "/views/login.html", controller: "LoginController" })
         .when("/logout", { templateUrl: "/views/logout.html", controller: "LogoutController" })
         .when("/register", { templateUrl: "/views/register.html", controller: "RegisterController" })
-        .when("/connect/:provider", { templateUrl: "/views/connect.html", controller: "ConnectController" })
+        .when("/connect/:connectorName", { templateUrl: "/views/connect.html", controller: "ConnectController" })
         .when("/dashboard", { templateUrl: "/views/dashboard.html", controller: "DashboardController" })
         .when("/profile", { templateUrl: "/views/profile-private.html", controller: "ProfileController" })
         .when("/profile/:userName", { templateUrl: "/views/profile-public.html", controller: "ProfileController" })
         .when("/project/:projectId", { templateUrl: "/views/project.html", controller: "ProjectController" })
+        .when("/project/add/:connectorName/:connectorId", { templateUrl: "/views/project-add.html", controller: "ProjectAddController" })
         .when("/task/:taskId", { templateUrl: "/views/task.html", controller: "TaskController" })
         .otherwise({ templateUrl: "/views/notfound.html" })
 

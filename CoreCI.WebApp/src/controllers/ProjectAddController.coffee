@@ -14,24 +14,16 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see {http://www.gnu.org/licenses/}.
 ###
-define [
-  "angular"
-  "./controllers/DashboardController"
-  "./controllers/ConnectController"
-  "./controllers/LoginController"
-  "./controllers/LogoutController"
-  "./controllers/MainController"
-  "./controllers/ProfileController"
-  "./controllers/ProjectAddController"
-  "./controllers/ProjectController"
-  "./controllers/RegisterController"
-  "./controllers/TaskController"
-],
-(angular, controllers...) ->
-  # register module
-  module = angular.module("coreci.controllers", [])
+define ["basecontroller"], (BaseController) ->
+  class ProjectAddController extends BaseController
+    @$name = "ProjectAddController"
 
-  # register all controllers
-  for controller in controllers
-    controllerName = controller.$name
-    module.controller(controllerName, controller)
+    init: () =>
+      @scope.add = @add
+
+      @api.get("/connector/#{@params.connectorName}/#{@params.connectorId}/projects").then (res) =>
+        @scope.projects = res.projects
+
+    add: (projectName) =>
+      @api.post("/connector/#{@params.connectorName}/#{@params.connectorId}/projects/add/#{projectName}", null).then (res) =>
+        console.log res

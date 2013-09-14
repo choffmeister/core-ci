@@ -15,23 +15,21 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using ServiceStack.ServiceHost;
 
-namespace CoreCI.Models
+namespace CoreCI.Contracts
 {
-    public class ProjectEntity : IEntity
+    [Route("/connector/{ConnectorName}/{ConnectorId}/projects/add/{ProjectName}")]
+    public class ConnectorAddProjectRequest : IReturn<ConnectorAddProjectResponse>
     {
-        public Guid Id { get; set; }
-
-        public Guid UserId { get; set; }
+        public string ConnectorName { get; set; }
 
         public Guid ConnectorId { get; set; }
 
-        public string Name { get; set; }
+        public string ProjectName { get; set; }
+    }
 
-        public string FullName { get; set; }
-
-        public string Token { get; set; }
-
-        public bool IsPrivate { get; set; }
+    public class ConnectorAddProjectResponse
+    {
     }
 }

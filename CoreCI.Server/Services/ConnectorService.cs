@@ -79,6 +79,21 @@ namespace CoreCI.Server.Services
             }
         }
 
+        [Authenticate]
+        public ConnectorAddProjectResponse Post(ConnectorAddProjectRequest req)
+        {
+            ConnectorDescriptor desc = GetConnectorDescriptor(req.ConnectorName);
+
+            using (IConnector connector = (IConnector)_container.Resolve(desc.Type))
+            {
+                IAuthSession session = this.GetSession();
+
+                connector.AddProject(session, req.ConnectorId, req.ProjectName);
+
+                return new ConnectorAddProjectResponse();
+            }
+        }
+
         private static ConnectorDescriptor GetConnectorDescriptor(string name)
         {
             ConnectorDescriptor connectorDescriptor = ConnectorDescriptor.GetByName(name);

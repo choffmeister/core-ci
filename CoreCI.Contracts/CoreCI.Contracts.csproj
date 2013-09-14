@@ -52,6 +52,7 @@
     <Compile Include="ConnectorConnectRequest.cs" />
     <Compile Include="ConnectorProcessHookRequest.cs" />
     <Compile Include="ConnectorListProjectsRequest.cs" />
+    <Compile Include="ConnectorAddProjectRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

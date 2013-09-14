@@ -15,13 +15,6 @@
 //- along with this program. If not, see {http://www.gnu.org/licenses/}.
 //-
 .container.container-page
-	p Username {{user.userName}}
-hr
-.container.container-page
-	h3 Connectors
-	div(ng-repeat="connector in connectors")
-		div
-			| {{connector.provider}}
-			| ({{connector.options.UserName}}) -&gt;
-			a(href="/project/add/{{connector.provider}}/{{connector.id}}") Add project
-	p: a(href="/connect/github") Connect with GitHub
+	h1 Project add
+	div(ng-repeat="project in projects")
+		button(ng-click="add(project)") {{project}}

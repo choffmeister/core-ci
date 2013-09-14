@@ -34,6 +34,16 @@ namespace CoreCI.Tests.Server.Connectors
         public void TestHook()
         {
             GitHubConnector connector = new GitHubConnector(new MockConfigurationProvider(), this.UserRepository, this.ConnectorRepository, this.ProjectRepository, this.TaskRepository);
+
+            this.ProjectRepository.Insert(new ProjectEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "hook-test",
+                FullName = "choffmeister/hook-test",
+                IsPrivate = false,
+                Token = "123456"
+            });
+
             MockHttpRequest request = new MockHttpRequest();
             request.FormData.Set("payload", _payload);
             request.QueryString.Add("token", "123456");
@@ -42,7 +52,8 @@ namespace CoreCI.Tests.Server.Connectors
 
             Assert.AreEqual(1, this.ProjectRepository.Count());
             ProjectEntity project = this.ProjectRepository.Single();
-            Assert.AreEqual("choffmeister/hook-test", project.Name);
+            Assert.AreEqual("hook-test", project.Name);
+            Assert.AreEqual("choffmeister/hook-test", project.FullName);
 
             Assert.AreEqual(1, this.TaskRepository.Count());
             TaskEntity task = this.TaskRepository.Single();

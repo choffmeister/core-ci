@@ -19,5 +19,4 @@ define ["basecontroller"], (BaseController) ->
     @$name = "ConnectController"
 
     init: () =>
-      if @params.provider?
-        window.location.href = "/api/connector/#{@params.provider}/connect"
+      window.location.href = "/api/connector/#{@params.connectorName}/connect"

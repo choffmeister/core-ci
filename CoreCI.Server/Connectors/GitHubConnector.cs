@@ -46,11 +46,14 @@ namespace CoreCI.Server.Connectors
         private readonly string _gitHubConsumerSecret;
         private readonly string _gitHubScopes;
         private readonly string _gitHubRedirectUrl;
-        public const string Name = "GitHub";
+        public const string Name = "github";
         public const string AuthorizeUrl = "https://github.com/login/oauth/authorize";
         public const string AccessTokenUrl = "https://github.com/login/oauth/access_token";
         public const string UserProfileUrl = "https://api.github.com/user";
         public const string RepositoriesUrl = "https://api.github.com/user/repos";
+        public const string CreateHookUrl = "https://api.github.com/repos/{0}/{1}/hooks";
+        public const string ListHooksUrl = "https://api.github.com/repos/{0}/{1}/hooks";
+        public const string DeleteHookUrl = "https://api.github.com/repos/{0}/{1}/hooks/{2}";
 
         public GitHubConnector(IConfigurationProvider configurationProvider, IUserRepository userRepository, IConnectorRepository connectorRepository, IProjectRepository projectRepository, ITaskRepository taskRepository)
         {
@@ -77,6 +80,7 @@ namespace CoreCI.Server.Connectors
 
         public object Connect(IAuthSession session, IHttpRequest req)
         {
+            Guid userId = Guid.Parse(session.UserAuthId);
             string code = req.QueryString.Get("code");
 
             if (code != null)
@@ -95,7 +99,7 @@ namespace CoreCI.Server.Connectors
 
                     DateTime now = DateTime.UtcNow;
                     UserEntity user = _userRepository.Single(u => u.Id == Guid.Parse(session.UserAuthId));
-                    ConnectorEntity connector = _connectorRepository.SingleOrDefault(c => c.Provider == Name && c.ProviderUserIdentifier == userProfile ["id"]);
+                    ConnectorEntity connector = _connectorRepository.SingleOrDefault(c => c.Provider == Name && c.UserId == userId);
 
                     // create new connector if not already existent
                     if (connector == null)
@@ -159,26 +163,12 @@ namespace CoreCI.Server.Connectors
             string commitHash = payload.Child("after");
             JsonObject commit = payload.ArrayObjects("commits").Single(n => n.Child("id") == commitHash);
             string reference = payload.Child("ref");
-            bool isPrivate = bool.Parse(payload.Object("repository").Child("private"));
-            string projectName = string.Format("{0}/{1}", ownerName, repositoryName);
             string branchName = ConvertReferenceToBranch(reference);
 
             ProjectEntity project = _projectRepository.SingleOrDefault(p => p.Token == tokenString);
 
-            //if (project == null)
-            //throw new ArgumentException("Invalid token", "token");
             if (project == null)
-            {
-                project = new ProjectEntity()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = projectName,
-                    Token = tokenString,
-                    UserId = Guid.Empty,
-                    IsPrivate = isPrivate
-                };
-                _projectRepository.Insert(project);
-            }
+                throw new ArgumentException("Invalid token", "token");
 
             TaskEntity task = new TaskEntity()
             {
@@ -208,8 +198,74 @@ namespace CoreCI.Server.Connectors
                 throw new InvalidOperationException();
 
             return GetRepositories(connector.Options ["AccessToken"])
-                .Select(r => r.Child("full_name"))
+                .Select(r => r.Child("name"))
                 .ToList();
+        }
+
+        public void AddProject(IAuthSession session, Guid connectorId, string projectName)
+        {
+            Guid userId = Guid.Parse(session.UserAuthId);
+            ConnectorEntity connector = _connectorRepository.Single(c => c.Id == connectorId);
+
+            if (connector.UserId != userId)
+                throw HttpError.NotFound("Unknown connector");
+            if (connector.Provider != Name)
+                throw new InvalidOperationException();
+
+            string gitHubUserName = connector.Options ["UserName"];
+            string accessToken = connector.Options ["AccessToken"];
+            string token = this.GenerateToken();
+
+            // TODO: retrieve project information from GitHub
+
+            // create project
+            ProjectEntity project = new ProjectEntity()
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                ConnectorId = connectorId,
+                Name = projectName,
+                FullName = string.Format("{0}/{1}", gitHubUserName, projectName),
+                Token = token,
+                IsPrivate = false
+            };
+            _projectRepository.Insert(project);
+
+            CleanUpHooks(accessToken, gitHubUserName, projectName);
+            CreateHook(accessToken, gitHubUserName, projectName, token, project.Id, "http://home.choffmeister.com:8080/api/connector/github/hook");
+
+            _logger.Info("Created hook");
+        }
+
+        private static void CleanUpHooks(string accessToken, string ownerName, string repositoryName)
+        {
+            // delete all existing hooks to our url
+            string listHooksUrl = string.Format(ListHooksUrl, ownerName, repositoryName)
+                .AddQueryParam("access_token", accessToken);
+
+            JsonArrayObjects hooks = JsonArrayObjects.Parse(listHooksUrl.GetJsonFromUrl());
+            foreach (JsonObject hook in hooks.Where(h => h.Child("url").Contains("choffmeister")))
+            {
+                string deleteHookUrl = string.Format(DeleteHookUrl, ownerName, repositoryName, hook.Child("id"))
+                    .AddQueryParam("access_token", accessToken);
+
+                deleteHookUrl.DeleteFromUrl();
+            }
+        }
+
+        private static void CreateHook(string accessToken, string ownerName, string repositoryName, string token, Guid projectId, string url)
+        {
+            // (re)create a hook to our url
+            string createHookUrl = string.Format(CreateHookUrl, ownerName, repositoryName)
+                .AddQueryParam("access_token", accessToken);
+
+            createHookUrl.PostJsonToUrl(new
+            {
+                name = "web",
+                active = false,
+                events = new List<string>() { "push" },
+                config = new Dictionary<string, string>() { { "url", url.AddQueryParam("token", token) } },
+            });
         }
 
         private static JsonArrayObjects GetRepositories(string accessToken)
@@ -318,6 +374,11 @@ namespace CoreCI.Server.Connectors
             }
 
             return reference.Substring("refs/heads/".Length);
+        }
+
+        private static string NormalizeGuid(Guid guid)
+        {
+            return guid.ToString().Replace("-", "").ToLower();
         }
     }
 }

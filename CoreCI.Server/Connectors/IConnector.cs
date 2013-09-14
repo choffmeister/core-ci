@@ -20,6 +20,7 @@ using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.Common.Web;
 using System.Net;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace CoreCI.Server.Connectors
 {
@@ -30,6 +31,8 @@ namespace CoreCI.Server.Connectors
         object ProcessHook(IHttpRequest request);
 
         List<string> ListProjects(IAuthSession session, Guid connectorId);
+
+        void AddProject(IAuthSession session, Guid connectorId, string projectName);
     }
 
     public static class ConnectorExtensions
@@ -39,6 +42,16 @@ namespace CoreCI.Server.Connectors
             HttpResult httpResult = new HttpResult(HttpStatusCode.Found, message);
             httpResult.Headers.Add("Location", url);
             return httpResult;
+        }
+
+        public static string GenerateToken(this IConnector connector, int byteCount = 16)
+        {
+            var rng = RNGCryptoServiceProvider.Create();
+
+            byte[] bytes = new byte[byteCount];
+            rng.GetBytes(bytes);
+
+            return BitConverter.ToString(bytes).Replace("-", "").ToLower();
         }
     }
 }
