@@ -91,6 +91,7 @@ namespace CoreCI.Server
 
             _unityContainer
                 .RegisterInstance<IConfigurationProvider>(_configurationProvider)
+                .RegisterType<IConnectorRepository, ConnectorRepository>()
                 .RegisterType<IUserRepository, UserRepository>()
                 .RegisterType<IWorkerRepository, WorkerRepository>()
                 .RegisterType<IProjectRepository, ProjectRepository>()

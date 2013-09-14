@@ -15,9 +15,9 @@
   along with this program. If not, see {http://www.gnu.org/licenses/}.
 ###
 define ["basecontroller"], (BaseController) ->
-  class AuthenticationController extends BaseController
-    @$name = "AuthenticationController"
+  class ConnectController extends BaseController
+    @$name = "ConnectController"
 
     init: () =>
       if @params.provider?
-        window.location.href = "/api/auth/#{@params.provider}"
+        window.location.href = "/api/connect/#{@params.provider}"

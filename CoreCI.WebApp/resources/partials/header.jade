@@ -19,4 +19,5 @@ nav.pull-right
 	ul.ng-cloak
 		li(ng-show="isAuthenticated == false"): a(href="/login") Login
 		li(ng-show="isAuthenticated == false"): a(href="/register") Register
+		li(ng-show="isAuthenticated == true"): a(href="/connect/github") Connect to GitHub
 		li(ng-show="isAuthenticated == true"): a(href="/logout") Logout

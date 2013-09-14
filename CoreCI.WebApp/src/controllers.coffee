@@ -16,8 +16,8 @@
 ###
 define [
   "angular"
-  "./controllers/AuthenticationController"
   "./controllers/DashboardController"
+  "./controllers/ConnectController"
   "./controllers/LoginController"
   "./controllers/LogoutController"
   "./controllers/MainController"

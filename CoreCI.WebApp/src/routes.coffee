@@ -22,7 +22,7 @@ define ["angular"], (angular) ->
         .when("/login", { templateUrl: "/views/login.html", controller: "LoginController" })
         .when("/logout", { templateUrl: "/views/logout.html", controller: "LogoutController" })
         .when("/register", { templateUrl: "/views/register.html", controller: "RegisterController" })
-        .when("/auth/:provider", { templateUrl: "/views/authentication.html", controller: "AuthenticationController" })
+        .when("/connect/:provider", { templateUrl: "/views/connect.html", controller: "ConnectController" })
         .when("/dashboard", { templateUrl: "/views/dashboard.html", controller: "DashboardController" })
         .when("/project/:projectId", { templateUrl: "/views/project.html", controller: "ProjectController" })
         .when("/task/:taskId", { templateUrl: "/views/task.html", controller: "TaskController" })

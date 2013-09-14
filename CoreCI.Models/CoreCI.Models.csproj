@@ -53,6 +53,8 @@
     <Compile Include="Repositories\ProjectRepository.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="Entities\UserEntity.cs" />
+    <Compile Include="Entities\ConnectorEntity.cs" />
+    <Compile Include="Repositories\ConnectorRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
