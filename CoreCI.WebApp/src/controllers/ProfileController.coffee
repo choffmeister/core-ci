@@ -31,5 +31,5 @@ define ["basecontroller"], (BaseController) ->
           @scope.projects = res.projects
 
     removeProject: (project) =>
-      @api.delete("/connector/github/#{project.connectorId}/projects/remove/#{project.id}").then (res) =>
+      @api.delete("/connector/#{project.connectorId}/projects/remove/#{project.id}").then (res) =>
         @emitMessage "success", "You have removed your project."

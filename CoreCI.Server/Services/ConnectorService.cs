@@ -31,10 +31,17 @@ namespace CoreCI.Server.Services
     public class ConnectorService : Service
     {
         private readonly IUnityContainer _container;
+        private readonly IConnectorRepository _connectorRepository;
 
-        public ConnectorService(IUnityContainer container)
+        public ConnectorService(IUnityContainer container, IConnectorRepository connectorRepository)
         {
             _container = container;
+            _connectorRepository = connectorRepository;
+        }
+
+        public override void Dispose()
+        {
+            _connectorRepository.Dispose();
         }
 
         [Authenticate]
@@ -66,7 +73,7 @@ namespace CoreCI.Server.Services
         [Authenticate]
         public ConnectorListProjectsResponse Get(ConnectorListProjectsRequest req)
         {
-            ConnectorDescriptor desc = GetConnectorDescriptor(req.ConnectorName);
+            ConnectorDescriptor desc = GetConnectorDescriptor(req.ConnectorId);
 
             using (IConnector connector = (IConnector)_container.Resolve(desc.Type))
             {
@@ -82,7 +89,7 @@ namespace CoreCI.Server.Services
         [Authenticate]
         public ConnectorAddProjectResponse Post(ConnectorAddProjectRequest req)
         {
-            ConnectorDescriptor desc = GetConnectorDescriptor(req.ConnectorName);
+            ConnectorDescriptor desc = GetConnectorDescriptor(req.ConnectorId);
 
             using (IConnector connector = (IConnector)_container.Resolve(desc.Type))
             {
@@ -97,7 +104,7 @@ namespace CoreCI.Server.Services
         [Authenticate]
         public ConnectorRemoveProjectResponse Delete(ConnectorRemoveProjectRequest req)
         {
-            ConnectorDescriptor desc = GetConnectorDescriptor(req.ConnectorName);
+            ConnectorDescriptor desc = GetConnectorDescriptor(req.ConnectorId);
 
             using (IConnector connector = (IConnector)_container.Resolve(desc.Type))
             {
@@ -109,13 +116,25 @@ namespace CoreCI.Server.Services
             }
         }
 
-        private static ConnectorDescriptor GetConnectorDescriptor(string name)
+        private ConnectorDescriptor GetConnectorDescriptor(Guid connectorId)
         {
-            ConnectorDescriptor connectorDescriptor = ConnectorDescriptor.GetByName(name);
+            ConnectorDescriptor connectorDescriptor = ConnectorDescriptor.GetById(_connectorRepository, connectorId);
 
             if (connectorDescriptor == null)
             {
-                throw HttpError.NotFound(string.Format("Unknown connector {0}", name));
+                throw HttpError.NotFound(string.Format("Unknown connector {0}", connectorId));
+            }
+
+            return connectorDescriptor;
+        }
+
+        private ConnectorDescriptor GetConnectorDescriptor(string connectorName)
+        {
+            ConnectorDescriptor connectorDescriptor = ConnectorDescriptor.GetByName(connectorName);
+
+            if (connectorDescriptor == null)
+            {
+                throw HttpError.NotFound(string.Format("Unknown connector {0}", connectorName));
             }
 
             return connectorDescriptor;
@@ -132,6 +151,11 @@ namespace CoreCI.Server.Services
         {
             this.Type = type;
             this.Meta = type.GetCustomAttributes(typeof(ConnectorAttribute), false).SingleOrDefault() as ConnectorAttribute;
+        }
+
+        public static ConnectorDescriptor GetById(IConnectorRepository connectorRepository, Guid id)
+        {
+            return GetByName(connectorRepository.Single(c => c.Id == id).Provider);
         }
 
         public static ConnectorDescriptor GetByName(string name)

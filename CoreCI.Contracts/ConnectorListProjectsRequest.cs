@@ -20,11 +20,9 @@ using System.Collections.Generic;
 
 namespace CoreCI.Contracts
 {
-    [Route("/connector/{ConnectorName}/{ConnectorId}/projects")]
+    [Route("/connector/{ConnectorId}/projects")]
     public class ConnectorListProjectsRequest : IReturn<ConnectorListProjectsResponse>
     {
-        public string ConnectorName { get; set; }
-
         public Guid ConnectorId { get; set; }
     }
 

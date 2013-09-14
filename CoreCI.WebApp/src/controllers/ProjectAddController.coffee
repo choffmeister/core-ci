@@ -21,9 +21,9 @@ define ["basecontroller"], (BaseController) ->
     init: () =>
       @scope.add = @add
 
-      @api.get("/connector/#{@params.connectorName}/#{@params.connectorId}/projects").then (res) =>
+      @api.get("/connector/#{@params.connectorId}/projects").then (res) =>
         @scope.projects = res.projects
 
     add: (projectName) =>
-      @api.post("/connector/#{@params.connectorName}/#{@params.connectorId}/projects/add/#{projectName}", null).then (res) =>
+      @api.post("/connector/#{@params.connectorId}/projects/add/#{projectName}", null).then (res) =>
         @emitMessage "success", "You have added a project."

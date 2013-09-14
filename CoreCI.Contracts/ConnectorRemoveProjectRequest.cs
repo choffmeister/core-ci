@@ -19,11 +19,9 @@ using ServiceStack.ServiceHost;
 
 namespace CoreCI.Contracts
 {
-    [Route("/connector/{ConnectorName}/{ConnectorId}/projects/remove/{ProjectId}")]
+    [Route("/connector/{ConnectorId}/projects/remove/{ProjectId}")]
     public class ConnectorRemoveProjectRequest : IReturn<ConnectorRemoveProjectResponse>
     {
-        public string ConnectorName { get; set; }
-
         public Guid ConnectorId { get; set; }
 
         public Guid ProjectId { get; set; }
