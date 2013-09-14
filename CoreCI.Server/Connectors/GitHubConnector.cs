@@ -30,6 +30,7 @@ using System.Text;
 using YamlDotNet.RepresentationModel;
 using CoreCI.Server.Services;
 using System.Net;
+using System.Security.Cryptography;
 
 namespace CoreCI.Server.Connectors
 {
@@ -54,6 +55,9 @@ namespace CoreCI.Server.Connectors
         public const string CreateHookUrl = "https://api.github.com/repos/{0}/{1}/hooks";
         public const string ListHooksUrl = "https://api.github.com/repos/{0}/{1}/hooks";
         public const string DeleteHookUrl = "https://api.github.com/repos/{0}/{1}/hooks/{2}";
+        public const string CreateKeyUrl = "https://api.github.com/repos/{0}/{1}/keys";
+        public const string ListKeysUrl = "https://api.github.com/repos/{0}/{1}/keys";
+        public const string DeleteKeyUrl = "https://api.github.com/repos/{0}/{1}/keys/{2}";
 
         public GitHubConnector(IConfigurationProvider configurationProvider, IUserRepository userRepository, IConnectorRepository connectorRepository, IProjectRepository projectRepository, ITaskRepository taskRepository)
         {
@@ -229,10 +233,18 @@ namespace CoreCI.Server.Connectors
                 Token = token,
                 IsPrivate = false
             };
+
+            // create RSA key pair
+            RSA rsa = new RSACryptoServiceProvider(1024);
+            project.Options ["PublicKey"] = rsa.ToOpenSshPublicKeyFileString("test@choffmeister");
+            project.Options ["PrivateKey"] = rsa.ToOpenSshPrivateKeyFileString();
+
             _projectRepository.Insert(project);
 
             CleanUpHooks(accessToken, gitHubUserName, projectName);
             CreateHook(accessToken, gitHubUserName, projectName, token, project.Id, "http://home.choffmeister.com:8080/api/connector/github/hook");
+            CleanUpKeys(accessToken, gitHubUserName, projectName);
+            CreateKey(accessToken, gitHubUserName, projectName, project.Options ["PublicKey"]);
 
             _logger.Info("Created hook");
         }
@@ -255,7 +267,6 @@ namespace CoreCI.Server.Connectors
 
         private static void CreateHook(string accessToken, string ownerName, string repositoryName, string token, Guid projectId, string url)
         {
-            // (re)create a hook to our url
             string createHookUrl = string.Format(CreateHookUrl, ownerName, repositoryName)
                 .AddQueryParam("access_token", accessToken);
 
@@ -265,6 +276,32 @@ namespace CoreCI.Server.Connectors
                 active = false,
                 events = new List<string>() { "push" },
                 config = new Dictionary<string, string>() { { "url", url.AddQueryParam("token", token) } },
+            });
+        }
+
+        private static void CleanUpKeys(string accessToken, string ownerName, string repositoryName)
+        {
+            string listKeysUrl = string.Format(ListKeysUrl, ownerName, repositoryName)
+                .AddQueryParam("access_token", accessToken);
+
+            JsonArrayObjects keys = JsonArrayObjects.Parse(listKeysUrl.GetJsonFromUrl());
+            foreach (JsonObject key in keys.Where(h => h.Child("title").Contains("choffmeister")))
+            {
+                string deleteKeyUrl = string.Format(DeleteKeyUrl, ownerName, repositoryName, key.Child("id"))
+                    .AddQueryParam("access_token", accessToken);
+
+                deleteKeyUrl.DeleteFromUrl();
+            }
+        }
+
+        private static void CreateKey(string accessToken, string ownerName, string repositoryName, string publicKeyString)
+        {
+            string createKeyUrl = string.Format(CreateKeyUrl, ownerName, repositoryName)
+                .AddQueryParam("access_token", accessToken);
+
+            createKeyUrl.PostJsonToUrl(new
+            {
+                key = publicKeyString
             });
         }
 

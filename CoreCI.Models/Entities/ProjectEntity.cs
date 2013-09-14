@@ -15,6 +15,7 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using System.Collections.Generic;
 
 namespace CoreCI.Models
 {
@@ -33,5 +34,12 @@ namespace CoreCI.Models
         public string Token { get; set; }
 
         public bool IsPrivate { get; set; }
+
+        public Dictionary<string, string> Options { get; set; }
+
+        public ProjectEntity()
+        {
+            this.Options = new Dictionary<string, string>();
+        }
     }
 }
