@@ -16,29 +16,20 @@
  */
 using System;
 using ServiceStack.ServiceHost;
-using ServiceStack.ServiceInterface.Auth;
-using ServiceStack.Common.Web;
-using System.Net;
 using System.Collections.Generic;
 
-namespace CoreCI.Server.Connectors
+namespace CoreCI.Contracts
 {
-    public interface IConnector : IDisposable
+    [Route("/connector/{ConnectorName}/{ConnectorId}/projects")]
+    public class ConnectorListProjectsRequest : IReturn<ConnectorListProjectsResponse>
     {
-        object Connect(IAuthSession session, IHttpRequest request);
+        public string ConnectorName { get; set; }
 
-        object ProcessHook(IHttpRequest request);
-
-        List<string> ListProjects(IAuthSession session, Guid connectorId);
+        public Guid ConnectorId { get; set; }
     }
 
-    public static class ConnectorExtensions
+    public class ConnectorListProjectsResponse
     {
-        public static IHttpResult Redirect(this IConnector connector, string url, string message = null)
-        {
-            HttpResult httpResult = new HttpResult(HttpStatusCode.Found, message);
-            httpResult.Headers.Add("Location", url);
-            return httpResult;
-        }
+        public List<string> Projects { get; set; }
     }
 }

@@ -198,16 +198,30 @@ namespace CoreCI.Server.Connectors
             return null;
         }
 
-        public static JsonObject GetRepositories(string accessToken)
+        public List<string> ListProjects(IAuthSession session, Guid connectorId)
+        {
+            ConnectorEntity connector = _connectorRepository.Single(c => c.Id == connectorId);
+
+            if (connector.UserId != Guid.Parse(session.UserAuthId))
+                throw HttpError.NotFound("Unknown connector");
+            if (connector.Provider != Name)
+                throw new InvalidOperationException();
+
+            return GetRepositories(connector.Options ["AccessToken"])
+                .Select(r => r.Child("full_name"))
+                .ToList();
+        }
+
+        private static JsonArrayObjects GetRepositories(string accessToken)
         {
             string repositoryUrl = RepositoriesUrl.AddQueryParam("access_token", accessToken);
             var repositoriesString = repositoryUrl.GetJsonFromUrl();
-            var repositories = JsonObject.Parse(repositoriesString);
+            var repositories = JsonArrayObjects.Parse(repositoriesString);
 
             return repositories;
         }
 
-        public static JsonObject GetUserProfile(string accessToken)
+        private static JsonObject GetUserProfile(string accessToken)
         {
             string userProfileUrl = UserProfileUrl.AddQueryParam("access_token", accessToken);
             var userProfileString = userProfileUrl.GetJsonFromUrl();
