@@ -43,6 +43,8 @@ namespace CoreCI.Server.Connectors
         private readonly IConnectorRepository _connectorRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly ITaskRepository _taskRepository;
+        private readonly string _serverDomainPublic;
+        private readonly string _serverApiPublicBaseAddress;
         private readonly string _gitHubConsumerKey;
         private readonly string _gitHubConsumerSecret;
         private readonly string _gitHubScopes;
@@ -56,6 +58,10 @@ namespace CoreCI.Server.Connectors
             _connectorRepository = connectorRepository;
             _projectRepository = projectRepository;
             _taskRepository = taskRepository;
+
+
+            _serverDomainPublic = configurationProvider.GetSettingString("serverDomainPublic");
+            _serverApiPublicBaseAddress = configurationProvider.GetSettingString("serverApiPublicBaseAddress");
 
             _gitHubConsumerKey = configurationProvider.GetSettingString("oauthGitHubConsumerKey");
             _gitHubConsumerSecret = configurationProvider.GetSettingString("oauthGitHubConsumerSecret");
@@ -216,15 +222,15 @@ namespace CoreCI.Server.Connectors
 
             // create RSA key pair
             RSA rsa = new RSACryptoServiceProvider(1024);
-            project.Options ["PublicKey"] = rsa.ToOpenSshPublicKeyFileString("test@choffmeister");
+            project.Options ["PublicKey"] = rsa.ToOpenSshPublicKeyFileString(string.Format("{0}@{1}", NormalizeGuid(project.Id), _serverDomainPublic));
             project.Options ["PrivateKey"] = rsa.ToOpenSshPrivateKeyFileString();
 
             _projectRepository.Insert(project);
 
-            GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, projectName, h => h.Child("url").Contains("choffmeister"));
-            GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, projectName, h => h.Child("title").Contains("choffmeister"));
-            GitHubOAuth2Client.CreateHook(accessToken, gitHubUserName, projectName, "http://home.choffmeister.com:8080/api/connector/github/hook?token=" + token);
-            GitHubOAuth2Client.CreateKey(accessToken, gitHubUserName, projectName, project.Options ["PublicKey"]);
+            GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, project.Name, h => h.Object("config").Child("url").Contains(NormalizeGuid(project.Id)));
+            GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, project.Name, k => k.Child("title").Contains(NormalizeGuid(project.Id)));
+            GitHubOAuth2Client.CreateHook(accessToken, gitHubUserName, project.Name, string.Format("{0}connector/github/hook?project={1}&token={2}", _serverApiPublicBaseAddress, NormalizeGuid(project.Id), token));
+            GitHubOAuth2Client.CreateKey(accessToken, gitHubUserName, project.Name, project.Options ["PublicKey"]);
 
             _logger.Info("Created hook");
             return project;
@@ -244,8 +250,8 @@ namespace CoreCI.Server.Connectors
             string gitHubUserName = connector.Options ["UserName"];
             string accessToken = connector.Options ["AccessToken"];
 
-            GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, project.Name, h => h.Child("url").Contains("choffmeister"));
-            GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, project.Name, h => h.Child("title").Contains("choffmeister"));
+            GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, project.Name, h => h.Object("config").Child("url").Contains(NormalizeGuid(project.Id)));
+            GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, project.Name, k => k.Child("title").Contains(NormalizeGuid(project.Id)));
 
             _projectRepository.Delete(project);
         }
