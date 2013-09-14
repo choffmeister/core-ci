@@ -21,6 +21,7 @@ using ServiceStack.Common.Web;
 using System.Net;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using CoreCI.Models;
 
 namespace CoreCI.Server.Connectors
 {
@@ -32,7 +33,7 @@ namespace CoreCI.Server.Connectors
 
         List<string> ListProjects(IAuthSession session, Guid connectorId);
 
-        void AddProject(IAuthSession session, Guid connectorId, string projectName);
+        ProjectEntity AddProject(IAuthSession session, Guid connectorId, string projectName);
 
         void RemoveProject(IAuthSession session, Guid connectorId, Guid projectId);
     }

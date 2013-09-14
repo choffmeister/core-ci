@@ -95,7 +95,10 @@ namespace CoreCI.Server.Services
             {
                 IAuthSession session = this.GetSession();
 
-                connector.AddProject(session, req.ConnectorId, req.ProjectName);
+                ProjectEntity project = connector.AddProject(session, req.ConnectorId, req.ProjectName);
+
+                PushService.Push("projects", null);
+                PushService.Push("project-" + project.Id.ToString().Replace("-", "").ToLowerInvariant(), "created");
 
                 return new ConnectorAddProjectResponse();
             }
@@ -112,13 +115,17 @@ namespace CoreCI.Server.Services
 
                 connector.RemoveProject(session, req.ConnectorId, req.ProjectId);
 
+                PushService.Push("projects", null);
+                PushService.Push("project-" + req.ProjectId.ToString().Replace("-", "").ToLowerInvariant(), "removed");
+
                 return new ConnectorRemoveProjectResponse();
             }
         }
 
         private ConnectorDescriptor GetConnectorDescriptor(Guid connectorId)
         {
-            ConnectorDescriptor connectorDescriptor = ConnectorDescriptor.GetById(_connectorRepository, connectorId);
+            string name = _connectorRepository.Single(c => c.Id == connectorId).Provider;
+            ConnectorDescriptor connectorDescriptor = ConnectorDescriptor.GetByName(name);
 
             if (connectorDescriptor == null)
             {
@@ -151,11 +158,6 @@ namespace CoreCI.Server.Services
         {
             this.Type = type;
             this.Meta = type.GetCustomAttributes(typeof(ConnectorAttribute), false).SingleOrDefault() as ConnectorAttribute;
-        }
-
-        public static ConnectorDescriptor GetById(IConnectorRepository connectorRepository, Guid id)
-        {
-            return GetByName(connectorRepository.Single(c => c.Id == id).Provider);
         }
 
         public static ConnectorDescriptor GetByName(string name)

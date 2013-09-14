@@ -206,7 +206,7 @@ namespace CoreCI.Server.Connectors
                 .ToList();
         }
 
-        public void AddProject(IAuthSession session, Guid connectorId, string projectName)
+        public ProjectEntity AddProject(IAuthSession session, Guid connectorId, string projectName)
         {
             Guid userId = Guid.Parse(session.UserAuthId);
             ConnectorEntity connector = _connectorRepository.Single(c => c.Id == connectorId);
@@ -247,6 +247,7 @@ namespace CoreCI.Server.Connectors
             CreateKey(accessToken, gitHubUserName, projectName, project.Options ["PublicKey"]);
 
             _logger.Info("Created hook");
+            return project;
         }
 
         public void RemoveProject(IAuthSession session, Guid connectorId, Guid projectId)

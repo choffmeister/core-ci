@@ -21,6 +21,11 @@ define ["basecontroller"], (BaseController) ->
     init: () =>
       @scope.removeProject = @removeProject
 
+      @listen "push", "connectors", @updateThrottled
+      @listen "push", "projects", @updateThrottled
+      @updateThrottled()
+
+    update: () =>
       if @params.userName?
         @api.get("profile/#{@params.userName}").then (res) =>
           @scope.user = res.user
