@@ -43,6 +43,9 @@
     <Reference Include="ServiceStack.Interfaces">
       <HintPath>..\libs\servicestack-common\lib\net35\ServiceStack.Interfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Posix">
+      <HintPath>..\libs\mono-posix\mono-posix-4.0.0.0\Mono.Posix.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TemporaryHelper.cs" />

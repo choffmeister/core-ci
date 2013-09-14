@@ -21,6 +21,8 @@ using System.Security.Cryptography;
 using CoreCI.Common;
 using NUnit.Framework;
 using Renci.SshNet.Security;
+using Renci.SshNet;
+using Mono.Unix;
 
 namespace CoreCI.Tests.Common
 {
@@ -93,12 +95,41 @@ namespace CoreCI.Tests.Common
             var rsa = new RSACryptoServiceProvider(1024);
 
             var publicKeyString = rsa.ToOpenSshPublicKeyFileString("test@test");
+            var privateKeyString = rsa.ToOpenSshPrivateKeyFileString();
 
             var publicKeyPath = Path.Combine(_tempFolder, "id_rsa.pub");
+            var privateKeyPath = Path.Combine(_tempFolder, "id_rsa");
 
             File.WriteAllText(publicKeyPath, publicKeyString);
+            File.WriteAllText(privateKeyPath, privateKeyString);
 
-            Assert.Inconclusive("Did not check if result is correct");
+            var result = ProcessHelper.Execute("ssh-keygen", "-lf " + publicKeyPath);
+
+            Assert.AreEqual(0, result.ExitCode);
+        }
+
+        [Test]
+        public void TestPublicKeyPrivateKeyMatching()
+        {
+            var rsa = new RSACryptoServiceProvider(1024);
+
+            var publicKeyString = rsa.ToOpenSshPublicKeyFileString("test@test");
+            var privateKeyString = rsa.ToOpenSshPrivateKeyFileString();
+
+            var publicKeyPath = Path.Combine(_tempFolder, "id_rsa.pub");
+            var privateKeyPath = Path.Combine(_tempFolder, "id_rsa");
+
+            File.WriteAllText(publicKeyPath, publicKeyString);
+            File.WriteAllText(privateKeyPath, privateKeyString);
+
+            // set chmod of private key to 0600, so that ssh-keygen does not complain
+            var ufi = new UnixFileInfo(privateKeyPath);
+            ufi.Protection = Mono.Unix.Native.FilePermissions.S_IRUSR | Mono.Unix.Native.FilePermissions.S_IWUSR;
+
+            var result = ProcessHelper.Execute("ssh-keygen", "-yf " + privateKeyPath);
+
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.AreEqual(result.Output + " test@test", publicKeyString);
         }
     }
 }

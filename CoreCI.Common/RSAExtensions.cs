@@ -28,16 +28,16 @@ namespace CoreCI.Common
         public static string ToOpenSshPublicKeyFileString(this RSA rsa, string name)
         {
             RSAParameters publicKey = rsa.ExportParameters(false);
+            byte[] mpintExponent = BigIntegerToMpInt(publicKey.Exponent);
+            byte[] mpintModulus = BigIntegerToMpInt(publicKey.Modulus);
 
             List<byte> bytes = new List<byte>();
-            bytes.AddRange(Int32ToBigEndian(7));
+            bytes.AddRange(Int32ToBigEndian("ssh-rsa".Length));
             bytes.AddRange(Encoding.ASCII.GetBytes("ssh-rsa"));
-            bytes.AddRange(Int32ToBigEndian(publicKey.Exponent.Length + 1));
-            bytes.Add(0);
-            bytes.AddRange(publicKey.Exponent);
-            bytes.AddRange(Int32ToBigEndian(publicKey.Modulus.Length + 1));
-            bytes.Add(0);
-            bytes.AddRange(publicKey.Modulus);
+            bytes.AddRange(Int32ToBigEndian(mpintExponent.Length));
+            bytes.AddRange(mpintExponent);
+            bytes.AddRange(Int32ToBigEndian(mpintModulus.Length));
+            bytes.AddRange(mpintModulus);
             string base64 = Convert.ToBase64String(bytes.ToArray());
 
             StringBuilder sb = new StringBuilder();
@@ -46,7 +46,6 @@ namespace CoreCI.Common
             sb.Append(base64);
             sb.Append(" ");
             sb.Append(name);
-            sb.AppendLine();
 
             return sb.ToString();
         }
@@ -79,9 +78,20 @@ namespace CoreCI.Common
                 sb.AppendLine(derBase64.Substring(i, Math.Min(derBase64.Length - i, 64)));
             }
 
-            sb.AppendLine("-----END RSA PRIVATE KEY-----");
+            sb.Append("-----END RSA PRIVATE KEY-----");
 
             return sb.ToString();
+        }
+
+        private static byte[] BigIntegerToMpInt(byte[] bytes)
+        {
+            // prepend a 0-byte to make the integer positive
+            if ((bytes [0] & 128) != 0)
+            {
+                return new byte[] { 0 }.Concat(bytes).ToArray();
+            }
+
+            return bytes;
         }
 
         private static byte[] Int32ToBigEndian(int i)
