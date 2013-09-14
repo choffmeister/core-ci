@@ -29,6 +29,8 @@ define ["basecontroller"], (BaseController) ->
       @listen "authentication", "logout", @onLogout
       @listen "message", "*", @onMessage
 
+      @checkLoginState()
+
     onLogin: (data) =>
       @scope.isAuthenticated = true
       @scope.user =
@@ -45,3 +47,11 @@ define ["basecontroller"], (BaseController) ->
       for message, i in @scope.messages
         if message == messageToDismiss
           @scope.messages.splice i, 1
+
+    checkLoginState: () =>
+      @api.get("profile", false).then (res) =>
+        @events.emit "authentication", "login", {
+          userName: res.user.userName
+        }
+      , (error) =>
+        @events.emit "authentication", "logout", null
