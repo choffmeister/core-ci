@@ -31,16 +31,18 @@ namespace CoreCI.Common.Shell
             StringBuilder sb = new StringBuilder();
             StringReader reader = new StringReader(script);
             string rawLine = null;
+            char? quoted = null;
 
-            while ((rawLine = reader.ReadLine()) != null)
+            int i = 0;
+
+            while (i < script.Length)
             {
-                if (rawLine.EndsWith("\\"))
+                char current = script [i];
+                char? next = i + 1 < script.Length ? script [i + 1] : default(char?);
+                char? nextnext = i + 2 < script.Length ? script [i + 2] : default(char?);
+
+                if (current == '\r' && next == '\n' && quoted == null)
                 {
-                    sb.Append(rawLine.Substring(0, rawLine.Length - 1));
-                }
-                else
-                {
-                    sb.Append(rawLine);
                     string line = sb.ToString();
                     sb.Clear();
 
@@ -48,6 +50,61 @@ namespace CoreCI.Common.Shell
                     {
                         yield return line;
                     }
+
+                    i += 2;
+                }
+                else if (current == '\n' && quoted == null)
+                {
+                    string line = sb.ToString();
+                    sb.Clear();
+
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        yield return line;
+                    }
+
+                    i += 1;
+                }
+                else if (current == '\\' && next == '\r' && nextnext == '\n')
+                {
+                    i += 3;
+                }
+                else if (current == '\\' && next == '\n')
+                {
+                    i += 2;
+                }
+                else if (current == '"')
+                {
+                    if (quoted == null)
+                    {
+                        quoted = current;
+                    }
+                    else if (quoted == current)
+                    {
+                        quoted = null;
+                    }
+
+                    sb.Append(current);
+                    i++;
+                }
+                else if (current == '\'')
+                {
+                    if (quoted == null)
+                    {
+                        quoted = current;
+                    }
+                    else if (quoted == current)
+                    {
+                        quoted = null;
+                    }
+
+                    sb.Append(current);
+                    i++;
+                }
+                else
+                {
+                    sb.Append(current);
+                    i++;
                 }
             }
         }

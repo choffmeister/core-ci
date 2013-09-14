@@ -37,6 +37,12 @@ namespace CoreCI.Tests.Common.Shell
             Assert.AreEqual(new string[] { "abcdef" }, Split("abc\\\r\ndef"));
             Assert.AreEqual(new string[] { "abc", "def" }, Split("abc\n\ndef"));
             Assert.AreEqual(new string[] { "abc", "def" }, Split("abc\r\n\r\ndef"));
+            Assert.AreEqual(new string[] { "\"abc\ndef\"" }, Split("\"abc\ndef\""));
+            Assert.AreEqual(new string[] { "\"abc\r\ndef\"" }, Split("\"abc\r\ndef\""));
+            Assert.AreEqual(new string[] { "\'abc\ndef\'" }, Split("\'abc\ndef\'"));
+            Assert.AreEqual(new string[] { "\'abc\r\ndef\'" }, Split("\'abc\r\ndef\'"));
+            Assert.AreEqual(new string[] { "\"a\'bc\"", "def" }, Split("\"a\'bc\"\ndef"));
+            Assert.AreEqual(new string[] { "\'a\"bc\'", "def" }, Split("\'a\"bc\'\ndef"));
         }
 
         private static string[] Split(string script)
