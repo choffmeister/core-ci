@@ -308,6 +308,7 @@ namespace CoreCI.Server.Connectors
             script.Append(string.Format("echo \"{0}\" > .ssh/id_rsa\n", privateKeyFileString));
             script.Append("chmod 600 .ssh/id_rsa\n");
             script.Append("chmod 644 .ssh/id_rsa.pub\n");
+            script.Append("ssh-keyscan -H github.com >> .ssh/known_hosts");
 
             return script.ToString();
         }

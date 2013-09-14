@@ -101,12 +101,12 @@ namespace CoreCI.Worker
                     {
                         client.Post(new DispatcherTaskUpdateStartRequest(task.Id));
 
-                        //worker.ShellOutput = null;
+                        worker.ShellOutput = null;
                         foreach (string commandLine in ShellExtensions.SplitIntoCommandLines(task.Configuration.SecretStartupScript))
                         {
                             worker.Execute(commandLine);
                         }
-                        //worker.ShellOutput = shellOutput;
+                        worker.ShellOutput = shellOutput;
 
                         foreach (string script in new string[] { task.Configuration.CheckoutScript, task.Configuration.TestScript })
                         {
