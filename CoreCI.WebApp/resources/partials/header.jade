@@ -17,6 +17,6 @@
 a#brand.pull-left(href="/") core:ci
 nav.pull-right
 	ul.ng-cloak
-		li: a(href="/login", ng-show="isAuthenticated == false") Login
-		li: a(href="/register", ng-show="isAuthenticated == false") Register
-		li: a(href="/logout", ng-show="isAuthenticated == true") Logout
+		li(ng-show="isAuthenticated == false"): a(href="/login") Login
+		li(ng-show="isAuthenticated == false"): a(href="/register") Register
+		li(ng-show="isAuthenticated == true"): a(href="/logout") Logout
