@@ -29,7 +29,7 @@ define ["basecontroller"], (BaseController) ->
           password: @scope.password
           rememberMe: false
 
-        @api.post("auth", data).then (res) =>
+        @api.post("auth", data, false).then (res) =>
           @events.emit "authentication", "login", {
             userName: res.userName
           }

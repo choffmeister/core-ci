@@ -26,8 +26,8 @@ define [
   bootstrap: () ->
     # services
     angular.module("coreci.services", [])
-      .factory("api", ["$http", "$q", (http, q) => new ApiService(http, q)])
-      .factory('events', ["$http", (http) -> new EventService(http)])
+      .factory("api", ["$http", "$q", "events", (http, q, events) => new ApiService(http, q, events)])
+      .factory("events", ["$http", (http) -> new EventService(http)])
 
     # compose
     angular.module "coreci", [

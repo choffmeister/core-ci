@@ -29,7 +29,7 @@ define ["basecontroller"], (BaseController) ->
           email: @scope.email
           password: @scope.password
 
-        @api.post("register", data).then (res) =>
+        @api.post("register", data, false).then (res) =>
           @location.path("/login")
         , (error) =>
           if error.status is 400

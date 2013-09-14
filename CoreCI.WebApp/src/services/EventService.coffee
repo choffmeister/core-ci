@@ -65,11 +65,15 @@ define [], () ->
 
     emit: (namespace, name, data) =>
       fqen = "#{namespace}:#{name}"
+      fqenMulti = "#{namespace}:*"
 
       # TODO: remove
       console.log fqen, data if name.substr(0,4) != 'tick'
 
       listeners = @listeners[fqen] ? []
+      for listener in listeners
+        listener.callback(data)
+      listeners = @listeners[fqenMulti] ? []
       for listener in listeners
         listener.callback(data)
 
