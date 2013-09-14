@@ -22,6 +22,12 @@ namespace CoreCI.Models
     {
         public Guid Id { get; set; }
 
+        public Guid UserId { get; set; }
+
+        public Guid ConnectorId { get; set; }
+
         public string Name { get; set; }
+
+        public string Token { get; set; }
     }
 }

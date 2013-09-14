@@ -30,17 +30,20 @@ namespace CoreCI.Server.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IConnectorRepository _connectorRepository;
+        private readonly IProjectRepository _projectRepository;
 
-        public ProfileService(IUserRepository userRepository, IConnectorRepository connectorRepository)
+        public ProfileService(IUserRepository userRepository, IConnectorRepository connectorRepository, IProjectRepository projectRepository)
         {
             _userRepository = userRepository;
             _connectorRepository = connectorRepository;
+            _projectRepository = projectRepository;
         }
 
         public override void Dispose()
         {
             _userRepository.Dispose();
             _connectorRepository.Dispose();
+            _projectRepository.Dispose();
         }
 
         public ProfileRetrieveResponse Get(ProfileRetrieveRequest req)
@@ -62,13 +65,15 @@ namespace CoreCI.Server.Services
             {
                 UserEntity user = _userRepository.Single(u => u.UserName == session.UserAuthName);
                 List<ConnectorEntity> connectors = _connectorRepository.Where(c => c.UserId == user.Id).ToList();
+                List<ProjectEntity> projects = _projectRepository.Where(p => p.UserId == user.Id).ToList();
 
                 StripSecrets(user);
 
                 return new ProfileRetrieveResponse()
                 {
                     User = user,
-                    Connectors = connectors
+                    Connectors = connectors,
+                    Projects = projects
                 };
             }
 

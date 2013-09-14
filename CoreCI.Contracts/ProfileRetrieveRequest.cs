@@ -34,9 +34,12 @@ namespace CoreCI.Contracts
 
         public List<ConnectorEntity> Connectors { get; set; }
 
+        public List<ProjectEntity> Projects { get; set; }
+
         public ProfileRetrieveResponse()
         {
             this.Connectors = new List<ConnectorEntity>();
+            this.Projects = new List<ProjectEntity>();
         }
     }
 }
