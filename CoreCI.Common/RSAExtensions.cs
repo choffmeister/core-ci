@@ -15,11 +15,10 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using Renci.SshNet.Common;
+using Mono.Unix.Native;
 
 namespace CoreCI.Common
 {
@@ -28,80 +27,67 @@ namespace CoreCI.Common
         public static string ToOpenSshPublicKeyFileString(this RSA rsa, string name)
         {
             RSAParameters publicKey = rsa.ExportParameters(false);
-            byte[] mpintExponent = BigIntegerToMpInt(publicKey.Exponent);
-            byte[] mpintModulus = BigIntegerToMpInt(publicKey.Modulus);
+            MemoryStream ms = new MemoryStream();
+            OpenSshKeyWriter writer = new OpenSshKeyWriter(ms);
 
-            List<byte> bytes = new List<byte>();
-            bytes.AddRange(Int32ToBigEndian("ssh-rsa".Length));
-            bytes.AddRange(Encoding.ASCII.GetBytes("ssh-rsa"));
-            bytes.AddRange(Int32ToBigEndian(mpintExponent.Length));
-            bytes.AddRange(mpintExponent);
-            bytes.AddRange(Int32ToBigEndian(mpintModulus.Length));
-            bytes.AddRange(mpintModulus);
-            string base64 = Convert.ToBase64String(bytes.ToArray());
+            writer.WriteInt32(7);
+            writer.WriteString("ssh-rsa");
+            writer.WriteMultiPrecisionInteger(publicKey.Exponent);
+            writer.WriteMultiPrecisionInteger(publicKey.Modulus);
 
-            StringBuilder sb = new StringBuilder();
-            sb.Append("ssh-rsa");
-            sb.Append(" ");
-            sb.Append(base64);
-            sb.Append(" ");
-            sb.Append(name);
-
-            return sb.ToString();
+            return string.Format("ssh-rsa {0} {1}", ToBase64String(ms), name);
         }
 
         public static string ToOpenSshPrivateKeyFileString(this RSA rsa)
         {
             RSAParameters privateKey = rsa.ExportParameters(true);
 
-            // adding a zero byte at the end of each BigInteger to ensure, that
-            // the number is recognized as positive number
-            FixedDerData der = new FixedDerData();
-            der.Write(new BigInteger(0));
-            der.Write(new BigInteger(privateKey.Modulus.Reverse().Concat(new byte[] { 0 }).ToArray()));
-            der.Write(new BigInteger(privateKey.Exponent.Reverse().Concat(new byte[] { 0 }).ToArray()));
-            der.Write(new BigInteger(privateKey.D.Reverse().Concat(new byte[] { 0 }).ToArray()));
-            der.Write(new BigInteger(privateKey.P.Reverse().Concat(new byte[] { 0 }).ToArray()));
-            der.Write(new BigInteger(privateKey.Q.Reverse().Concat(new byte[] { 0 }).ToArray()));
-            der.Write(new BigInteger(privateKey.DP.Reverse().Concat(new byte[] { 0 }).ToArray()));
-            der.Write(new BigInteger(privateKey.DQ.Reverse().Concat(new byte[] { 0 }).ToArray()));
-            der.Write(new BigInteger(privateKey.InverseQ.Reverse().Concat(new byte[] { 0 }).ToArray()));
+            MemoryStream ms = new MemoryStream();
+            OpenSshKeyWriter writer = new OpenSshKeyWriter(ms);
 
-            byte[] raw = der.Encode();
-            string derBase64 = Convert.ToBase64String(raw);
+            // version 0 RSA private key
+            writer.WriteDerMultiPrecisionInteger(new byte[] { 0 });
+            writer.WriteDerMultiPrecisionInteger(privateKey.Modulus);
+            writer.WriteDerMultiPrecisionInteger(privateKey.Exponent);
+            writer.WriteDerMultiPrecisionInteger(privateKey.D);
+            writer.WriteDerMultiPrecisionInteger(privateKey.P);
+            writer.WriteDerMultiPrecisionInteger(privateKey.Q);
+            writer.WriteDerMultiPrecisionInteger(privateKey.DP);
+            writer.WriteDerMultiPrecisionInteger(privateKey.DQ);
+            writer.WriteDerMultiPrecisionInteger(privateKey.InverseQ);
+
+            MemoryStream ms2 = new MemoryStream();
+            OpenSshKeyWriter writer2 = new OpenSshKeyWriter(ms2);
+
+            writer2.WriteByte(48);
+            writer2.WriteDerLength((int)ms.Length);
+
+            ms.Seek(0, SeekOrigin.Begin);
+            ms.WriteTo(ms2);
+
+            return string.Format("-----BEGIN RSA PRIVATE KEY-----\n{0}\n-----END RSA PRIVATE KEY-----", ToMultiLineBase64String(ms2));
+        }
+
+        private static string ToBase64String(MemoryStream ms)
+        {
+            return Convert.ToBase64String(ms.ToArray());
+        }
+
+        private static string ToMultiLineBase64String(MemoryStream ms)
+        {
+            string base64 = ToBase64String(ms);
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("-----BEGIN RSA PRIVATE KEY-----");
 
-            for (int i = 0; i < derBase64.Length; i += 64)
+            for (int i = 0; i < base64.Length; i += 64)
             {
-                sb.AppendLine(derBase64.Substring(i, Math.Min(derBase64.Length - i, 64)));
-            }
+                sb.Append(base64.Substring(i, Math.Min(base64.Length - i, 64)));
 
-            sb.Append("-----END RSA PRIVATE KEY-----");
+                if (i + 64 < base64.Length)
+                    sb.Append("\n");
+            }
 
             return sb.ToString();
-        }
-
-        private static byte[] BigIntegerToMpInt(byte[] bytes)
-        {
-            // prepend a 0-byte to make the integer positive
-            if ((bytes [0] & 128) != 0)
-            {
-                return new byte[] { 0 }.Concat(bytes).ToArray();
-            }
-
-            return bytes;
-        }
-
-        private static byte[] Int32ToBigEndian(int i)
-        {
-            byte a = (byte)((i >> 24) & 255);
-            byte b = (byte)((i >> 16) & 255);
-            byte c = (byte)((i >> 8) & 255);
-            byte d = (byte)((i >> 0) & 255);
-
-            return new byte[] { a, b, c, d };
         }
     }
 }

@@ -54,7 +54,7 @@
     <Compile Include="Shell\ShellLine.cs" />
     <Compile Include="IWorkerInstance.cs" />
     <Compile Include="RSAExtensions.cs" />
-    <Compile Include="FixedDerData.cs" />
+    <Compile Include="OpenSshKeyWriter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
