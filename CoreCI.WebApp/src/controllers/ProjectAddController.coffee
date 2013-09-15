@@ -27,3 +27,4 @@ define ["basecontroller"], (BaseController) ->
     add: (projectName) =>
       @api.post("/connector/#{@params.connectorId}/projects/add/#{projectName}", null).then (res) =>
         @emitMessage "success", "You have added a project."
+        @location.path("/profile")

@@ -15,6 +15,5 @@
 //- along with this program. If not, see {http://www.gnu.org/licenses/}.
 //-
 .container.container-page
-	h1 Project add
-	div(ng-repeat="project in projects")
-		button(ng-click="add(project)") {{project}}
+	.list-group
+		a.list-group-item(href="#", ng-repeat="project in projects", ng-click="add(project)") {{project}}

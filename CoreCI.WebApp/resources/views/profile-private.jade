@@ -15,20 +15,27 @@
 //- along with this program. If not, see {http://www.gnu.org/licenses/}.
 //-
 .container.container-page
-	h3 User
-	p Username {{user.userName}}
-hr
-.container.container-page
-	h3 Connectors
-	div(ng-repeat="connector in connectors")
-		div
-			| {{connector.provider}}
-			| ({{connector.options.UserName}}) -&gt;
-			a(href="/project/add/{{connector.provider}}/{{connector.id}}") Add project
-	p: a(href="/connect/github") Connect with GitHub
-hr
-.container.container-page
-	h3 Projects
-	div(ng-repeat="project in projects")
-		div {{project.fullName}}
-			button(ng-click="removeProject(project)") Remove
+	.panel.panel-default
+		.panel-heading
+			.btn-group.pull-right
+				button.btn.btn-default.btn-xs.dropdown-toggle(type="button", data-toggle="dropdown") Add
+				ul.dropdown-menu(role="menu")
+					li(ng-repeat="connector in connectors"): a(href="/project/add/{{connector.provider}}/{{connector.id}}") From {{connector.provider}}
+			div Projects
+		.panel-body
+			div(ng-repeat="project in projects", style="padding: 8px 0;")
+				button.btn.btn-default.btn-xs.pull-right(ng-click="removeProject(project)") Remove
+				span {{project.fullName}}
+			div(ng-show="!projects || projects.length == 0") No projects added.
+
+	.panel.panel-default
+		.panel-heading
+			.btn-group.pull-right
+				button.btn.btn-default.btn-xs.dropdown-toggle(type="button", data-toggle="dropdown") Add
+				ul.dropdown-menu(role="menu")
+					li: a(href="/connect/github") Connect with GitHub
+			div Connectors
+		.panel-body
+			div(ng-repeat="connector in connectors")
+				div {{connector.provider}} ({{connector.options.UserName}})
+			div(ng-show="!connectors || connectors.length == 0") No connectors added.
