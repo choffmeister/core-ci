@@ -21,12 +21,10 @@ namespace CoreCI.Common
 {
     public interface IWorkerInstance : IDisposable
     {
-        IShellOutput ShellOutput { get; set; }
-
         void Up();
 
         void Down();
 
-        void Execute(string commandLine);
+        void Execute(string commandLine, IShellOutput shellOutput = null);
     }
 }

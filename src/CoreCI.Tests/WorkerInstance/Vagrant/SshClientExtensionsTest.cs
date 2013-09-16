@@ -78,7 +78,7 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
                     int exitCode = shell.Execute("echo Hello World", shellOutput, TimeSpan.FromSeconds(15));
 
                     Assert.AreEqual(0, exitCode);
-                    Assert.AreEqual("Hello World", shellOutput.StandardOutput);
+                    Assert.AreEqual("Hello World\n", shellOutput.StandardOutput);
                 }
 
                 {
@@ -86,6 +86,18 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
                     int exitCode = shell.Execute("thisisaunknowncommand", shellOutput, TimeSpan.FromSeconds(15));
 
                     Assert.AreNotEqual(0, exitCode);
+                }
+
+                {
+                    MemoryShellOutput shellOutput = new MemoryShellOutput();
+                    shell.Execute("mkdir test", shellOutput, TimeSpan.FromSeconds(15));
+                    shell.Execute("mkdir test/folder", shellOutput, TimeSpan.FromSeconds(15));
+                    shell.Execute("touch test/file", shellOutput, TimeSpan.FromSeconds(15));
+                    int exitCode = shell.Execute("ls -al test", shellOutput, TimeSpan.FromSeconds(15));
+
+                    Assert.AreEqual(0, exitCode);
+                    Assert.That(shellOutput.StandardOutput, Is.StringContaining("folder"));
+                    Assert.That(shellOutput.StandardOutput, Is.StringContaining("file"));
                 }
 
                 shell.Disconnect();

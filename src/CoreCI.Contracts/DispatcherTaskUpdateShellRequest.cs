@@ -29,7 +29,9 @@ namespace CoreCI.Contracts
 
         public Guid TaskId { get; set; }
 
-        public List<ShellLine> Lines { get; set; }
+        public int Index { get; set; }
+
+        public string Output { get; set; }
 
         public DispatcherTaskUpdateShellRequest(Guid workerId, Guid taskId)
         {

@@ -34,8 +34,6 @@ namespace CoreCI.WorkerInstance.Vagrant
         private readonly IVirtualMachine _vm;
         private SshClient _shell;
 
-        public IShellOutput ShellOutput { get; set; }
-
         public VagrantWorkerInstance(string vagrantExecutablePath, string vagrantVirtualMachinesPath, string machine)
         {
             _vagrantExecutablePath = vagrantExecutablePath;
@@ -55,7 +53,6 @@ namespace CoreCI.WorkerInstance.Vagrant
         public void Up()
         {
             _logger.Info("Bringing VM {0} up", _machine);
-            this.ShellOutput.WriteStandardInput("Starting VM {0}...", _machine);
 
             _vm.Up();
             _shell = _vm.CreateClient();
@@ -70,11 +67,11 @@ namespace CoreCI.WorkerInstance.Vagrant
             _logger.Info("Brought VM {0} down", _machine);
         }
 
-        public void Execute(string commandLine)
+        public void Execute(string commandLine, IShellOutput shellOutput = null)
         {
             try
             {
-                int exitCode = _shell.Execute(commandLine, this.ShellOutput, TimeSpan.FromMinutes(30));
+                int exitCode = _shell.Execute(commandLine, shellOutput, TimeSpan.FromMinutes(30));
 
                 if (exitCode != 0)
                 {

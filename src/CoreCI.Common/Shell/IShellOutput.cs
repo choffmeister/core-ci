@@ -21,8 +21,6 @@ namespace CoreCI.Common.Shell
 {
     public interface IShellOutput : IDisposable
     {
-        void WriteStandardInput(string s);
-
         void WriteStandardOutput(string s);
 
         void WriteStandardError(string s);
@@ -30,10 +28,6 @@ namespace CoreCI.Common.Shell
 
     public class NullShellOutput : IShellOutput
     {
-        public void WriteStandardInput(string s)
-        {
-        }
-
         public void WriteStandardOutput(string s)
         {
         }
@@ -49,20 +43,12 @@ namespace CoreCI.Common.Shell
 
     public class MemoryShellOutput : IShellOutput
     {
-        private readonly StringBuilder _standardInput = new StringBuilder();
         private readonly StringBuilder _standardOutput = new StringBuilder();
         private readonly StringBuilder _standardError = new StringBuilder();
-
-        public string StandardInput { get { return _standardInput.ToString(); } }
 
         public string StandardOutput { get { return _standardOutput.ToString(); } }
 
         public string StandardError { get { return _standardError.ToString(); } }
-
-        public void WriteStandardInput(string s)
-        {
-            _standardInput.Append(s);
-        }
 
         public void WriteStandardOutput(string s)
         {

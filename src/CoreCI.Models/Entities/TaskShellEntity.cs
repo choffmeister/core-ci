@@ -26,11 +26,8 @@ namespace CoreCI.Models
 
         public Guid TaskId { get; set; }
 
-        public List<ShellLine> Output { get; set; }
+        public int Index { get; set; }
 
-        public TaskShellEntity()
-        {
-            this.Output = new List<ShellLine>();
-        }
+        public string Output { get; set; }
     }
 }

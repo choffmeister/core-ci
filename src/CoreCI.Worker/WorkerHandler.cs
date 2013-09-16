@@ -88,42 +88,55 @@ namespace CoreCI.Worker
 
         private void Work(TaskEntity task)
         {
+            int index = 0;
+
             try
             {
                 using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
-                using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id))
                 using (IWorkerInstance worker = new VagrantWorkerInstance(_vagrantExecutablePath, _vagrantVirtualMachinesPath, task.Configuration.Machine))
                 {
-                    worker.ShellOutput = shellOutput;
+                    using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id, index++))
+                    {
+                        shellOutput.WriteStandardOutput("Starting VM...\n");
+                    }
+
                     worker.Up();
 
                     try
                     {
                         client.Post(new DispatcherTaskUpdateStartRequest(task.Id));
 
-                        worker.ShellOutput = null;
                         foreach (string commandLine in ShellExtensions.SplitIntoCommandLines(task.Configuration.SecretStartupScript))
                         {
                             worker.Execute(commandLine);
                         }
-                        worker.ShellOutput = shellOutput;
 
                         foreach (string script in new string[] { task.Configuration.CheckoutScript, task.Configuration.TestScript })
                         {
                             foreach (string commandLine in ShellExtensions.SplitIntoCommandLines(script))
                             {
-                                _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
-                                worker.Execute(commandLine);
+                                using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id, index++))
+                                {
+                                    shellOutput.WriteStandardOutput(commandLine + "\n");
+                                    _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
+                                    worker.Execute(commandLine, shellOutput);
+                                }
                             }
                         }
 
-                        shellOutput.WriteStandardOutput("Exited with code 0");
-                        client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, 0));
+                        using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id, index++))
+                        {
+                            shellOutput.WriteStandardOutput("Exited with code 0\n");
+                            client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, 0));
+                        }
                     }
                     catch (ShellCommandFailedException ex)
                     {
-                        shellOutput.WriteStandardOutput("Exited with code {0}", ex.ExitCode);
-                        client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, ex.ExitCode));
+                        using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id, index++))
+                        {
+                            shellOutput.WriteStandardOutput("Exited with code {0}\n", ex.ExitCode);
+                            client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, ex.ExitCode));
+                        }
                     }
 
                     worker.Down();

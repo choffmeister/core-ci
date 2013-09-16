@@ -129,22 +129,23 @@ namespace CoreCI.Server.Services
         public DispatcherTaskUpdateShellResponse Post(DispatcherTaskUpdateShellRequest req)
         {
             TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
-            TaskShellEntity taskShell = _taskShellRepository.SingleOrDefault(ts => ts.TaskId == task.Id);
+            TaskShellEntity taskShell = _taskShellRepository.SingleOrDefault(ts => ts.TaskId == task.Id && ts.Index == req.Index);
 
             if (taskShell == null)
             {
                 taskShell = new TaskShellEntity()
                 {
-                    TaskId = task.Id
+                    TaskId = task.Id,
+                    Index = req.Index,
+                    Output = req.Output
                 };
                 _taskShellRepository.Insert(taskShell);
             }
-
-            foreach (var line in req.Lines)
+            else
             {
-                taskShell.Output.Add(line);
+                taskShell.Output = req.Output;
+                _taskShellRepository.Update(taskShell);
             }
-            _taskShellRepository.Update(taskShell);
 
             PushService.Push("tasks", null);
             PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "updated");

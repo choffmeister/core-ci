@@ -20,6 +20,7 @@ using CoreCI.Common.Shell;
 using System.IO;
 using Renci.SshNet.Common;
 using System.Threading;
+using System.Text;
 
 namespace CoreCI.WorkerInstance.Vagrant
 {
@@ -27,16 +28,14 @@ namespace CoreCI.WorkerInstance.Vagrant
     {
         public static int Execute(this SshClient client, string commandText, IShellOutput shellOutput, TimeSpan timeout)
         {
+            shellOutput = shellOutput ?? new NullShellOutput();
+
             using (SshCommand cmd = client.CreateCommand(commandText))
             {
-                if (shellOutput != null)
-                    shellOutput.WriteStandardInput(commandText);
-
                 cmd.CommandTimeout = timeout;
                 DateTime startTime = DateTime.UtcNow;
                 IAsyncResult asynch = cmd.BeginExecute();
-                StreamReader stdOutReader = new StreamReader(cmd.OutputStream);
-                StreamReader stdErrReader = new StreamReader(cmd.ExtendedOutputStream);
+                Encoding encoding = client.ConnectionInfo.Encoding;
 
                 while (!asynch.IsCompleted)
                 {
@@ -44,42 +43,42 @@ namespace CoreCI.WorkerInstance.Vagrant
                     {
                         throw new SshOperationTimeoutException();
                     }
-                    else if (cmd.OutputStream.Length > 0)
-                    {
-                        string content = stdOutReader.ReadLine();
-                        if (shellOutput != null)
-                            shellOutput.WriteStandardOutput(content);
-                    }
-                    else if (cmd.ExtendedOutputStream.Length > 0)
-                    {
-                        string content = stdErrReader.ReadLine();
-                        if (shellOutput != null)
-                            shellOutput.WriteStandardError(content);
-                    }
-                    else
+
+                    bool idle = false;
+
+                    idle |= ConsumeStream(cmd.OutputStream, shellOutput.WriteStandardOutput, encoding);
+                    idle |= ConsumeStream(cmd.ExtendedOutputStream, shellOutput.WriteStandardError, encoding);
+
+                    if (idle)
                     {
                         Thread.Sleep(10);
                     }
                 }
 
-                while (cmd.OutputStream.Length > 0)
-                {
-                    string content = stdOutReader.ReadLine();
-                    if (shellOutput != null)
-                        shellOutput.WriteStandardOutput(content);
-                }
-
-                while (cmd.ExtendedOutputStream.Length > 0)
-                {
-                    string content = stdErrReader.ReadLine();
-                    if (shellOutput != null)
-                        shellOutput.WriteStandardError(content);
-                }
+                ConsumeStream(cmd.OutputStream, shellOutput.WriteStandardOutput, encoding);
+                ConsumeStream(cmd.ExtendedOutputStream, shellOutput.WriteStandardError, encoding);
 
                 cmd.EndExecute(asynch);
 
                 return cmd.ExitStatus;
             }
+        }
+
+        private static bool ConsumeStream(Stream stream, Action<string> action, Encoding encoding = null)
+        {
+            encoding = encoding ?? Encoding.UTF8;
+
+            if (stream != null && stream.Length > 0L)
+            {
+                using (StreamReader reader = new StreamReader(stream, encoding))
+                {
+                    action(reader.ReadToEnd());
+
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -20,6 +20,7 @@ using ServiceStack.ServiceInterface;
 using CoreCI.Models;
 using CoreCI.Contracts;
 using ServiceStack.Common.Web;
+using System.Collections.Generic;
 
 namespace CoreCI.Server.Services
 {
@@ -59,12 +60,14 @@ namespace CoreCI.Server.Services
         public TaskRetrieveResponse Get(TaskRetrieveRequest req)
         {
             TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
-            TaskShellEntity taskShell = _taskShellRepository.SingleOrDefault(ts => ts.TaskId == task.Id);
+            List<TaskShellEntity> taskShells = _taskShellRepository
+                .OrderBy(ts => ts.Index).Where(ts => ts.TaskId == task.Id)
+                .ToList();
 
             return new TaskRetrieveResponse()
             {
                 Task = task,
-                Shell = taskShell
+                Shell = taskShells
             };
         }
     }

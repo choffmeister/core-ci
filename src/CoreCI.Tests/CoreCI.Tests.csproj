@@ -60,6 +60,7 @@
     <Compile Include="Common\RSAExtensionsTest.cs" />
     <Compile Include="MockConfigurationProvider.cs" />
     <Compile Include="Server\Connectors\GitHubConnectorTest.cs" />
+    <Compile Include="Common\Shell\BufferedShellOutputTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

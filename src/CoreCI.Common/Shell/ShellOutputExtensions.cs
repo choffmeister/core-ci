@@ -18,11 +18,6 @@ namespace CoreCI.Common.Shell
 {
     public static class ShellOutputExtensions
     {
-        public static void WriteStandardInput(this IShellOutput shellOutput, string fmt, params object[] args)
-        {
-            shellOutput.WriteStandardInput(string.Format(fmt, args));
-        }
-
         public static void WriteStandardOutput(this IShellOutput shellOutput, string fmt, params object[] args)
         {
             shellOutput.WriteStandardOutput(string.Format(fmt, args));

@@ -33,4 +33,4 @@
 hr
 .container.container-page
 	ol.shell
-		li(ng-repeat="line in shell.output") {{line.content}}
+		li(ng-repeat="command in shell") {{command.output}}

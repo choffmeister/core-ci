@@ -17,6 +17,7 @@
 using System;
 using ServiceStack.ServiceHost;
 using CoreCI.Models;
+using System.Collections.Generic;
 
 namespace CoreCI.Contracts
 {
@@ -30,6 +31,6 @@ namespace CoreCI.Contracts
     {
         public TaskEntity Task { get; set; }
 
-        public TaskShellEntity Shell { get; set; }
+        public List<TaskShellEntity> Shell { get; set; }
     }
 }

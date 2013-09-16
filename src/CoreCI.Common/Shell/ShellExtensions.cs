@@ -29,8 +29,6 @@ namespace CoreCI.Common.Shell
             script = script != null ? script + "\n" : "\n";
 
             StringBuilder sb = new StringBuilder();
-            StringReader reader = new StringReader(script);
-            string rawLine = null;
             char? quoted = null;
 
             int i = 0;

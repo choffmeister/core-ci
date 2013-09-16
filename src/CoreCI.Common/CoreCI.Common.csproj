@@ -51,10 +51,10 @@
     <Compile Include="Shell\ShellCommandFailedException.cs" />
     <Compile Include="Shell\ShellExtensions.cs" />
     <Compile Include="Shell\ShellOutputExtensions.cs" />
-    <Compile Include="Shell\ShellLine.cs" />
     <Compile Include="IWorkerInstance.cs" />
     <Compile Include="RSAExtensions.cs" />
     <Compile Include="OpenSshKeyWriter.cs" />
+    <Compile Include="Shell\BufferedShellOutput.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

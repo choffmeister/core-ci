@@ -15,61 +15,53 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using System.Linq;
 using System.IO;
 using ServiceStack.ServiceClient.Web;
 using System.Collections.Generic;
 using CoreCI.Common.Shell;
 using CoreCI.Contracts;
+using NLog.Targets.Wrappers;
+using Renci.SshNet;
+using System.Text;
 
 namespace CoreCI.Worker
 {
-    public class ServerShellOutput : IShellOutput
+    public class ServerShellOutput : BufferedShellOutput
     {
         private readonly JsonServiceClient _client;
         private readonly Guid _workerId;
         private readonly Guid _taskId;
-        private int _index;
+        private readonly int _index;
 
-        public ServerShellOutput(JsonServiceClient client, Guid workerId, Guid taskId)
+        public ServerShellOutput(JsonServiceClient client, Guid workerId, Guid taskId, int index)
         {
             _client = client;
             _workerId = workerId;
             _taskId = taskId;
-            _index = 0;
+            _index = index;
         }
 
-        public void Dispose()
+        public override void WriteStandardOutput(string s)
         {
+            base.WriteStandardOutput(s);
+
+            this.Update();
         }
 
-        public void WriteStandardInput(string s)
+        public override void WriteStandardError(string s)
         {
-            this.Write(s, ShellLineType.StandardInput);
+            base.WriteStandardError(s);
+
+            this.Update();
         }
 
-        public void WriteStandardOutput(string s)
+        private void Update()
         {
-            this.Write(s, ShellLineType.StandardOutput);
-        }
-
-        public void WriteStandardError(string s)
-        {
-            this.Write(s, ShellLineType.StandardError);
-        }
-
-        private void Write(string s, ShellLineType type)
-        {
-            // TODO: throttle and group multiple lines into one request
             _client.Post(new DispatcherTaskUpdateShellRequest(_workerId, _taskId)
             {
-                Lines = new List<ShellLine>() {
-                    new ShellLine()
-                    {
-                        Index = _index++,
-                        Content = s,
-                        Type = type
-                    }
-                }
+                Index = _index,
+                Output = this.Text
             });
         }
     }
