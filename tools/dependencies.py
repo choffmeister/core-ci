@@ -26,7 +26,7 @@ dependencies = [
 # define paths
 script_path = os.path.realpath(__file__)
 project_path = os.path.join(os.path.dirname(script_path), '..')
-libs_path = os.path.join(project_path, 'libs')
+libs_path = os.path.join(project_path, 'src', 'libs')
 
 # download a file via http
 def download(url, dest_path):

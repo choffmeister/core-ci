@@ -21,7 +21,7 @@ $ sudo -u coreci -H ./tools/dependencies.py
 # compile
 $ sudo -u coreci -H xbuild /p:Configuration=Release
 # register and start as daemon
-$ sudo cp scripts/coreci-server.conf /etc/init/
+$ sudo cp docs/upstart/coreci-server.conf /etc/init/
 $ sudo start coreci-server
 ```
 
@@ -51,6 +51,6 @@ $ sudo -u coreci -H ./tools/dependencies.py
 # compile
 $ sudo -u coreci -H xbuild /p:Configuration=Release
 # register and start as daemon
-$ sudo cp scripts/coreci-worker.conf /etc/init/
+$ sudo cp docs/upstart/coreci-worker.conf /etc/init/
 $ sudo start coreci-worker
 ```
