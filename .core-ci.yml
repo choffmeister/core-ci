@@ -1,0 +1,6 @@
+machine: precise64-mono
+
+script: |
+  sudo apt-get install -y mongodb
+  cd choffmeister/core-ci && ./tools/dependencies.py
+  cd choffmeister/core-ci && ./tools/tests.sh
