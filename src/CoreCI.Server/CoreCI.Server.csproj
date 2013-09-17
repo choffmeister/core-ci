@@ -67,6 +67,9 @@
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\libs\commonservicelocator\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Security">
+      <HintPath>..\libs\mono-security\mono-security-4.0.0.0\Mono.Security.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

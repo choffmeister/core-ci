@@ -1,8 +1,12 @@
 #!/usr/bin/python
 
 import os
+import sys
 import subprocess
 import distutils.core
+
+# target
+target = 'all' if len(sys.argv) <= 1 else sys.argv[1]
 
 # configuration
 src_config = 'Release'
@@ -53,7 +57,7 @@ def build_webapp(config):
 
 	exit_code = subprocess.call(['grunt', '%s-build' % config], cwd = web_path)
 
-def package(src_config, web_config):
+def package_sources(src_config):
 	distutils.dir_util.copy_tree(
 		os.path.join(project_path, 'src', 'CoreCI.Server', 'bin', src_config),
 		os.path.join(target_path, 'server')
@@ -62,6 +66,8 @@ def package(src_config, web_config):
 		os.path.join(project_path, 'src', 'CoreCI.Worker', 'bin', src_config),
 		os.path.join(target_path, 'worker')
 	)
+
+def package_webapp(web_config):
 	distutils.dir_util.copy_tree(
 		os.path.join(project_path, 'web', 'target', web_config),
 		os.path.join(target_path, 'web')
@@ -69,6 +75,10 @@ def package(src_config, web_config):
 
 build_clean()
 ensure_folder_exists(target_path)
-build_sources(src_config)
-build_webapp(web_config)
-package(src_config, web_config)
+
+if target == 'all' or target == 'sources':
+	build_sources(src_config)
+	package_sources(src_config)
+if target == 'all' or target == 'webapp':
+	build_webapp(web_config)
+	package_webapp(web_config)

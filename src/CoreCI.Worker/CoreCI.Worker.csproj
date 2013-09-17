@@ -49,6 +49,9 @@
       <HintPath>..\libs\nlog\lib\net40\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="Mono.Security">
+      <HintPath>..\libs\mono-security\mono-security-4.0.0.0\Mono.Security.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

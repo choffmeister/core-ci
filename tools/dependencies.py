@@ -21,6 +21,7 @@ dependencies = [
 	('nuget', 'yamldotnet-core', 'yamldotnet.core', '2.2.0'),
 	('nuget', 'yamldotnet-representationmodel', 'yamldotnet.representationmodel', '2.2.0'),
 	('github', 'mono-posix', 'choffmeister/mono-posix', 'v4.0.0.0'),
+	('github', 'mono-security', 'choffmeister/mono-security', 'v4.0.0.0'),
 ]
 
 # define paths
