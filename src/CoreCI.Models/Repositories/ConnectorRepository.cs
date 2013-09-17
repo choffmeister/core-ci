@@ -32,7 +32,7 @@ namespace CoreCI.Models
         }
 
         public ConnectorRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "coreciDatabase", "connectors")
+            : base(configurationProvider, "server.database", "connectors")
         {
         }
 

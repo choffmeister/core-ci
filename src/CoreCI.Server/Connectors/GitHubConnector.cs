@@ -47,7 +47,7 @@ namespace CoreCI.Server.Connectors
         private readonly string _serverApiPublicBaseAddress;
         private readonly string _gitHubConsumerKey;
         private readonly string _gitHubConsumerSecret;
-        private readonly string _gitHubScopes;
+        private readonly string[] _gitHubScopes;
         private readonly string _gitHubRedirectUrl;
         public const string Name = "github";
 
@@ -59,13 +59,13 @@ namespace CoreCI.Server.Connectors
             _projectRepository = projectRepository;
             _taskRepository = taskRepository;
 
-            _serverDomainPublic = configurationProvider.GetSettingString("serverDomainPublic");
-            _serverApiPublicBaseAddress = configurationProvider.GetSettingString("serverApiPublicBaseAddress");
+            _serverDomainPublic = configurationProvider.Get("server.addresses.public.domain");
+            _serverApiPublicBaseAddress = configurationProvider.Get("server.addresses.public.api");
 
-            _gitHubConsumerKey = configurationProvider.GetSettingString("oauthGitHubConsumerKey");
-            _gitHubConsumerSecret = configurationProvider.GetSettingString("oauthGitHubConsumerSecret");
-            _gitHubScopes = configurationProvider.GetSettingString("oauthGitHubScopes", false) ?? string.Empty;
-            _gitHubRedirectUrl = configurationProvider.GetSettingString("oauthGitHubRedirectUrl", false);
+            _gitHubConsumerKey = configurationProvider.Get("server.github.oauth2.consumer.key");
+            _gitHubConsumerSecret = configurationProvider.Get("server.github.oauth2.consumer.secret");
+            _gitHubScopes = configurationProvider.GetArray("server.github.oauth2.scopes") ?? new string[0];
+            _gitHubRedirectUrl = configurationProvider.Get("server.github.oauth2.redirect");
         }
 
         public void Dispose()
@@ -130,7 +130,7 @@ namespace CoreCI.Server.Connectors
             }
             else
             {
-                return this.Redirect(GitHubOAuth2Client.GetAuthorizeUrl(_gitHubConsumerKey, _gitHubScopes));
+                return this.Redirect(GitHubOAuth2Client.GetAuthorizeUrl(_gitHubConsumerKey, _gitHubScopes.Join(",")));
             }
         }
 

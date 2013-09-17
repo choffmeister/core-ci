@@ -20,10 +20,8 @@ namespace CoreCI.Common
 {
     public interface IConfigurationProvider : IDisposable
     {
-        string GetConnectionString(string name, bool throwIfNotExistent = true);
+        string Get(string name, bool throwIfNotExistent = true);
 
-        string GetSettingString(string key, bool throwIfNotExistent = true);
-
-        string GetPath(string key, bool throwIfNotExistent = true);
+        string[] GetArray(string name, bool throwIfNotExistent = true);
     }
 }

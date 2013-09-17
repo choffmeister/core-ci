@@ -31,7 +31,7 @@ namespace CoreCI.Models
         }
 
         public ProjectRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "coreciDatabase", "projects")
+            : base(configurationProvider, "server.database", "projects")
         {
         }
 

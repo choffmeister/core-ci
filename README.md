@@ -35,6 +35,10 @@ $ sudo -u coreci -H bower install
 $ cd ..
 # compile
 $ sudo -u coreci -H ./tools/build.py all
+# bootstrap configuration
+$ sudo cp docs/.core-ci.conf.yml /home/coreci
+# configure
+$ vim /home/coreci/.core-ci.conf.yml
 # register and start as daemon
 $ sudo cp docs/upstart/coreci-server.conf /etc/init/
 $ sudo start coreci-server
@@ -66,6 +70,10 @@ $ cd /home/coreci/core-ci
 $ sudo -u coreci -H ./tools/dependencies.py
 # compile
 $ sudo -u coreci -H ./tools/build.py sources
+# bootstrap configuration
+$ sudo cp docs/.core-ci.conf.yml /home/coreci
+# configure
+$ vim /home/coreci/.core-ci.conf.yml
 # register and start as daemon
 $ sudo cp docs/upstart/coreci-worker.conf /etc/init/
 $ sudo start coreci-worker

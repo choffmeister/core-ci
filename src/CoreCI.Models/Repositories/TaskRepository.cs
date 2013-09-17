@@ -34,7 +34,7 @@ namespace CoreCI.Models
         }
 
         public TaskRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "coreciDatabase", "tasks")
+            : base(configurationProvider, "server.database", "tasks")
         {
         }
 

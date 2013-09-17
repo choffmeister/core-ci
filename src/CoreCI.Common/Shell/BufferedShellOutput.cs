@@ -37,7 +37,7 @@ namespace CoreCI.Common.Shell
             {
                 lock (_lock)
                 {
-                    return _previousContent.ToString() + _currentContent.ToString(); 
+                    return _previousContent.ToString() + _currentContent.ToString();
                 }
             }
         }

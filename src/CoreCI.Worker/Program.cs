@@ -37,7 +37,7 @@ namespace CoreCI.Worker
             {
                 _logger.Info("Starting");
 
-                IConfigurationProvider configurationProvider = new FileConfigurationProvider();
+                IConfigurationProvider configurationProvider = YamlConfigurationProvider.Default;
                 WorkerHandler workerHandler = new WorkerHandler(configurationProvider);
 
                 workerHandler.Start();

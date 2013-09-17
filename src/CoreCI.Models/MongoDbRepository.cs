@@ -126,7 +126,7 @@ namespace CoreCI.Models
         /// <exception cref="System.NotImplementedException">MongoDB connection with credentials has not been implemented yet</exception>
         /// <exception cref="System.Exception"></exception>
         public MongoDbRepository(IConfigurationProvider configurationProvider, string connectionStringName, string collectionName)
-            : this(configurationProvider.GetConnectionString(connectionStringName), collectionName)
+            : this(configurationProvider.Get(connectionStringName), collectionName)
         {
         }
 

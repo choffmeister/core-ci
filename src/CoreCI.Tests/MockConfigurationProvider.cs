@@ -20,19 +20,14 @@ namespace CoreCI.Tests
 {
     public class MockConfigurationProvider : IConfigurationProvider
     {
-        public string GetConnectionString(string name, bool throwIfNotExistent = true)
+        public string Get(string name, bool throwIfNotExistent = true)
         {
             return string.Empty;
         }
 
-        public string GetSettingString(string key, bool throwIfNotExistent = true)
+        public string[] GetArray(string key, bool throwIfNotExistent = true)
         {
-            return string.Empty;
-        }
-
-        public string GetPath(string key, bool throwIfNotExistent = true)
-        {
-            return string.Empty;
+            return new string[0];
         }
 
         public void Dispose()

@@ -69,7 +69,7 @@ namespace CoreCI.Server
 
         public void Start()
         {
-            string baseAddress = _configurationProvider.GetSettingString("serverApiBaseAddress");
+            string baseAddress = _configurationProvider.Get("server.addresses.internal.api");
 
             _logger.Info("Start listening on {0}", baseAddress);
             this.Start(baseAddress);

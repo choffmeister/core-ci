@@ -42,10 +42,10 @@ namespace CoreCI.Worker
         {
             _configurationProvider = configurationProvider;
 
-            _vagrantExecutablePath = _configurationProvider.GetSettingString("workerVagrantExecutablePath");
-            _vagrantVirtualMachinesPath = _configurationProvider.GetSettingString("workerVagrantVirtualMachinesPath");
-            _workerId = Guid.Parse(_configurationProvider.GetSettingString("workerId"));
-            _serverApiBaseAddress = _configurationProvider.GetSettingString("workerServerApiBaseAddress");
+            _vagrantExecutablePath = _configurationProvider.Get("worker.vagrant.executable");
+            _vagrantVirtualMachinesPath = _configurationProvider.Get("worker.vagrant.machines");
+            _workerId = Guid.Parse(_configurationProvider.Get("worker.id"));
+            _serverApiBaseAddress = _configurationProvider.Get("worker.server");
 
             _keepAliveLoop = new TaskLoop(this.KeepAlive, 60000);
             _workLoop = new ConcurrentTaskLoop<TaskEntity>(this.Dispatch, this.Work, 1000, 4);

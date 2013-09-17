@@ -1,0 +1,31 @@
+server:
+  # the connection string for the MongoDB database
+  database: Server=mongodb://localhost;Database=coreci
+
+  # addresses
+  addresses:
+    public:
+      domain: localhost
+      api: http://localhost/api/
+    internal:
+      api: http://*:8080/api/
+
+  # should the server start an integrated worker
+  worker: false
+
+  # github OAuth2 configuration
+  github:
+    oauth2:
+      consumer:
+        key: 6a3fde426c9c0c7ff42f
+        secret:
+      scopes:
+        - repo
+      redirect: http://localhost/profile
+
+worker:
+  id: ac1e8e1f-7ba8-4a12-a8a7-e0b070c2faae
+  server: http://localhost:8080/api/
+  vagrant:
+    executable: /usr/bin/vagrant
+    machines: /tmp/core-ci

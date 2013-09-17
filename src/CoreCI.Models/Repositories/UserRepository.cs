@@ -33,7 +33,7 @@ namespace CoreCI.Models
         }
 
         public UserRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "coreciDatabase", "users")
+            : base(configurationProvider, "server.database", "users")
         {
             this.Configure();
         }

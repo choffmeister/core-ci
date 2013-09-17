@@ -31,7 +31,7 @@ namespace CoreCI.Models
         }
 
         public WorkerRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "coreciDatabase", "workers")
+            : base(configurationProvider, "server.database", "workers")
         {
         }
 

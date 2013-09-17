@@ -31,7 +31,7 @@ namespace CoreCI.Models
         }
 
         public TaskShellRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "coreciDatabase", "taskshells")
+            : base(configurationProvider, "server.database", "taskshells")
         {
         }
 

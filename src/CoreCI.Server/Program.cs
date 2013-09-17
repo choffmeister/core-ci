@@ -38,8 +38,8 @@ namespace CoreCI.Server
             {
                 _logger.Info("Starting");
 
-                IConfigurationProvider configurationProvider = new FileConfigurationProvider();
-                bool isWorkerIntegrated = bool.Parse(configurationProvider.GetSettingString("serverWorkerIntegrated"));
+                IConfigurationProvider configurationProvider = YamlConfigurationProvider.Default;
+                bool isWorkerIntegrated = configurationProvider.Get<bool>("server.worker");
 
                 ServerHandler serverHandler = new ServerHandler(configurationProvider);
                 WorkerHandler workerHandler = null;
