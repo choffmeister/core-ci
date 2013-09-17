@@ -32,7 +32,11 @@ namespace CoreCI.Common
         {
             get
             {
-                string homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                // under older Mono versions UserProfile is empty
+                string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                string personal = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                string homePath = !string.IsNullOrEmpty(userProfile) ? userProfile : personal;
+
                 string configurationPath = Path.Combine(homePath, ".core-ci.conf.yml");
 
                 return new YamlConfigurationProvider(configurationPath);
