@@ -24,18 +24,7 @@ namespace CoreCI.Tests.Common
     [TestFixture]
     public class ConfigurationProviderExtensionsTest
     {
-        private readonly string config1 = @"
-test1: Hello World
-test2: 123
-test3:
-  test4: 12.5
-  test5: false
-  test6: true
-test7:
-  - 1.5
-  - 2.5
-  - 3.5
-";
+        private readonly string config2 = File.ReadAllText("Resources/yaml-config2.yml");
         private string tempFolder;
 
         [TestFixtureSetUp]
@@ -59,7 +48,7 @@ test7:
         {
             string yamlPath = Path.Combine(this.tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
 
-            File.WriteAllText(yamlPath, this.config1);
+            File.WriteAllText(yamlPath, this.config2);
 
             YamlConfigurationProvider config = new YamlConfigurationProvider(yamlPath);
 

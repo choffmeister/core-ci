@@ -1,0 +1,10 @@
+test1: Hello World
+test2: 123
+test3:
+  test4: 12.5
+  test5: false
+  test6: true
+test7:
+  - 1.5
+  - 2.5
+  - 3.5

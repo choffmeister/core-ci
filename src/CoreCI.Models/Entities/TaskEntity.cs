@@ -15,7 +15,6 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Collections.Generic;
 
 namespace CoreCI.Models
 {
@@ -61,24 +60,5 @@ namespace CoreCI.Models
         public string CommitUrl { get; set; }
 
         public string CommitMessage { get; set; }
-    }
-
-    public enum TaskState
-    {
-        Pending,
-        Running,
-        Succeeded,
-        Failed
-    }
-
-    public class TaskConfiguration
-    {
-        public string Machine { get; set; }
-
-        public string SecretStartupScript { get; set; }
-
-        public string CheckoutScript { get; set; }
-
-        public string TestScript { get; set; }
     }
 }

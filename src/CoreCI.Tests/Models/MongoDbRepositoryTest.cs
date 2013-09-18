@@ -157,20 +157,20 @@ namespace CoreCI.Tests.Models
         {
             return a.Id == b.Id && a.Name == b.Name;
         }
-    }
 
-    public class TestEntity : IEntity
-    {
-        public Guid Id { get; set; }
-
-        public string Name { get; set; }
-    }
-
-    public class TestRepository : MongoDbRepository<TestEntity>, IRepository<TestEntity>
-    {
-        public TestRepository(string connectionString, string collectionName)
-            : base(connectionString, collectionName)
+        private class TestEntity : IEntity
         {
+            public Guid Id { get; set; }
+
+            public string Name { get; set; }
+        }
+
+        private class TestRepository : MongoDbRepository<TestEntity>, IRepository<TestEntity>
+        {
+            public TestRepository(string connectionString, string collectionName)
+                : base(connectionString, collectionName)
+            {
+            }
         }
     }
 }

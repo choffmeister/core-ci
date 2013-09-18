@@ -55,6 +55,8 @@
     <Compile Include="Entities\UserEntity.cs" />
     <Compile Include="Entities\ConnectorEntity.cs" />
     <Compile Include="Repositories\ConnectorRepository.cs" />
+    <Compile Include="Entities\TaskState.cs" />
+    <Compile Include="Entities\TaskConfiguration.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

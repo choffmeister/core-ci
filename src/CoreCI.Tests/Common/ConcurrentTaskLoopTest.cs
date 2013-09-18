@@ -28,7 +28,11 @@ namespace CoreCI.Tests.Common
         public void TestLoopingSingleWorkerWithoutTasks()
         {
             var count = 0;
-            var loop = new ConcurrentTaskLoop<Foo>(() => null, (foo) => count++, 100, 1);
+            var loop = new ConcurrentTaskLoop<Foo>(
+                () => null,
+                (foo) => SleepAndIncrement(0, ref count),
+                100,
+                1);
 
             loop.Start();
             Thread.Sleep(250);
@@ -41,7 +45,11 @@ namespace CoreCI.Tests.Common
         public void TestLoopingSingleWorkerWithTasks()
         {
             var count = 0;
-            var loop = new ConcurrentTaskLoop<Foo>(() => new Foo(), (i) => count++, 100, 1);
+            var loop = new ConcurrentTaskLoop<Foo>(
+                () => new Foo(),
+                (foo) => SleepAndIncrement(0, ref count),
+                100,
+                1);
 
             loop.Start();
             Thread.Sleep(1000);
@@ -54,7 +62,11 @@ namespace CoreCI.Tests.Common
         public void TestLoopingMultipleWorkersWithTasks1()
         {
             var count = 0;
-            var loop = new ConcurrentTaskLoop<Foo>(() => new Foo(), (foo) => count++, 100, 4);
+            var loop = new ConcurrentTaskLoop<Foo>(
+                () => new Foo(),
+                (foo) => SleepAndIncrement(0, ref count),
+                100,
+                4);
 
             loop.Start();
             Thread.Sleep(1000);
@@ -67,7 +79,11 @@ namespace CoreCI.Tests.Common
         public void TestLoopingMultipleWorkersWithTasks2()
         {
             var count = 0;
-            var loop = new ConcurrentTaskLoop<Foo>(() => new Foo(), (foo) => count++, 100, 8);
+            var loop = new ConcurrentTaskLoop<Foo>(
+                () => new Foo(),
+                (foo) => SleepAndIncrement(0, ref count),
+                100,
+                8);
 
             loop.Start();
             Thread.Sleep(1000);
@@ -81,7 +97,9 @@ namespace CoreCI.Tests.Common
         public void TestExceptionIfDoubleStarted()
         {
             var count = 0;
-            var loop = new ConcurrentTaskLoop<Foo>(() => new Foo(), (foo) => count++);
+            var loop = new ConcurrentTaskLoop<Foo>(
+                () => new Foo(),
+                (foo) => SleepAndIncrement(0, ref count));
 
             try
             {
@@ -101,7 +119,9 @@ namespace CoreCI.Tests.Common
         public void TestExceptionIfDoubleStopped()
         {
             var count = 0;
-            var loop = new ConcurrentTaskLoop<Foo>(() => new Foo(), (foo) => count++);
+            var loop = new ConcurrentTaskLoop<Foo>(
+                () => new Foo(),
+                (foo) => SleepAndIncrement(0, ref count));
 
             loop.Start();
             loop.Stop();
@@ -115,7 +135,9 @@ namespace CoreCI.Tests.Common
         public void TestExceptionIfStoppedWhileUnstarted()
         {
             var count = 0;
-            var loop = new ConcurrentTaskLoop<Foo>(() => new Foo(), (foo) => count++);
+            var loop = new ConcurrentTaskLoop<Foo>(
+                () => new Foo(),
+                (foo) => SleepAndIncrement(0, ref count));
 
             loop.Stop();
 
@@ -126,7 +148,10 @@ namespace CoreCI.Tests.Common
         public void TestFastStopping()
         {
             var count = 0;
-            var loop = new ConcurrentTaskLoop<Foo>(() => new Foo(), (foo) => count++, 5000);
+            var loop = new ConcurrentTaskLoop<Foo>(
+                () => new Foo(),
+                (foo) => SleepAndIncrement(0, ref count),
+                5000);
 
             DateTime start = DateTime.Now;
             loop.Start();
@@ -142,11 +167,11 @@ namespace CoreCI.Tests.Common
         public void TestWaitingForWorkerOnStopping()
         {
             var count = 0;
-            var loop = new ConcurrentTaskLoop<Foo>(() => new Foo(), (foo) =>
-            {
-                Thread.Sleep(1000);
-                count++;
-            }, 5000, 1);
+            var loop = new ConcurrentTaskLoop<Foo>(
+                () => new Foo(),
+                (foo) => SleepAndIncrement(1000, ref count),
+                5000,
+                1);
 
             DateTime start = DateTime.Now;
             loop.Start();
@@ -157,6 +182,16 @@ namespace CoreCI.Tests.Common
             Assert.That((end - start).TotalMilliseconds, Is.GreaterThan(1000 - 200));
             Assert.That((end - start).TotalMilliseconds, Is.LessThan(1000 + 200));
             Assert.AreEqual(1, count);
+        }
+
+        private static void SleepAndIncrement(int sleep, ref int i)
+        {
+            if (sleep > 0)
+            {
+                Thread.Sleep(sleep);
+            }
+
+            i++;
         }
 
         private class Foo

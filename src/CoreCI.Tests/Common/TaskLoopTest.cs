@@ -28,11 +28,7 @@ namespace CoreCI.Tests.Common
         public void TestLoopingWithIdle()
         {
             var count = 0;
-            var loop = new TaskLoop(() =>
-            {
-                count++;
-                return false;
-            }, 100);
+            var loop = new TaskLoop(() => SleepIncrementAndReturn(0, ref count, false), 100);
 
             loop.Start();
             Thread.Sleep(250);
@@ -45,11 +41,7 @@ namespace CoreCI.Tests.Common
         public void TestLoopingWithoutIdle()
         {
             var count = 0;
-            var loop = new TaskLoop(() =>
-            {
-                count++;
-                return true;
-            }, 100);
+            var loop = new TaskLoop(() => SleepIncrementAndReturn(0, ref count, true), 100);
 
             loop.Start();
             Thread.Sleep(250);
@@ -62,11 +54,7 @@ namespace CoreCI.Tests.Common
         public void TestFastStopping()
         {
             var count = 0;
-            var loop = new TaskLoop(() =>
-            {
-                count++;
-                return false;
-            }, 5000);
+            var loop = new TaskLoop(() => SleepIncrementAndReturn(0, ref count, false), 5000);
 
             DateTime start = DateTime.Now;
             loop.Start();
@@ -82,12 +70,7 @@ namespace CoreCI.Tests.Common
         public void TestWaitingForWorkerOnStopping()
         {
             var count = 0;
-            var loop = new TaskLoop(() =>
-            {
-                Thread.Sleep(1000);
-                count++;
-                return true;
-            }, 5000);
+            var loop = new TaskLoop(() => SleepIncrementAndReturn(1000, ref count, true), 5000);
 
             DateTime start = DateTime.Now;
             loop.Start();
@@ -98,6 +81,18 @@ namespace CoreCI.Tests.Common
             Assert.That((end - start).TotalMilliseconds, Is.GreaterThan(1000 - 200));
             Assert.That((end - start).TotalMilliseconds, Is.LessThan(1000 + 200));
             Assert.AreEqual(1, count);
+        }
+
+        private static bool SleepIncrementAndReturn(int sleep, ref int i, bool result)
+        {
+            if (sleep > 0)
+            {
+                Thread.Sleep(sleep);
+            }
+
+            i++;
+
+            return result;
         }
     }
 }

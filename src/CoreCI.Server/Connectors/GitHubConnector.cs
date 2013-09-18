@@ -172,7 +172,7 @@ namespace CoreCI.Server.Connectors
                 Commit = commitHash,
                 CommitUrl = commit.Child("url"),
                 CommitMessage = commit.Child("message"),
-                Configuration = this.GetConfiguration(accessToken, ownerName, repositoryName, branchName, commitHash, publicKeyFileString, privateKeyFileString)
+                Configuration = GetConfiguration(accessToken, ownerName, repositoryName, branchName, commitHash, publicKeyFileString, privateKeyFileString)
             };
             this.taskRepository.Insert(task);
 
@@ -263,7 +263,7 @@ namespace CoreCI.Server.Connectors
             this.projectRepository.Delete(project);
         }
 
-        private TaskConfiguration GetConfiguration(string accessToken, string ownerName, string repositoryName, string reference, string commitHash, string publicKeyFileString, string privateKeyFileString)
+        private static TaskConfiguration GetConfiguration(string accessToken, string ownerName, string repositoryName, string reference, string commitHash, string publicKeyFileString, string privateKeyFileString)
         {
             string secretStartupScript = CreateSecretStartupScript(publicKeyFileString, privateKeyFileString);
             string checkoutScript = CreateCheckoutScript(ownerName, repositoryName, reference, commitHash);

@@ -22,15 +22,15 @@ namespace CoreCI.Contracts
     [RouteAttribute("/dispatcher/task/update/finish", "POST")]
     public class DispatcherTaskUpdateFinishRequest : IReturn<DispatcherTaskUpdateFinishResponse>
     {
-        public Guid TaskId { get; set; }
-
-        public int ExitCode { get; set; }
-
         public DispatcherTaskUpdateFinishRequest(Guid taskId, int exitCode)
         {
             this.TaskId = taskId;
             this.ExitCode = exitCode;
         }
+
+        public Guid TaskId { get; set; }
+
+        public int ExitCode { get; set; }
     }
 
     public class DispatcherTaskUpdateFinishResponse

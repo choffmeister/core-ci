@@ -28,6 +28,7 @@ namespace CoreCI.Tests.Common
     [TestFixture]
     public class RSAExtensionsTest
     {
+        private static readonly string[] NewLines = new string[] { "\r\n", "\n" };
         private string tempFolder;
 
         [TestFixtureSetUp]
@@ -68,11 +69,7 @@ namespace CoreCI.Tests.Common
             Assert.AreEqual(0, result.ExitCode);
             Assert.That(result.StdOut, Is.StringStarting("RSA key ok"));
 
-            string[] lines = privateKeyString.Split(new string[]
-            {
-                "\r\n",
-                "\n"
-            }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = privateKeyString.Split(NewLines, StringSplitOptions.RemoveEmptyEntries);
             string base64 = string.Join(string.Empty, lines.Skip(1).Take(lines.Length - 2));
             byte[] binary = Convert.FromBase64String(base64);
 

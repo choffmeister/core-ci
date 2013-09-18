@@ -24,31 +24,7 @@ namespace CoreCI.Tests.Common
     [TestFixture]
     public class YamlConfigurationProviderTest
     {
-        private readonly string config1 = @"
-test1-1: Hello World
-test1-2: |
-  Hello World
-  Foobar
-test2-1:
-  - apple
-  - pie
-test3:
-  test1: Hello World2
-  test2: |
-    Hello World2
-    Foobar2
-  test3:
-    test4: Foobar2
-test4:
-  test1:
-    - apple2
-  test2:
-    - apple2
-    - pie2
-  test3:
-    test4:
-      - pie2
-";
+        private readonly string config1 = File.ReadAllText("Resources/yaml-config1.yml");
         private string tempFolder;
 
         [TestFixtureSetUp]

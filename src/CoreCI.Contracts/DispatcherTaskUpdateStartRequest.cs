@@ -22,12 +22,12 @@ namespace CoreCI.Contracts
     [RouteAttribute("/dispatcher/task/update/start", "POST")]
     public class DispatcherTaskUpdateStartRequest : IReturn<DispatcherTaskUpdateStartResponse>
     {
-        public Guid TaskId { get; set; }
-
         public DispatcherTaskUpdateStartRequest(Guid taskId)
         {
             this.TaskId = taskId;
         }
+
+        public Guid TaskId { get; set; }
     }
 
     public class DispatcherTaskUpdateStartResponse

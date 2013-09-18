@@ -29,16 +29,16 @@ namespace CoreCI.Contracts
 
     public class ProfileRetrieveResponse
     {
-        public UserEntity User { get; set; }
-
-        public List<ConnectorEntity> Connectors { get; set; }
-
-        public List<ProjectEntity> Projects { get; set; }
-
         public ProfileRetrieveResponse()
         {
             this.Connectors = new List<ConnectorEntity>();
             this.Projects = new List<ProjectEntity>();
         }
+
+        public UserEntity User { get; set; }
+
+        public List<ConnectorEntity> Connectors { get; set; }
+
+        public List<ProjectEntity> Projects { get; set; }
     }
 }

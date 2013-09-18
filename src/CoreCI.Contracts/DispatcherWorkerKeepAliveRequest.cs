@@ -22,12 +22,12 @@ namespace CoreCI.Contracts
     [RouteAttribute("/dispatcher/worker/keepalive", "POST")]
     public class DispatcherWorkerKeepAliveRequest : IReturn<DispatcherWorkerKeepAliveResponse>
     {
-        public Guid WorkerId { get; set; }
-
         public DispatcherWorkerKeepAliveRequest(Guid workerId)
         {
             this.WorkerId = workerId;
         }
+
+        public Guid WorkerId { get; set; }
     }
 
     public class DispatcherWorkerKeepAliveResponse

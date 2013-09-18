@@ -14,32 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using System.Collections.Generic;
-
 namespace CoreCI.Models
 {
-    public class ProjectEntity : IEntity
+    public class TaskConfiguration
     {
-        public ProjectEntity()
-        {
-            this.Options = new Dictionary<string, string>();
-        }
+        public string Machine { get; set; }
 
-        public Guid Id { get; set; }
+        public string SecretStartupScript { get; set; }
 
-        public Guid UserId { get; set; }
+        public string CheckoutScript { get; set; }
 
-        public Guid ConnectorId { get; set; }
-
-        public string Name { get; set; }
-
-        public string FullName { get; set; }
-
-        public string Token { get; set; }
-
-        public bool IsPrivate { get; set; }
-
-        public Dictionary<string, string> Options { get; set; }
+        public string TestScript { get; set; }
     }
 }

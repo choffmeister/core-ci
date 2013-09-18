@@ -26,6 +26,14 @@ namespace CoreCI.Common.Shell
         private int column;
         private int row;
 
+        public BufferedShellOutput()
+        {
+            this.previousContent = new StringBuilder();
+            this.currentContent = new StringBuilder();
+            this.column = 0;
+            this.row = 0;
+        }
+
         public string Text
         {
             get
@@ -35,14 +43,6 @@ namespace CoreCI.Common.Shell
                     return this.previousContent.ToString() + this.currentContent.ToString();
                 }
             }
-        }
-
-        public BufferedShellOutput()
-        {
-            this.previousContent = new StringBuilder();
-            this.currentContent = new StringBuilder();
-            this.column = 0;
-            this.row = 0;
         }
 
         public virtual void Dispose()

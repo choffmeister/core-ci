@@ -28,10 +28,6 @@ namespace CoreCI.Contracts
 
     public class PushMessageResponse
     {
-        public Guid ClientId { get; set; }
-
-        public List<PushMessage> Messages { get; set; }
-
         public PushMessageResponse()
         {
             this.Messages = new List<PushMessage>();
@@ -42,6 +38,10 @@ namespace CoreCI.Contracts
         {
             this.ClientId = clientId;
         }
+
+        public Guid ClientId { get; set; }
+
+        public List<PushMessage> Messages { get; set; }
     }
 
     /// <summary>
@@ -49,6 +49,28 @@ namespace CoreCI.Contracts
     /// </summary>
     public class PushMessage
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PushMessage"/> class.
+        /// </summary>
+        public PushMessage()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PushMessage"/> class.
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        public PushMessage(long id, string key, object value)
+            : this()
+        {
+            this.Id = id;
+            this.Key = key;
+            this.Value = value;
+            this.CreatedOn = DateTime.UtcNow;
+        }
+
         /// <summary>
         /// Gets or sets the id.
         /// </summary>
@@ -80,27 +102,5 @@ namespace CoreCI.Contracts
         /// The created on.
         /// </value>
         public DateTime CreatedOn { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PushMessage"/> class.
-        /// </summary>
-        public PushMessage()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PushMessage"/> class.
-        /// </summary>
-        /// <param name="id">The id.</param>
-        /// <param name="key">The key.</param>
-        /// <param name="value">The value.</param>
-        public PushMessage(long id, string key, object value)
-            : this()
-        {
-            this.Id = id;
-            this.Key = key;
-            this.Value = value;
-            this.CreatedOn = DateTime.UtcNow;
-        }
     }
 }

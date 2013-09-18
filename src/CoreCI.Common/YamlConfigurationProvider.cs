@@ -26,6 +26,12 @@ namespace CoreCI.Common
         private readonly string path;
         private readonly YamlMappingNode yaml;
 
+        public YamlConfigurationProvider(string path)
+        {
+            this.path = path;
+            this.yaml = ParseYaml(this.path);
+        }
+
         public static YamlConfigurationProvider Default
         {
             get
@@ -39,12 +45,6 @@ namespace CoreCI.Common
 
                 return new YamlConfigurationProvider(configurationPath);
             }
-        }
-
-        public YamlConfigurationProvider(string path)
-        {
-            this.path = path;
-            this.yaml = ParseYaml(this.path);
         }
 
         public string Get(string name, bool throwIfNotExistent = true)

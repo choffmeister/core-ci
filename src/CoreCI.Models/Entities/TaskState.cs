@@ -14,32 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using System.Collections.Generic;
-
 namespace CoreCI.Models
 {
-    public class ProjectEntity : IEntity
+    public enum TaskState
     {
-        public ProjectEntity()
-        {
-            this.Options = new Dictionary<string, string>();
-        }
+        /// <summary>
+        /// Indicates a pending task that has not yet been dispatched to a worker.
+        /// </summary>
+        Pending,
 
-        public Guid Id { get; set; }
+        /// <summary>
+        /// Indicates a running task that has already been dispatched to a worker.
+        /// </summary>
+        Running,
 
-        public Guid UserId { get; set; }
+        /// <summary>
+        /// Indicates a task that has been finished successfully.
+        /// </summary>
+        Succeeded,
 
-        public Guid ConnectorId { get; set; }
-
-        public string Name { get; set; }
-
-        public string FullName { get; set; }
-
-        public string Token { get; set; }
-
-        public bool IsPrivate { get; set; }
-
-        public Dictionary<string, string> Options { get; set; }
+        /// <summary>
+        /// Indicates a task that has been finished unsuccessfully.
+        /// </summary>
+        Failed
     }
 }

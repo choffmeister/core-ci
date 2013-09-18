@@ -16,7 +16,6 @@
  */
 using System;
 using System.IO;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -47,19 +46,6 @@ namespace CoreCI.WorkerInstance.Vagrant
         private string privateKey;
         private ConnectionInfo connectionInfo;
 
-        public ConnectionInfo ConnectionInfo
-        {
-            get
-            {
-                if (!this.isUp)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                return this.connectionInfo;
-            }
-        }
-
         public VagrantVirtualMachine(string vagrantExecutablePath, string vagrantVirtualMachinesPath, string name, Uri imageUri, int cpuCount, int memorySize)
         {
             this.vagrantExecutable = vagrantExecutablePath;
@@ -73,6 +59,19 @@ namespace CoreCI.WorkerInstance.Vagrant
             this.cpuCount = cpuCount;
             this.memorySize = memorySize;
             this.isUp = false;
+        }
+
+        public ConnectionInfo ConnectionInfo
+        {
+            get
+            {
+                if (!this.isUp)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                return this.connectionInfo;
+            }
         }
 
         public void Dispose()
@@ -102,13 +101,13 @@ namespace CoreCI.WorkerInstance.Vagrant
                 this.publicKey = rsa.ToOpenSshPublicKeyFileString(string.Format("{0}@core-ci", this.id));
                 this.privateKey = rsa.ToOpenSshPrivateKeyFileString();
 
-                EnsureDirectoryExists(this.folder);
+                Helper.EnsureDirectoryExists(this.folder);
                 string vagrantFilePath = Path.Combine(this.folder, "Vagrantfile");
-                string vagrantFileContent = GetResource("Vagrantfile-template.txt", this.name, this.imageUri, this.cpuCount, this.memorySize);
+                string vagrantFileContent = Helper.GetResource("Vagrantfile-template.txt", this.name, this.imageUri, this.cpuCount, this.memorySize);
                 File.WriteAllText(vagrantFilePath, vagrantFileContent);
 
                 string vagrantFileBootstrapPath = Path.Combine(this.folder, "Vagrantfile-bootstrap.sh");
-                string vagrantFileBootstrapContent = GetResource("Vagrantfile-bootstrap-template.txt", this.publicKey);
+                string vagrantFileBootstrapContent = Helper.GetResource("Vagrantfile-bootstrap-template.txt", this.publicKey);
                 File.WriteAllText(vagrantFileBootstrapPath, vagrantFileBootstrapContent);
 
                 // ensure that no two machines are upped in parallel
@@ -135,7 +134,7 @@ namespace CoreCI.WorkerInstance.Vagrant
 
                 this.connectionInfo = null;
                 this.VagrantDown();
-                EnsureDirectoryNotExists(this.folder);
+                Helper.EnsureDirectoryNotExists(this.folder);
             }
         }
 
@@ -208,38 +207,6 @@ namespace CoreCI.WorkerInstance.Vagrant
         private ProcessResult ExecuteVagrantCommand(string vagrantCommand)
         {
             return ProcessHelper.Execute(this.vagrantExecutable, vagrantCommand, this.folder);
-        }
-
-        private static void EnsureDirectoryExists(string path)
-        {
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-        }
-
-        private static void EnsureDirectoryNotExists(string path)
-        {
-            if (Directory.Exists(path))
-            {
-                Directory.Delete(path, true);
-            }
-        }
-
-        private static string GetResource(string name, params object[] args)
-        {
-            string fullName = string.Format("CoreCI.WorkerInstance.Vagrant.Resources.{0}", name);
-            Assembly assembly = typeof(VagrantWorkerInstance).Assembly;
-
-            using (Stream stream = assembly.GetManifestResourceStream(fullName))
-            {
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    string resource = reader.ReadToEnd();
-
-                    return string.Format(resource, args);
-                }
-            }
         }
     }
 }

@@ -44,6 +44,7 @@
     <Compile Include="VagrantWorkerInstance.cs" />
     <Compile Include="VagrantException.cs" />
     <Compile Include="SshClientExtensions.cs" />
+    <Compile Include="Helper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

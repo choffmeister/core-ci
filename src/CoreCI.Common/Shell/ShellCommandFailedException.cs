@@ -24,23 +24,20 @@ namespace CoreCI.Common.Shell
     {
         private readonly int exitCode;
 
-        public int ExitCode
-        {
-            get { return this.exitCode; }
-        }
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
+        /// Initializes a new instance of the <see cref="ShellCommandFailedException"/> class.
         /// </summary>
+        /// <param name="exitCode">The exit code that has been return from the executed command.</param>
         public ShellCommandFailedException(int exitCode)
         {
             this.exitCode = exitCode;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
+        /// Initializes a new instance of the <see cref="ShellCommandFailedException"/> class.
         /// </summary>
-        /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
+        /// <param name="exitCode">The exit code that has been return from the executed command.</param>
+        /// <param name="message">A <see cref="T:System.String"/> that describes the exception.</param>
         public ShellCommandFailedException(int exitCode, string message)
             : base(message)
         {
@@ -48,9 +45,10 @@ namespace CoreCI.Common.Shell
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
+        /// Initializes a new instance of the <see cref="ShellCommandFailedException"/> class.
         /// </summary>
-        /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
+        /// <param name="exitCode">The exit code that has been return from the executed command.</param>
+        /// <param name="message">A <see cref="T:System.String"/> that describes the exception.</param>
         /// <param name="inner">The exception that is the cause of the current exception. </param>
         public ShellCommandFailedException(int exitCode, string message, Exception inner)
             : base(message, inner)
@@ -59,13 +57,18 @@ namespace CoreCI.Common.Shell
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:SshCommandFailedException"/> class
+        /// Initializes a new instance of the <see cref="ShellCommandFailedException"/> class.
         /// </summary>
-        /// <param name="context">The contextual information about the source or destination.</param>
         /// <param name="info">The object that holds the serialized object data.</param>
+        /// <param name="context">The contextual information about the source or destination.</param>
         protected ShellCommandFailedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+        }
+
+        public int ExitCode
+        {
+            get { return this.exitCode; }
         }
     }
 }

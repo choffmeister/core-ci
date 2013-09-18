@@ -22,6 +22,12 @@ namespace CoreCI.Contracts
     [RouteAttribute("/dispatcher/task/update/shell", "POST")]
     public class DispatcherTaskUpdateShellRequest : IReturn<DispatcherTaskUpdateShellResponse>
     {
+        public DispatcherTaskUpdateShellRequest(Guid workerId, Guid taskId)
+        {
+            this.WorkerId = workerId;
+            this.TaskId = taskId;
+        }
+
         public Guid WorkerId { get; set; }
 
         public Guid TaskId { get; set; }
@@ -29,12 +35,6 @@ namespace CoreCI.Contracts
         public int Index { get; set; }
 
         public string Output { get; set; }
-
-        public DispatcherTaskUpdateShellRequest(Guid workerId, Guid taskId)
-        {
-            this.WorkerId = workerId;
-            this.TaskId = taskId;
-        }
     }
 
     public class DispatcherTaskUpdateShellResponse

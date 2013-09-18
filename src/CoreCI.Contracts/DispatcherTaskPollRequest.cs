@@ -23,18 +23,16 @@ namespace CoreCI.Contracts
     [RouteAttribute("/dispatcher/task/poll", "POST")]
     public class DispatcherTaskPollRequest : IReturn<DispatcherTaskPollResponse>
     {
-        public Guid WorkerId { get; set; }
-
         public DispatcherTaskPollRequest(Guid workerId)
         {
             this.WorkerId = workerId;
         }
+
+        public Guid WorkerId { get; set; }
     }
 
     public class DispatcherTaskPollResponse
     {
-        public TaskEntity Task { get; set; }
-
         public DispatcherTaskPollResponse()
         {
         }
@@ -43,5 +41,7 @@ namespace CoreCI.Contracts
         {
             this.Task = task;
         }
+
+        public TaskEntity Task { get; set; }
     }
 }

@@ -26,6 +26,7 @@ namespace CoreCI.Common
     /// has to be given that returns the working items passt to
     /// the action. Concurrent execution is supported.
     /// </summary>
+    /// <typeparam name="T">The type of the object given from the dispatcher to a worker.</typeparam>
     public class ConcurrentTaskLoop<T>
         where T : class
     {
@@ -40,6 +41,7 @@ namespace CoreCI.Common
         private bool isStopped;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ConcurrentTaskLoop{T}" /> class.
         /// Creates a new loop task executing an action over and over again.
         /// The action is passed an work item, that is received from a dispatcher.
         /// The dispatcher method can return null, to indicate that there is
@@ -56,6 +58,80 @@ namespace CoreCI.Common
             this.millisecondsIdleSleep = millisecondsIdleSleep;
             this.parallelThreads = parallelThreads;
             this.isStopped = true;
+        }
+
+        /// <summary>
+        /// Starts the looping. This method blocks until the looping
+        /// has been started.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Is thrown, if this method is called
+        /// while the looping is already running.</exception>
+        public void Start()
+        {
+            // lock to make sure, that concurrent calls to this method from
+            // different threads do not break the state
+            lock (this.lockObject)
+            {
+                // throw exception if already stopped
+                if (this.isStopped == false)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                // mark as started
+                this.isStopped = false;
+
+                // create work item slots
+                this.workItems = new T[this.parallelThreads];
+
+                // start work threads
+                this.workerThreads = Enumerable.Range(0, this.parallelThreads)
+                    .Select(i => new Thread(this.Worker))
+                        .ToArray();
+                for (int i = 0; i < this.parallelThreads; i++)
+                {
+                    this.workerThreads[i].Start(i);
+                }
+
+                // start thread
+                this.dispatcherThread = new Thread(this.Dispatcher);
+                this.dispatcherThread.Start();
+            }
+        }
+
+        /// <summary>
+        /// Stopps the looping. This method blocks until the looping
+        /// has been stopped.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Is thrown, if this method is called
+        /// while the looping is already stopped.</exception>
+        public void Stop()
+        {
+            // lock to make sure, that concurrent calls to this method from
+            // different threads do not break the state
+            lock (this.lockObject)
+            {
+                // throw exception if already started
+                if (this.isStopped == true)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                // mark as stopped
+                this.isStopped = true;
+
+                // block calling thread until loop thread has finished
+                this.dispatcherThread.Join();
+                this.dispatcherThread = null;
+
+                foreach (Thread workerThread in this.workerThreads)
+                {
+                    workerThread.Join();
+                }
+
+                this.workerThreads = null;
+                this.workItems = null;
+            }
         }
 
         /// <summary>
@@ -131,80 +207,6 @@ namespace CoreCI.Common
                 {
                     // TODO: handle
                 }
-            }
-        }
-
-        /// <summary>
-        /// Starts the looping. This method blocks until the looping
-        /// has been started.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">Is thrown, if this method is called
-        /// while the looping is already running.</exception>
-        public void Start()
-        {
-            // lock to make sure, that concurrent calls to this method from
-            // different threads do not break the state
-            lock (this.lockObject)
-            {
-                // throw exception if already stopped
-                if (this.isStopped == false)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                // mark as started
-                this.isStopped = false;
-
-                // create work item slots
-                this.workItems = new T[this.parallelThreads];
-
-                // start work threads
-                this.workerThreads = Enumerable.Range(0, this.parallelThreads)
-                    .Select(i => new Thread(this.Worker))
-                    .ToArray();
-                for (int i = 0; i < this.parallelThreads; i++)
-                {
-                    this.workerThreads[i].Start(i);
-                }
-
-                // start thread
-                this.dispatcherThread = new Thread(this.Dispatcher);
-                this.dispatcherThread.Start();
-            }
-        }
-
-        /// <summary>
-        /// Stopps the looping. This method blocks until the looping
-        /// has been stopped.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">Is thrown, if this method is called
-        /// while the looping is already stopped.</exception>
-        public void Stop()
-        {
-            // lock to make sure, that concurrent calls to this method from
-            // different threads do not break the state
-            lock (this.lockObject)
-            {
-                // throw exception if already started
-                if (this.isStopped == true)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                // mark as stopped
-                this.isStopped = true;
-
-                // block calling thread until loop thread has finished
-                this.dispatcherThread.Join();
-                this.dispatcherThread = null;
-
-                foreach (Thread workerThread in this.workerThreads)
-                {
-                    workerThread.Join();
-                }
-
-                this.workerThreads = null;
-                this.workItems = null;
             }
         }
 

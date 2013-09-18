@@ -28,10 +28,10 @@ using MongoDB.Driver.Linq;
 namespace CoreCI.Models
 {
     /// <summary>
-    /// A implementation of the <see cref="IRepository<T>"/> interface for MongoDB
+    /// A implementation of the <see cref="IRepository{T}"/> interface for MongoDB
     /// databases. Allows easy using (see example) with little code.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type</typeparam>
+    /// <typeparam name="TEntity">The entity type.</typeparam>
     /// <example>
     /// <code>
     /// public class MyEntity : IEntity
@@ -49,7 +49,7 @@ namespace CoreCI.Models
     /// }
     /// </code>
     /// </example>
-    public abstract class MongoDbRepository<TEntity> : IRepository<TEntity>
+    public abstract partial class MongoDbRepository<TEntity> : IRepository<TEntity>
         where TEntity : class, IEntity, new()
     {
         private static readonly Regex ConnectionStringRegex = new Regex("^Server=(?<Server>[^;]+);Database=(?<Database>[^;]+)(;Username=(?<Username>[^;]+))?(;Password=(?<Password>.+))?$");
@@ -60,20 +60,8 @@ namespace CoreCI.Models
         private readonly IQueryable<TEntity> queryable;
 
         /// <summary>
-        /// Gets the collection. Grants sub classes direct access to the MongoDB specific functionalities.
-        /// </summary>
-        /// <value>
-        /// The collection.
-        /// </value>
-        protected MongoCollection<TEntity> Collection
-        {
-            get { return this.collection; }
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="MongoDbRepository{TEntity}"/> class.
         /// </summary>
-        /// <param name="configurationProvider">The configuration provider.</param>
         /// <param name="connectionString">The connection string.</param>
         /// <param name="collectionName">Name of the collection.</param>
         /// <exception cref="System.NotImplementedException">MongoDB connection with credentials has not been implemented yet</exception>
@@ -127,6 +115,17 @@ namespace CoreCI.Models
         public MongoDbRepository(IConfigurationProvider configurationProvider, string connectionStringName, string collectionName)
             : this(configurationProvider.Get(connectionStringName), collectionName)
         {
+        }
+
+        /// <summary>
+        /// Gets the collection. Grants sub classes direct access to the MongoDB specific functionalities.
+        /// </summary>
+        /// <value>
+        /// The collection.
+        /// </value>
+        protected MongoCollection<TEntity> Collection
+        {
+            get { return this.collection; }
         }
 
         /// <summary>
@@ -221,17 +220,32 @@ namespace CoreCI.Models
         {
             this.collection.Drop();
         }
-        #region IQueryable, IEnumerable
-        public IEnumerator<TEntity> GetEnumerator()
-        {
-            return this.queryable.GetEnumerator();
-        }
+    }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.queryable.GetEnumerator();
-        }
-
+    /// <summary>
+    /// A implementation of the <see cref="IRepository{T}"/> interface for MongoDB
+    /// databases. Allows easy using (see example) with little code.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type.</typeparam>
+    /// <example>
+    /// <code>
+    /// public class MyEntity : IEntity
+    /// {
+    ///     public Guid Id { get; set; }
+    ///     public string Name { get; set; }
+    /// }
+    ///
+    /// public class MyEntityRepository : MongoDbRepository&lt;MyEntity&gt;, IRepository&lt;MyEntity&gt;
+    /// {
+    ///     public MyEntityRepository(IConfigurationProvider configurationProvider)
+    ///         : base(configurationProvider, "connectionStringName", "myentities")
+    ///     {
+    ///     }
+    /// }
+    /// </code>
+    /// </example>
+    public abstract partial class MongoDbRepository<TEntity> : IQueryable<TEntity>
+    {
         public Type ElementType
         {
             get { return this.queryable.ElementType; }
@@ -246,6 +260,15 @@ namespace CoreCI.Models
         {
             get { return this.queryable.Provider; }
         }
-        #endregion IQueryable, IEnumerable
+
+        public IEnumerator<TEntity> GetEnumerator()
+        {
+            return this.queryable.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.queryable.GetEnumerator();
+        }
     }
 }

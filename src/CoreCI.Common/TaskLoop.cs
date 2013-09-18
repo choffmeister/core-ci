@@ -35,6 +35,7 @@ namespace CoreCI.Common
         private bool isStopped;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="TaskLoop"/> class.
         /// Creates a new loop task executing an action over and over again.
         /// If the action returns false, the looping is idled for some time.
         /// </summary>
@@ -45,41 +46,6 @@ namespace CoreCI.Common
             this.action = action;
             this.millisecondsIdleSleep = millisecondsIdleSleep;
             this.isStopped = true;
-        }
-
-        /// <summary>
-        /// Loops the action over and over again.
-        /// </summary>
-        private void Loop()
-        {
-            DateTime last = DateTime.MinValue;
-
-            // loop until marked as stopped
-            while (!this.isStopped)
-            {
-                try
-                {
-                    DateTime now = DateTime.Now;
-
-                    if ((now - last).TotalMilliseconds > this.millisecondsIdleSleep)
-                    {
-                        last = now;
-
-                        if (this.action())
-                        {
-                            last = DateTime.MinValue;
-                        }
-                    }
-                    else
-                    {
-                        Thread.Sleep(25);
-                    }
-                }
-                catch
-                {
-                    // TODO: handle
-                }
-            }
         }
 
         /// <summary>
@@ -133,6 +99,41 @@ namespace CoreCI.Common
                 // block calling thread until loop thread has finished
                 this.thread.Join();
                 this.thread = null;
+            }
+        }
+
+        /// <summary>
+        /// Loops the action over and over again.
+        /// </summary>
+        private void Loop()
+        {
+            DateTime last = DateTime.MinValue;
+
+            // loop until marked as stopped
+            while (!this.isStopped)
+            {
+                try
+                {
+                    DateTime now = DateTime.Now;
+
+                    if ((now - last).TotalMilliseconds > this.millisecondsIdleSleep)
+                    {
+                        last = now;
+
+                        if (this.action())
+                        {
+                            last = DateTime.MinValue;
+                        }
+                    }
+                    else
+                    {
+                        Thread.Sleep(25);
+                    }
+                }
+                catch
+                {
+                    // TODO: handle
+                }
             }
         }
     }

@@ -23,14 +23,14 @@ namespace CoreCI.Server.Connectors
     {
         private readonly string name;
 
-        public string Name
-        {
-            get { return this.name; }
-        }
-
         public ConnectorAttribute(string name)
         {
             this.name = name;
+        }
+
+        public string Name
+        {
+            get { return this.name; }
         }
     }
 }
