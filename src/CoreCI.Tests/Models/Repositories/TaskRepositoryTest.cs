@@ -16,9 +16,9 @@
  */
 using System;
 using System.Linq;
-using NUnit.Framework;
-using CoreCI.Models;
 using System.Threading.Tasks;
+using CoreCI.Models;
+using NUnit.Framework;
 
 namespace CoreCI.Tests.Models
 {
@@ -46,15 +46,15 @@ namespace CoreCI.Tests.Models
                 int j = i;
                 Guid workerId = Guid.NewGuid();
 
-                workers [j] = new Task(() =>
+                workers[j] = new Task(() =>
                 {
-                    workerTasks [j] = this.TaskRepository.GetPendingTask(workerId);
+                    workerTasks[j] = this.TaskRepository.GetPendingTask(workerId);
                 });
             }
 
             for (int i = 0; i < concurrency; i++)
             {
-                workers [i].Start();
+                workers[i].Start();
             }
 
             Task.WaitAll(workers);

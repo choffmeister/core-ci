@@ -23,38 +23,38 @@ namespace CoreCI.WorkerInstance.Vagrant
     public class VagrantException : Exception
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
+        /// Initializes a new instance of the <see cref="VagrantException"/> class
         /// </summary>
         public VagrantException()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
+        /// Initializes a new instance of the <see cref="VagrantException"/> class
         /// </summary>
-        /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
+        /// <param name="message">A <see cref="System.String"/> that describes the exception. </param>
         public VagrantException(string message)
-            : base (message)
+            : base(message)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
+        /// Initializes a new instance of the <see cref="VagrantException"/> class
         /// </summary>
-        /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
+        /// <param name="message">A <see cref="System.String"/> that describes the exception. </param>
         /// <param name="inner">The exception that is the cause of the current exception. </param>
         public VagrantException(string message, Exception inner)
-            : base (message, inner)
+            : base(message, inner)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:VirtualMachineException"/> class
+        /// Initializes a new instance of the <see cref="VagrantException"/> class
         /// </summary>
-        /// <param name="context">The contextual information about the source or destination.</param>
         /// <param name="info">The object that holds the serialized object data.</param>
+        /// <param name="context">The contextual information about the source or destination.</param>
         protected VagrantException(SerializationInfo info, StreamingContext context)
-            : base (info, context)
+            : base(info, context)
         {
         }
     }

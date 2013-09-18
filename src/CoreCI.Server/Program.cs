@@ -16,8 +16,8 @@
  */
 using System;
 using CoreCI.Common;
-using NLog;
 using CoreCI.Worker;
+using NLog;
 
 namespace CoreCI.Server
 {
@@ -26,7 +26,7 @@ namespace CoreCI.Server
     /// </summary>
     public class ServerExecutable
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Main entry point.
@@ -36,7 +36,7 @@ namespace CoreCI.Server
         {
             try
             {
-                _logger.Info("Starting");
+                Log.Info("Starting");
 
                 IConfigurationProvider configurationProvider = YamlConfigurationProvider.Default;
                 bool isWorkerIntegrated = configurationProvider.Get<bool>("server.worker");
@@ -64,11 +64,11 @@ namespace CoreCI.Server
             }
             catch (Exception ex)
             {
-                _logger.Fatal(ex);
+                Log.Fatal(ex);
             }
             finally
             {
-                _logger.Info("Stopped");
+                Log.Info("Stopped");
             }
 
             // Mono bugfix, see http://nlog-project.org/2011/10/30/using-nlog-with-mono.html

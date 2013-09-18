@@ -14,40 +14,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
 using System.Linq;
-using ServiceStack.ServiceInterface;
-using CoreCI.Models;
 using CoreCI.Contracts;
-using ServiceStack.Common.Web;
+using CoreCI.Models;
+using ServiceStack.ServiceInterface;
 
 namespace CoreCI.Server.Services
 {
     public class ProjectService : Service
     {
-        private readonly IProjectRepository _projectRepository;
+        private readonly IProjectRepository projectRepository;
 
         public ProjectService(IProjectRepository projectRepository)
         {
-            _projectRepository = projectRepository;
+            this.projectRepository = projectRepository;
         }
 
         public override void Dispose()
         {
-            _projectRepository.Dispose();
+            this.projectRepository.Dispose();
         }
 
         public ProjectListResponse Get(ProjectListRequest req)
         {
             return new ProjectListResponse()
             {
-                Projects = _projectRepository.OrderBy(p => p.Name).ToList()
+                Projects = this.projectRepository.OrderBy(p => p.Name).ToList()
             };
         }
 
         public ProjectRetrieveResponse Get(ProjectRetrieveRequest req)
         {
-            ProjectEntity project = _projectRepository.GetEntityById(req.ProjectId);
+            ProjectEntity project = this.projectRepository.GetEntityById(req.ProjectId);
 
             return new ProjectRetrieveResponse()
             {

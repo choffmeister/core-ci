@@ -14,40 +14,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using System.Linq;
-using System.IO;
-using System.Collections.Generic;
-using Renci.SshNet;
 using System.Text;
 
 namespace CoreCI.Common.Shell
 {
     public class BufferedShellOutput : IShellOutput
     {
-        private readonly object _lock = new object();
-        private StringBuilder _previousContent;
-        private StringBuilder _currentContent;
-        private int _column;
-        private int _row;
+        private readonly object lockObject = new object();
+        private StringBuilder previousContent;
+        private StringBuilder currentContent;
+        private int column;
+        private int row;
 
         public string Text
         {
             get
             {
-                lock (_lock)
+                lock (this.lockObject)
                 {
-                    return _previousContent.ToString() + _currentContent.ToString();
+                    return this.previousContent.ToString() + this.currentContent.ToString();
                 }
             }
         }
 
         public BufferedShellOutput()
         {
-            _previousContent = new StringBuilder();
-            _currentContent = new StringBuilder();
-            _column = 0;
-            _row = 0;
+            this.previousContent = new StringBuilder();
+            this.currentContent = new StringBuilder();
+            this.column = 0;
+            this.row = 0;
         }
 
         public virtual void Dispose()
@@ -66,7 +61,7 @@ namespace CoreCI.Common.Shell
 
         private void Write(string s)
         {
-            lock (_lock)
+            lock (this.lockObject)
             {
                 if (string.IsNullOrEmpty(s))
                 {
@@ -75,30 +70,30 @@ namespace CoreCI.Common.Shell
 
                 for (int i = 0; i < s.Length; i++)
                 {
-                    if (s [i] == '\r')
+                    if (s[i] == '\r')
                     {
-                        _column = 0;
+                        this.column = 0;
                     }
-                    else if (s [i] == '\n')
+                    else if (s[i] == '\n')
                     {
-                        _previousContent.Append(_currentContent.ToString());
-                        _previousContent.Append('\n');
-                        _currentContent.Clear();
-                        _column = 0;
-                        _row++;
+                        this.previousContent.Append(this.currentContent.ToString());
+                        this.previousContent.Append('\n');
+                        this.currentContent.Clear();
+                        this.column = 0;
+                        this.row++;
                     }
                     else
                     {
-                        if (_column == _currentContent.Length)
+                        if (this.column == this.currentContent.Length)
                         {
-                            _currentContent.Append(s [i]);
+                            this.currentContent.Append(s[i]);
                         }
                         else
                         {
-                            _currentContent [_column] = s [i];
+                            this.currentContent[this.column] = s[i];
                         }
 
-                        _column++;
+                        this.column++;
                     }
                 }
             }

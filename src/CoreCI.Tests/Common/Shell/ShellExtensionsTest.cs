@@ -14,10 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
 using System.Linq;
-using NUnit.Framework;
 using CoreCI.Common.Shell;
+using NUnit.Framework;
 
 namespace CoreCI.Tests.Common.Shell
 {
@@ -27,7 +26,7 @@ namespace CoreCI.Tests.Common.Shell
         [Test]
         public void TestSplittingIntoCommandLines()
         {
-            Assert.AreEqual(new string[] { }, Split(""));
+            Assert.AreEqual(new string[] { }, Split(string.Empty));
             Assert.AreEqual(new string[] { "a" }, Split("a"));
             Assert.AreEqual(new string[] { "ab" }, Split("ab"));
             Assert.AreEqual(new string[] { "abc" }, Split("abc"));

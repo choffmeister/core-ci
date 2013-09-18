@@ -16,15 +16,15 @@
  */
 using System;
 using System.IO;
-using NUnit.Framework;
 using CoreCI.Common;
+using NUnit.Framework;
 
 namespace CoreCI.Tests.Common
 {
     [TestFixture]
     public class YamlConfigurationProviderTest
     {
-        private readonly string _config1 = @"
+        private readonly string config1 = @"
 test1-1: Hello World
 test1-2: |
   Hello World
@@ -49,30 +49,30 @@ test4:
     test4:
       - pie2
 ";
-        private string _tempFolder;
+        private string tempFolder;
 
         [TestFixtureSetUp]
         public void SetUp()
         {
-            _tempFolder = TemporaryHelper.CreateTempFolder();
+            this.tempFolder = TemporaryHelper.CreateTempFolder();
         }
 
         [TestFixtureTearDown]
         public void TearDown()
         {
-            if (_tempFolder != null)
+            if (this.tempFolder != null)
             {
-                TemporaryHelper.DeleteTempFolder(_tempFolder);
-                _tempFolder = null;
+                TemporaryHelper.DeleteTempFolder(this.tempFolder);
+                this.tempFolder = null;
             }
         }
 
         [Test]
         public void TestGet()
         {
-            string yamlPath = Path.Combine(_tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
+            string yamlPath = Path.Combine(this.tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
 
-            File.WriteAllText(yamlPath, _config1);
+            File.WriteAllText(yamlPath, this.config1);
 
             YamlConfigurationProvider config = new YamlConfigurationProvider(yamlPath);
 
@@ -83,9 +83,9 @@ test4:
         [Test]
         public void TestGetArray()
         {
-            string yamlPath = Path.Combine(_tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
+            string yamlPath = Path.Combine(this.tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
 
-            File.WriteAllText(yamlPath, _config1);
+            File.WriteAllText(yamlPath, this.config1);
 
             YamlConfigurationProvider config = new YamlConfigurationProvider(yamlPath);
 
@@ -95,9 +95,9 @@ test4:
         [Test]
         public void TestGetHierarchic()
         {
-            string yamlPath = Path.Combine(_tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
+            string yamlPath = Path.Combine(this.tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
 
-            File.WriteAllText(yamlPath, _config1);
+            File.WriteAllText(yamlPath, this.config1);
 
             YamlConfigurationProvider config = new YamlConfigurationProvider(yamlPath);
 
@@ -109,9 +109,9 @@ test4:
         [Test]
         public void TestGetArrayHierarchic()
         {
-            string yamlPath = Path.Combine(_tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
+            string yamlPath = Path.Combine(this.tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
 
-            File.WriteAllText(yamlPath, _config1);
+            File.WriteAllText(yamlPath, this.config1);
 
             YamlConfigurationProvider config = new YamlConfigurationProvider(yamlPath);
 

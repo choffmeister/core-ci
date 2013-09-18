@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
 using CoreCI.Models;
 using NUnit.Framework;
 
@@ -22,41 +21,41 @@ namespace CoreCI.Tests
 {
     public class RepositoryAwareTestFixture
     {
-        private IConnectorRepository _connectorRepository;
-        private IUserRepository _userRepository;
-        private IWorkerRepository _workerRepository;
-        private IProjectRepository _projectRepository;
-        private ITaskRepository _taskRepository;
-        private ITaskShellRepository _taskShellRepository;
+        private IConnectorRepository connectorRepository;
+        private IUserRepository userRepository;
+        private IWorkerRepository workerRepository;
+        private IProjectRepository projectRepository;
+        private ITaskRepository taskRepository;
+        private ITaskShellRepository taskShellRepository;
 
         public IConnectorRepository ConnectorRepository
         {
-            get { return _connectorRepository; }
+            get { return this.connectorRepository; }
         }
 
         public IUserRepository UserRepository
         {
-            get { return _userRepository; }
+            get { return this.userRepository; }
         }
 
         public IWorkerRepository WorkerRepository
         {
-            get { return _workerRepository; }
+            get { return this.workerRepository; }
         }
 
         public IProjectRepository ProjectRepository
         {
-            get { return _projectRepository; }
+            get { return this.projectRepository; }
         }
 
         public ITaskRepository TaskRepository
         {
-            get { return _taskRepository; }
+            get { return this.taskRepository; }
         }
 
         public ITaskShellRepository TaskShellRepository
         {
-            get { return _taskShellRepository; }
+            get { return this.taskShellRepository; }
         }
 
         [SetUpAttribute]
@@ -64,30 +63,30 @@ namespace CoreCI.Tests
         {
             string connectionString = "Server=mongodb://localhost;Database=coreci-test";
 
-            _connectorRepository = CoreCI.Models.ConnectorRepository.CreateTemporary(connectionString);
-            _userRepository = CoreCI.Models.UserRepository.CreateTemporary(connectionString);
-            _workerRepository = CoreCI.Models.WorkerRepository.CreateTemporary(connectionString);
-            _projectRepository = CoreCI.Models.ProjectRepository.CreateTemporary(connectionString);
-            _taskRepository = CoreCI.Models.TaskRepository.CreateTemporary(connectionString);
-            _taskShellRepository = CoreCI.Models.TaskShellRepository.CreateTemporary(connectionString);
+            this.connectorRepository = CoreCI.Models.ConnectorRepository.CreateTemporary(connectionString);
+            this.userRepository = CoreCI.Models.UserRepository.CreateTemporary(connectionString);
+            this.workerRepository = CoreCI.Models.WorkerRepository.CreateTemporary(connectionString);
+            this.projectRepository = CoreCI.Models.ProjectRepository.CreateTemporary(connectionString);
+            this.taskRepository = CoreCI.Models.TaskRepository.CreateTemporary(connectionString);
+            this.taskShellRepository = CoreCI.Models.TaskShellRepository.CreateTemporary(connectionString);
         }
 
         [TearDown]
         public void TearDown()
         {
-            _connectorRepository.Clear();
-            _userRepository.Clear();
-            _workerRepository.Clear();
-            _projectRepository.Clear();
-            _taskRepository.Clear();
-            _taskShellRepository.Clear();
+            this.connectorRepository.Clear();
+            this.userRepository.Clear();
+            this.workerRepository.Clear();
+            this.projectRepository.Clear();
+            this.taskRepository.Clear();
+            this.taskShellRepository.Clear();
 
-            _connectorRepository.Dispose();
-            _userRepository.Dispose();
-            _workerRepository.Dispose();
-            _projectRepository.Dispose();
-            _taskRepository.Dispose();
-            _taskShellRepository.Dispose();
+            this.connectorRepository.Dispose();
+            this.userRepository.Dispose();
+            this.workerRepository.Dispose();
+            this.projectRepository.Dispose();
+            this.taskRepository.Dispose();
+            this.taskShellRepository.Dispose();
         }
     }
 }

@@ -15,63 +15,61 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using Renci.SshNet;
-using NLog;
-using CoreCI.Common.Shell;
 using CoreCI.Common;
-using System.CodeDom.Compiler;
-using System.Runtime.CompilerServices;
+using CoreCI.Common.Shell;
+using NLog;
+using Renci.SshNet;
 using Renci.SshNet.Common;
 
 namespace CoreCI.WorkerInstance.Vagrant
 {
     public class VagrantWorkerInstance : IWorkerInstance
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly string _vagrantExecutablePath;
-        private readonly string _vagrantVirtualMachinesPath;
-        private readonly string _machine;
-        private readonly IVirtualMachine _vm;
-        private SshClient _shell;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly string vagrantExecutablePath;
+        private readonly string vagrantVirtualMachinesPath;
+        private readonly string machine;
+        private readonly IVirtualMachine vm;
+        private SshClient shell;
 
         public VagrantWorkerInstance(string vagrantExecutablePath, string vagrantVirtualMachinesPath, string machine, string boxUrls)
         {
-            _vagrantExecutablePath = vagrantExecutablePath;
-            _vagrantVirtualMachinesPath = vagrantVirtualMachinesPath;
-            _machine = machine;
+            this.vagrantExecutablePath = vagrantExecutablePath;
+            this.vagrantVirtualMachinesPath = vagrantVirtualMachinesPath;
+            this.machine = machine;
 
             Uri machineUri = new Uri(boxUrls + machine + ".box");
-            _vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, machine, machineUri, 2, 1024);
+            this.vm = new VagrantVirtualMachine(this.vagrantExecutablePath, this.vagrantVirtualMachinesPath, this.machine, machineUri, 2, 1024);
         }
 
         public void Dispose()
         {
-            _shell.Dispose();
-            _vm.Dispose();
+            this.shell.Dispose();
+            this.vm.Dispose();
         }
 
         public void Up()
         {
-            _logger.Info("Bringing VM {0} up", _machine);
+            Log.Info("Bringing VM {0} up", this.machine);
 
-            _vm.Up();
-            _shell = _vm.CreateClient();
-            _shell.Connect();
+            this.vm.Up();
+            this.shell = this.vm.CreateClient();
+            this.shell.Connect();
         }
 
         public void Down()
         {
-            _shell.Disconnect();
-            _vm.Down();
+            this.shell.Disconnect();
+            this.vm.Down();
 
-            _logger.Info("Brought VM {0} down", _machine);
+            Log.Info("Brought VM {0} down", this.machine);
         }
 
         public void Execute(string commandLine, IShellOutput shellOutput = null)
         {
             try
             {
-                int exitCode = _shell.Execute(commandLine, shellOutput, TimeSpan.FromMinutes(30));
+                int exitCode = this.shell.Execute(commandLine, shellOutput, TimeSpan.FromMinutes(30));
 
                 if (exitCode != 0)
                 {

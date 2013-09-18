@@ -15,12 +15,12 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using Renci.SshNet;
-using CoreCI.Common.Shell;
 using System.IO;
-using Renci.SshNet.Common;
-using System.Threading;
 using System.Text;
+using System.Threading;
+using CoreCI.Common.Shell;
+using Renci.SshNet;
+using Renci.SshNet.Common;
 
 namespace CoreCI.WorkerInstance.Vagrant
 {

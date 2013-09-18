@@ -14,48 +14,42 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using ServiceStack.WebHost.Endpoints;
-using Funq;
-using CoreCI.Models;
-using ServiceStack.Text;
+using System.Collections.Generic;
 using CoreCI.Common;
+using CoreCI.Models;
+using Funq;
+using Microsoft.Practices.Unity;
 using NLog;
 using ServiceStack.ServiceHost;
-using System.Net;
-using Microsoft.Practices.Unity;
-using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.ServiceInterface;
+using ServiceStack.ServiceInterface.Auth;
+using ServiceStack.Text;
+using ServiceStack.WebHost.Endpoints;
 
 namespace CoreCI.Server
 {
     public class ServerHandler : AppHostHttpListenerBase
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly IUnityContainer _unityContainer;
-        private readonly IConfigurationProvider _configurationProvider;
-
-        public IUnityContainer UnityContainer
-        {
-            get { return _unityContainer; }
-        }
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly IUnityContainer unityContainer;
+        private readonly IConfigurationProvider configurationProvider;
 
         public ServerHandler(IConfigurationProvider configurationProvider)
             : base("core:ci", typeof(ServerHandler).Assembly)
         {
-            _unityContainer = new UnityContainer();
-            _configurationProvider = configurationProvider;
+            this.unityContainer = new UnityContainer();
+            this.configurationProvider = configurationProvider;
 
             this.ServiceExceptionHandler += (req, ex) =>
             {
                 // HTTP exceptions are only logged to trace
                 if (ex is IHttpError == false)
                 {
-                    _logger.Error(ex);
+                    Log.Error(ex);
                 }
                 else
                 {
-                    _logger.Trace(ex);
+                    Log.Trace(ex);
                 }
 
                 // return with default exception handling
@@ -63,24 +57,29 @@ namespace CoreCI.Server
             };
             this.ExceptionHandler += (req, res, operationName, ex) =>
             {
-                _logger.Error(ex);
+                Log.Error(ex);
             };
+        }
+
+        public IUnityContainer UnityContainer
+        {
+            get { return this.unityContainer; }
         }
 
         public void Start()
         {
-            string baseAddress = _configurationProvider.Get("server.addresses.internal.api");
+            string baseAddress = this.configurationProvider.Get("server.addresses.internal.api");
 
-            _logger.Info("Start listening on {0}", baseAddress);
+            Log.Info("Start listening on {0}", baseAddress);
             this.Start(baseAddress);
-            _logger.Info("Started");
+            Log.Info("Started");
         }
 
         public override void Stop()
         {
-            _logger.Info("Stop listening");
+            Log.Info("Stop listening");
             base.Stop();
-            _logger.Info("Stopped");
+            Log.Info("Stopped");
         }
 
         public override void Configure(Container container)
@@ -89,8 +88,8 @@ namespace CoreCI.Server
             JsConfig.DateHandler = JsonDateHandler.ISO8601;
             JsConfig.EmitCamelCaseNames = true;
 
-            _unityContainer
-                .RegisterInstance<IConfigurationProvider>(_configurationProvider)
+            this.unityContainer
+                .RegisterInstance<IConfigurationProvider>(this.configurationProvider)
                 .RegisterType<IConnectorRepository, ConnectorRepository>()
                 .RegisterType<IUserRepository, UserRepository>()
                 .RegisterType<IWorkerRepository, WorkerRepository>()
@@ -98,12 +97,13 @@ namespace CoreCI.Server
                 .RegisterType<ITaskRepository, TaskRepository>()
                 .RegisterType<ITaskShellRepository, TaskShellRepository>();
 
-            container.Adapter = new UnityContainerAdapter(_unityContainer);
+            container.Adapter = new UnityContainerAdapter(this.unityContainer);
 
-            this.Plugins.Add(new AuthFeature(() => new AuthUserSession(), new IAuthProvider[]
-            {
-                new AuthProvider(_unityContainer)
-            }));
+            List<IAuthProvider> authProviders = new List<IAuthProvider>();
+            authProviders.Add(new AuthProvider(this.unityContainer));
+
+            IPlugin authFeature = new AuthFeature(() => new AuthUserSession(), authProviders.ToArray());
+            this.Plugins.Add(authFeature);
         }
     }
 }

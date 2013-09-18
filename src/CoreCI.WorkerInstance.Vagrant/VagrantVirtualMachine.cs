@@ -16,15 +16,13 @@
  */
 using System;
 using System.IO;
-using System.Configuration;
-using System.Diagnostics;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using Renci.SshNet;
-using NLog;
 using CoreCI.Common;
-using System.Security.Cryptography;
+using NLog;
+using Renci.SshNet;
 
 namespace CoreCI.WorkerInstance.Vagrant
 {
@@ -33,55 +31,55 @@ namespace CoreCI.WorkerInstance.Vagrant
     /// </summary>
     public class VagrantVirtualMachine : IVirtualMachine
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private static readonly object _upLock = new object();
-        private readonly object _lock = new object();
-        private readonly string _vagrantExecutable;
-        private readonly string _vagrantVirtualMachinesPath;
-        private readonly Guid _id;
-        private readonly string _folder;
-        private readonly string _name;
-        private readonly Uri _imageUri;
-        private readonly int _cpuCount;
-        private readonly int _memorySize;
-        private bool _isUp;
-        private string _publicKey;
-        private string _privateKey;
-        private ConnectionInfo _connectionInfo;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private static readonly object VagrantUpLock = new object();
+        private readonly object lockObject = new object();
+        private readonly string vagrantExecutable;
+        private readonly string vagrantVirtualMachinesPath;
+        private readonly Guid id;
+        private readonly string folder;
+        private readonly string name;
+        private readonly Uri imageUri;
+        private readonly int cpuCount;
+        private readonly int memorySize;
+        private bool isUp;
+        private string publicKey;
+        private string privateKey;
+        private ConnectionInfo connectionInfo;
 
         public ConnectionInfo ConnectionInfo
         {
             get
             {
-                if (!_isUp)
+                if (!this.isUp)
                 {
                     throw new InvalidOperationException();
                 }
 
-                return _connectionInfo;
+                return this.connectionInfo;
             }
         }
 
         public VagrantVirtualMachine(string vagrantExecutablePath, string vagrantVirtualMachinesPath, string name, Uri imageUri, int cpuCount, int memorySize)
         {
-            _vagrantExecutable = vagrantExecutablePath;
-            _vagrantVirtualMachinesPath = vagrantVirtualMachinesPath;
+            this.vagrantExecutable = vagrantExecutablePath;
+            this.vagrantVirtualMachinesPath = vagrantVirtualMachinesPath;
 
-            _id = Guid.NewGuid();
-            _folder = Path.Combine(_vagrantVirtualMachinesPath, _id.ToString());
+            this.id = Guid.NewGuid();
+            this.folder = Path.Combine(this.vagrantVirtualMachinesPath, this.id.ToString());
 
-            _name = name;
-            _imageUri = imageUri;
-            _cpuCount = cpuCount;
-            _memorySize = memorySize;
-            _isUp = false;
+            this.name = name;
+            this.imageUri = imageUri;
+            this.cpuCount = cpuCount;
+            this.memorySize = memorySize;
+            this.isUp = false;
         }
 
         public void Dispose()
         {
-            lock (_lock)
+            lock (this.lockObject)
             {
-                if (_isUp)
+                if (this.isUp)
                 {
                     this.Down();
                 }
@@ -90,71 +88,73 @@ namespace CoreCI.WorkerInstance.Vagrant
 
         public void Up()
         {
-            lock (_lock)
+            lock (this.lockObject)
             {
-                if (_isUp)
+                if (this.isUp)
                 {
                     throw new InvalidOperationException();
                 }
-                _isUp = true;
 
-                _logger.Trace("Generating new RSA key");
+                this.isUp = true;
+
+                Log.Trace("Generating new RSA key");
                 RSA rsa = new RSACryptoServiceProvider(768);
-                _publicKey = rsa.ToOpenSshPublicKeyFileString(string.Format("{0}@core-ci", _id));
-                _privateKey = rsa.ToOpenSshPrivateKeyFileString();
+                this.publicKey = rsa.ToOpenSshPublicKeyFileString(string.Format("{0}@core-ci", this.id));
+                this.privateKey = rsa.ToOpenSshPrivateKeyFileString();
 
-                EnsureDirectoryExists(_folder);
-                string vagrantFilePath = Path.Combine(_folder, "Vagrantfile");
-                string vagrantFileContent = GetResource("Vagrantfile-template.txt", _name, _imageUri, _cpuCount, _memorySize);
+                EnsureDirectoryExists(this.folder);
+                string vagrantFilePath = Path.Combine(this.folder, "Vagrantfile");
+                string vagrantFileContent = GetResource("Vagrantfile-template.txt", this.name, this.imageUri, this.cpuCount, this.memorySize);
                 File.WriteAllText(vagrantFilePath, vagrantFileContent);
 
-                string vagrantFileBootstrapPath = Path.Combine(_folder, "Vagrantfile-bootstrap.sh");
-                string vagrantFileBootstrapContent = GetResource("Vagrantfile-bootstrap-template.txt", _publicKey);
+                string vagrantFileBootstrapPath = Path.Combine(this.folder, "Vagrantfile-bootstrap.sh");
+                string vagrantFileBootstrapContent = GetResource("Vagrantfile-bootstrap-template.txt", this.publicKey);
                 File.WriteAllText(vagrantFileBootstrapPath, vagrantFileBootstrapContent);
 
                 // ensure that no two machines are upped in parallel
-                lock (_upLock)
+                lock (VagrantUpLock)
                 {
                     this.VagrantUp();
                 }
 
                 this.VagrantProvision();
-                _connectionInfo = this.VagrantSshConfig();
+                this.connectionInfo = this.VagrantSshConfig();
             }
         }
 
         public void Down()
         {
-            lock (_lock)
+            lock (this.lockObject)
             {
-                if (!_isUp)
+                if (!this.isUp)
                 {
                     throw new InvalidOperationException();
                 }
-                _isUp = false;
 
-                _connectionInfo = null;
+                this.isUp = false;
+
+                this.connectionInfo = null;
                 this.VagrantDown();
-                EnsureDirectoryNotExists(_folder);
+                EnsureDirectoryNotExists(this.folder);
             }
         }
 
         public SshClient CreateClient()
         {
-            lock (_lock)
+            lock (this.lockObject)
             {
-                if (!_isUp)
+                if (!this.isUp)
                 {
                     throw new InvalidOperationException();
                 }
 
-                return new SshClient(_connectionInfo);
+                return new SshClient(this.connectionInfo);
             }
         }
 
         private void VagrantUp()
         {
-            _logger.Info("Starting VM");
+            Log.Info("Starting VM");
             ProcessResult result = this.ExecuteVagrantCommand("up --no-provision");
 
             if (!result.Success)
@@ -166,7 +166,7 @@ namespace CoreCI.WorkerInstance.Vagrant
         private void VagrantDown()
         {
             this.ExecuteVagrantCommand("destroy -f");
-            _logger.Info("Destroyed VM");
+            Log.Info("Destroyed VM");
         }
 
         private void VagrantProvision()
@@ -197,17 +197,17 @@ namespace CoreCI.WorkerInstance.Vagrant
                 throw new VagrantException("Could not determine SSH connection information\n\n" + result.Output);
             }
 
-            string hostName = hostNameMatch.Groups ["HostName"].Value;
-            int port = int.Parse(portMatch.Groups ["Port"].Value);
+            string hostName = hostNameMatch.Groups["HostName"].Value;
+            int port = int.Parse(portMatch.Groups["Port"].Value);
             string userName = "coreci";
-            PrivateKeyFile privateKey = new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(_privateKey)));
+            PrivateKeyFile privateKeyFile = new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(this.privateKey)));
 
-            return new ConnectionInfo(hostName, port, userName, new PrivateKeyAuthenticationMethod(userName, privateKey));
+            return new ConnectionInfo(hostName, port, userName, new PrivateKeyAuthenticationMethod(userName, privateKeyFile));
         }
 
         private ProcessResult ExecuteVagrantCommand(string vagrantCommand)
         {
-            return ProcessHelper.Execute(_vagrantExecutable, vagrantCommand, _folder);
+            return ProcessHelper.Execute(this.vagrantExecutable, vagrantCommand, this.folder);
         }
 
         private static void EnsureDirectoryExists(string path)

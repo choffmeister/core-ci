@@ -15,9 +15,9 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using NUnit.Framework;
-using CoreCI.Common;
 using System.Threading;
+using CoreCI.Common;
+using NUnit.Framework;
 
 namespace CoreCI.Tests.Common
 {

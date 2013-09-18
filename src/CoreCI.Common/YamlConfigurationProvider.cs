@@ -15,18 +15,16 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
+using System.IO;
 using System.Linq;
 using YamlDotNet.RepresentationModel;
-using System.IO;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace CoreCI.Common
 {
     public class YamlConfigurationProvider : IConfigurationProvider
     {
-        private readonly string _path;
-        private readonly YamlMappingNode _yaml;
+        private readonly string path;
+        private readonly YamlMappingNode yaml;
 
         public static YamlConfigurationProvider Default
         {
@@ -45,20 +43,20 @@ namespace CoreCI.Common
 
         public YamlConfigurationProvider(string path)
         {
-            _path = path;
-            _yaml = ParseYaml(_path);
+            this.path = path;
+            this.yaml = ParseYaml(this.path);
         }
 
         public string Get(string name, bool throwIfNotExistent = true)
         {
-            YamlScalarNode node = (YamlScalarNode)Traverse(_yaml, name);
+            YamlScalarNode node = (YamlScalarNode)Traverse(this.yaml, name);
 
             return node.Value;
         }
 
         public string[] GetArray(string name, bool throwIfNotExistent = true)
         {
-            YamlSequenceNode node = (YamlSequenceNode)Traverse(_yaml, name);
+            YamlSequenceNode node = (YamlSequenceNode)Traverse(this.yaml, name);
 
             return node.Children
                 .Select(n => ((YamlScalarNode)n).Value)
@@ -75,7 +73,7 @@ namespace CoreCI.Common
 
             foreach (string part in parts)
             {
-                current = ((YamlMappingNode)current).Children [new YamlScalarNode(part)];
+                current = ((YamlMappingNode)current).Children[new YamlScalarNode(part)];
             }
 
             return current;
@@ -89,7 +87,7 @@ namespace CoreCI.Common
                 YamlStream yaml = new YamlStream();
                 yaml.Load(fileReader);
 
-                return (YamlMappingNode)yaml.Documents [0].RootNode;
+                return (YamlMappingNode)yaml.Documents[0].RootNode;
             }
         }
     }

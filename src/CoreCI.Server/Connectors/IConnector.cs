@@ -15,13 +15,13 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using ServiceStack.ServiceHost;
-using ServiceStack.ServiceInterface.Auth;
-using ServiceStack.Common.Web;
-using System.Net;
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Cryptography;
 using CoreCI.Models;
+using ServiceStack.Common.Web;
+using ServiceStack.ServiceHost;
+using ServiceStack.ServiceInterface.Auth;
 
 namespace CoreCI.Server.Connectors
 {
@@ -54,7 +54,7 @@ namespace CoreCI.Server.Connectors
             byte[] bytes = new byte[byteCount];
             rng.GetBytes(bytes);
 
-            return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+            return BitConverter.ToString(bytes).Replace("-", string.Empty).ToLower();
         }
     }
 }

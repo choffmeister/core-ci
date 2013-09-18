@@ -14,12 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using ServiceStack.ServiceHost;
-using ServiceStack.ServiceInterface;
 using System;
 using System.Collections.Generic;
 using CoreCI.Contracts;
 using CoreCI.Server.Managers;
+using ServiceStack.ServiceInterface;
 
 namespace CoreCI.Server.Services
 {
@@ -28,6 +27,11 @@ namespace CoreCI.Server.Services
     /// </summary>
     public class PushService : Service
     {
+        public static void Push(string key, object value)
+        {
+            PushMessageManager.CreatePushMessage(key, value);
+        }
+
         public PushMessageResponse Post(PushMessageRequest request)
         {
             Guid clientId = PushMessageManager.GetClient(request.ClientId);
@@ -38,11 +42,6 @@ namespace CoreCI.Server.Services
                 ClientId = clientId,
                 Messages = pushMessages
             };
-        }
-
-        public static void Push(string key, object value)
-        {
-            PushMessageManager.CreatePushMessage(key, value);
         }
     }
 }

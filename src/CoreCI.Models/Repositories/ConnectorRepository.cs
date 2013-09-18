@@ -16,7 +16,6 @@
  */
 using System;
 using CoreCI.Common;
-using MongoDB.Driver.Builders;
 
 namespace CoreCI.Models
 {
@@ -26,13 +25,13 @@ namespace CoreCI.Models
 
     public class ConnectorRepository : MongoDbRepository<ConnectorEntity>, IConnectorRepository
     {
-        protected ConnectorRepository(string connectionString, string collectionName)
-            : base(connectionString, collectionName)
+        public ConnectorRepository(IConfigurationProvider configurationProvider)
+            : base(configurationProvider, "server.database", "connectors")
         {
         }
 
-        public ConnectorRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "server.database", "connectors")
+        protected ConnectorRepository(string connectionString, string collectionName)
+            : base(connectionString, collectionName)
         {
         }
 

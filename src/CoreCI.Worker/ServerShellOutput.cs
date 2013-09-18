@@ -15,31 +15,25 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Linq;
-using System.IO;
-using ServiceStack.ServiceClient.Web;
-using System.Collections.Generic;
 using CoreCI.Common.Shell;
 using CoreCI.Contracts;
-using NLog.Targets.Wrappers;
-using Renci.SshNet;
-using System.Text;
+using ServiceStack.ServiceClient.Web;
 
 namespace CoreCI.Worker
 {
     public class ServerShellOutput : BufferedShellOutput
     {
-        private readonly JsonServiceClient _client;
-        private readonly Guid _workerId;
-        private readonly Guid _taskId;
-        private readonly int _index;
+        private readonly JsonServiceClient client;
+        private readonly Guid workerId;
+        private readonly Guid taskId;
+        private readonly int index;
 
         public ServerShellOutput(JsonServiceClient client, Guid workerId, Guid taskId, int index)
         {
-            _client = client;
-            _workerId = workerId;
-            _taskId = taskId;
-            _index = index;
+            this.client = client;
+            this.workerId = workerId;
+            this.taskId = taskId;
+            this.index = index;
         }
 
         public override void WriteStandardOutput(string s)
@@ -58,9 +52,9 @@ namespace CoreCI.Worker
 
         private void Update()
         {
-            _client.Post(new DispatcherTaskUpdateShellRequest(_workerId, _taskId)
+            this.client.Post(new DispatcherTaskUpdateShellRequest(this.workerId, this.taskId)
             {
-                Index = _index,
+                Index = this.index,
                 Output = this.Text
             });
         }

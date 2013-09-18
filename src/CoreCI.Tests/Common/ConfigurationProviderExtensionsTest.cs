@@ -16,15 +16,15 @@
  */
 using System;
 using System.IO;
-using NUnit.Framework;
 using CoreCI.Common;
+using NUnit.Framework;
 
 namespace CoreCI.Tests.Common
 {
     [TestFixture]
     public class ConfigurationProviderExtensionsTest
     {
-        private readonly string _config1 = @"
+        private readonly string config1 = @"
 test1: Hello World
 test2: 123
 test3:
@@ -36,30 +36,30 @@ test7:
   - 2.5
   - 3.5
 ";
-        private string _tempFolder;
+        private string tempFolder;
 
         [TestFixtureSetUp]
         public void SetUp()
         {
-            _tempFolder = TemporaryHelper.CreateTempFolder();
+            this.tempFolder = TemporaryHelper.CreateTempFolder();
         }
 
         [TestFixtureTearDown]
         public void TearDown()
         {
-            if (_tempFolder != null)
+            if (this.tempFolder != null)
             {
-                TemporaryHelper.DeleteTempFolder(_tempFolder);
-                _tempFolder = null;
+                TemporaryHelper.DeleteTempFolder(this.tempFolder);
+                this.tempFolder = null;
             }
         }
 
         [Test]
         public void TestConversion()
         {
-            string yamlPath = Path.Combine(_tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
+            string yamlPath = Path.Combine(this.tempFolder, string.Format("{0}.yml", Guid.NewGuid()));
 
-            File.WriteAllText(yamlPath, _config1);
+            File.WriteAllText(yamlPath, this.config1);
 
             YamlConfigurationProvider config = new YamlConfigurationProvider(yamlPath);
 

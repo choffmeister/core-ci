@@ -26,14 +26,14 @@ namespace CoreCI.Models
 
     public class UserRepository : MongoDbRepository<UserEntity>, IUserRepository
     {
-        protected UserRepository(string connectionString, string collectionName)
-            : base(connectionString, collectionName)
+        public UserRepository(IConfigurationProvider configurationProvider)
+            : base(configurationProvider, "server.database", "users")
         {
             this.Configure();
         }
 
-        public UserRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "server.database", "users")
+        protected UserRepository(string connectionString, string collectionName)
+            : base(connectionString, collectionName)
         {
             this.Configure();
         }

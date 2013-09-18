@@ -25,13 +25,13 @@ namespace CoreCI.Models
 
     public class WorkerRepository : MongoDbRepository<WorkerEntity>, IWorkerRepository
     {
-        protected WorkerRepository(string connectionString, string collectionName)
-            : base(connectionString, collectionName)
+        public WorkerRepository(IConfigurationProvider configurationProvider)
+            : base(configurationProvider, "server.database", "workers")
         {
         }
 
-        public WorkerRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "server.database", "workers")
+        protected WorkerRepository(string connectionString, string collectionName)
+            : base(connectionString, collectionName)
         {
         }
 

@@ -14,17 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using MongoDB.Driver;
-using MongoDB.Driver.Builders;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using CoreCI.Common;
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
+using MongoDB.Driver.Linq;
 
 namespace CoreCI.Models
 {
@@ -41,7 +40,7 @@ namespace CoreCI.Models
     ///     public string Name { get; set; }
     /// }
     ///
-    /// public class MyEntityRepository : MongoDbRepository<MyEntity>, IRepository<MyEntity>
+    /// public class MyEntityRepository : MongoDbRepository&lt;MyEntity&gt;, IRepository&lt;MyEntity&gt;
     /// {
     ///     public MyEntityRepository(IConfigurationProvider configurationProvider)
     ///         : base(configurationProvider, "connectionStringName", "myentities")
@@ -53,12 +52,12 @@ namespace CoreCI.Models
     public abstract class MongoDbRepository<TEntity> : IRepository<TEntity>
         where TEntity : class, IEntity, new()
     {
-        private static readonly Regex _connectionStringRegex = new Regex("^Server=(?<Server>[^;]+);Database=(?<Database>[^;]+)(;Username=(?<Username>[^;]+))?(;Password=(?<Password>.+))?$");
-        private readonly MongoClient _client;
-        private readonly MongoServer _server;
-        private readonly MongoDatabase _database;
-        private readonly MongoCollection<TEntity> _collection;
-        private readonly IQueryable<TEntity> _queryable;
+        private static readonly Regex ConnectionStringRegex = new Regex("^Server=(?<Server>[^;]+);Database=(?<Database>[^;]+)(;Username=(?<Username>[^;]+))?(;Password=(?<Password>.+))?$");
+        private readonly MongoClient client;
+        private readonly MongoServer server;
+        private readonly MongoDatabase database;
+        private readonly MongoCollection<TEntity> collection;
+        private readonly IQueryable<TEntity> queryable;
 
         /// <summary>
         /// Gets the collection. Grants sub classes direct access to the MongoDB specific functionalities.
@@ -68,7 +67,7 @@ namespace CoreCI.Models
         /// </value>
         protected MongoCollection<TEntity> Collection
         {
-            get { return _collection; }
+            get { return this.collection; }
         }
 
         /// <summary>
@@ -82,19 +81,19 @@ namespace CoreCI.Models
         public MongoDbRepository(string connectionString, string collectionName)
         {
             // split connection string by regex
-            Match match = _connectionStringRegex.Match(connectionString);
+            Match match = ConnectionStringRegex.Match(connectionString);
 
             if (match.Success)
             {
                 // connection string is valid, so extract the important parts
-                string server = match.Groups ["Server"].Value;
-                string database = match.Groups ["Database"].Value;
-                string username = match.Groups ["Username"].Value;
-                string password = match.Groups ["Password"].Value;
+                string server = match.Groups["Server"].Value;
+                string database = match.Groups["Database"].Value;
+                string username = match.Groups["Username"].Value;
+                string password = match.Groups["Password"].Value;
 
                 // create MongoDB client
-                _client = new MongoClient(server);
-                _server = _client.GetServer();
+                this.client = new MongoClient(server);
+                this.server = this.client.GetServer();
 
                 if (!string.IsNullOrEmpty(username) || !string.IsNullOrEmpty(password))
                 {
@@ -102,12 +101,12 @@ namespace CoreCI.Models
                 }
                 else
                 {
-                    _database = _server.GetDatabase(database);
+                    this.database = this.server.GetDatabase(database);
                 }
 
                 // connect to collection defined by collectionName parameter
-                _collection = _database.GetCollection<TEntity>(collectionName);
-                _queryable = _collection.AsQueryable();
+                this.collection = this.database.GetCollection<TEntity>(collectionName);
+                this.queryable = this.collection.AsQueryable();
             }
             else
             {
@@ -150,7 +149,7 @@ namespace CoreCI.Models
                 model.Id = Guid.NewGuid();
             }
 
-            _collection.Insert(model);
+            this.collection.Insert(model);
         }
 
         /// <summary>
@@ -167,7 +166,7 @@ namespace CoreCI.Models
                 }
             }
 
-            _collection.InsertBatch(models);
+            this.collection.InsertBatch(models);
         }
 
         /// <summary>
@@ -176,7 +175,7 @@ namespace CoreCI.Models
         /// <param name="model">The model.</param>
         public void Update(TEntity model)
         {
-            _collection.Save(model);
+            this.collection.Save(model);
         }
 
         /// <summary>
@@ -203,7 +202,7 @@ namespace CoreCI.Models
         /// <param name="model">The model.</param>
         public void Delete(TEntity model)
         {
-            _collection.Remove(Query.EQ("_id", model.Id));
+            this.collection.Remove(Query.EQ("_id", model.Id));
         }
 
         /// <summary>
@@ -212,7 +211,7 @@ namespace CoreCI.Models
         /// <param name="id">The id.</param>
         public void Delete(Guid id)
         {
-            _collection.Remove(Query.EQ("_id", id));
+            this.collection.Remove(Query.EQ("_id", id));
         }
 
         /// <summary>
@@ -220,32 +219,32 @@ namespace CoreCI.Models
         /// </summary>
         public void Clear()
         {
-            _collection.Drop();
+            this.collection.Drop();
         }
         #region IQueryable, IEnumerable
         public IEnumerator<TEntity> GetEnumerator()
         {
-            return _queryable.GetEnumerator();
+            return this.queryable.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _queryable.GetEnumerator();
+            return this.queryable.GetEnumerator();
         }
 
         public Type ElementType
         {
-            get { return _queryable.ElementType; }
+            get { return this.queryable.ElementType; }
         }
 
         public Expression Expression
         {
-            get { return _queryable.Expression; }
+            get { return this.queryable.Expression; }
         }
 
         public IQueryProvider Provider
         {
-            get { return _queryable.Provider; }
+            get { return this.queryable.Provider; }
         }
         #endregion IQueryable, IEnumerable
     }

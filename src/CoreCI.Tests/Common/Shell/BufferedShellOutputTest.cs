@@ -15,9 +15,9 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using NUnit.Framework;
-using CoreCI.Common.Shell;
 using System.Collections.Generic;
+using CoreCI.Common.Shell;
+using NUnit.Framework;
 
 namespace CoreCI.Tests.Common.Shell
 {
@@ -29,31 +29,27 @@ namespace CoreCI.Tests.Common.Shell
         {
             var expectedValues = new Dictionary<string[], string>()
             {
-                { new string[] {""}, "" },
-                { new string[] {"Hello"}, "Hello" },
-
-                { new string[] {"Hello\n"}, "Hello\n" },
-                { new string[] {"Hello\n", "World"}, "Hello\nWorld" },
-                { new string[] {"Hello\n", "World\n"}, "Hello\nWorld\n" },
-                { new string[] {"Hello\n\n", "World\n"}, "Hello\n\nWorld\n" },
-
-                { new string[] {"Hello\r\n"}, "Hello\n" },
-                { new string[] {"Hello\r\n", "World"}, "Hello\nWorld" },
-                { new string[] {"Hello\r\n", "World\r\n"}, "Hello\nWorld\n" },
-                { new string[] {"Hello\r\n\r\n", "World\r\n"}, "Hello\n\nWorld\n" },
-
-                { new string[] {"Hello", "World"}, "HelloWorld" },
-                { new string[] {"Hello", "World\n"}, "HelloWorld\n" },
-                { new string[] {"Hello", "World\r\n"}, "HelloWorld\n" },
-
-                { new string[] {"Hello\rWorld"}, "World" },
-                { new string[] {"Hello\r"}, "Hello" },
-                { new string[] {"Hello\r1"}, "1ello" },
-                { new string[] {"Hello\r12"}, "12llo" },
-                { new string[] {"Hello\r123"}, "123lo" },
-                { new string[] {"Hello\r1234"}, "1234o" },
-                { new string[] {"Hello\r12345"}, "12345" },
-                { new string[] {"Hello\r123456"}, "123456" },
+                { new string[] { string.Empty }, string.Empty },
+                { new string[] { "Hello" }, "Hello" },
+                { new string[] { "Hello\n" }, "Hello\n" },
+                { new string[] { "Hello\n", "World" }, "Hello\nWorld" },
+                { new string[] { "Hello\n", "World\n" }, "Hello\nWorld\n" },
+                { new string[] { "Hello\n\n", "World\n" }, "Hello\n\nWorld\n" },
+                { new string[] { "Hello\r\n" }, "Hello\n" },
+                { new string[] { "Hello\r\n", "World" }, "Hello\nWorld" },
+                { new string[] { "Hello\r\n", "World\r\n" }, "Hello\nWorld\n" },
+                { new string[] { "Hello\r\n\r\n", "World\r\n" }, "Hello\n\nWorld\n" },
+                { new string[] { "Hello", "World" }, "HelloWorld" },
+                { new string[] { "Hello", "World\n" }, "HelloWorld\n" },
+                { new string[] { "Hello", "World\r\n" }, "HelloWorld\n" },
+                { new string[] { "Hello\rWorld" }, "World" },
+                { new string[] { "Hello\r" }, "Hello" },
+                { new string[] { "Hello\r1" }, "1ello" },
+                { new string[] { "Hello\r12" }, "12llo" },
+                { new string[] { "Hello\r123" }, "123lo" },
+                { new string[] { "Hello\r1234" }, "1234o" },
+                { new string[] { "Hello\r12345" }, "12345" },
+                { new string[] { "Hello\r123456" }, "123456" },
             };
 
             foreach (var expectedValue in expectedValues)

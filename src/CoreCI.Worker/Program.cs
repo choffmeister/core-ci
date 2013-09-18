@@ -25,7 +25,7 @@ namespace CoreCI.Worker
     /// </summary>
     public class WorkerExecutable
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Main entry point.
@@ -35,7 +35,7 @@ namespace CoreCI.Worker
         {
             try
             {
-                _logger.Info("Starting");
+                Log.Info("Starting");
 
                 IConfigurationProvider configurationProvider = YamlConfigurationProvider.Default;
                 WorkerHandler workerHandler = new WorkerHandler(configurationProvider);
@@ -46,11 +46,11 @@ namespace CoreCI.Worker
             }
             catch (Exception ex)
             {
-                _logger.Fatal(ex);
+                Log.Fatal(ex);
             }
             finally
             {
-                _logger.Info("Stopped");
+                Log.Info("Stopped");
             }
 
             // Mono bugfix, see http://nlog-project.org/2011/10/30/using-nlog-with-mono.html

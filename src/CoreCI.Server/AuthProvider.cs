@@ -14,28 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CoreCI.Models;
 using Microsoft.Practices.Unity;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.Auth;
-using System;
 
 namespace CoreCI.Server
 {
     public class AuthProvider : CredentialsAuthProvider
     {
-        private readonly IUnityContainer _container;
+        private readonly IUnityContainer container;
 
         public AuthProvider(IUnityContainer container)
         {
-            _container = container;
+            this.container = container;
         }
 
         public override bool TryAuthenticate(IServiceBase authService, string userName, string password)
         {
-            using (IUserRepository userRepository = _container.Resolve<IUserRepository>())
+            using (IUserRepository userRepository = this.container.Resolve<IUserRepository>())
             {
                 UserEntity user = userRepository.SingleOrDefault(u => u.UserName.ToLower() == userName.ToLower());
 
@@ -50,7 +50,7 @@ namespace CoreCI.Server
 
         public override void OnAuthenticated(IServiceBase authService, IAuthSession session, IOAuthTokens tokens, Dictionary<string, string> authInfo)
         {
-            using (IUserRepository userRepository = _container.Resolve<IUserRepository>())
+            using (IUserRepository userRepository = this.container.Resolve<IUserRepository>())
             {
                 UserEntity user = userRepository.Single(u => u.UserName.ToLower() == session.UserAuthName.ToLower());
 

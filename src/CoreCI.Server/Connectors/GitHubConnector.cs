@@ -15,66 +15,64 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Linq;
-using CoreCI.Common;
-using ServiceStack.ServiceInterface;
-using ServiceStack.ServiceHost;
-using ServiceStack.Text;
-using ServiceStack.ServiceInterface.Auth;
-using CoreCI.Models;
 using System.Collections.Generic;
-using NLog;
 using System.IO;
-using ServiceStack.Common.Web;
-using System.Text;
-using YamlDotNet.RepresentationModel;
-using CoreCI.Server.Services;
-using System.Net;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
+using CoreCI.Common;
+using CoreCI.Models;
+using CoreCI.Server.Services;
+using NLog;
+using ServiceStack.Common.Web;
+using ServiceStack.ServiceHost;
+using ServiceStack.ServiceInterface.Auth;
+using ServiceStack.Text;
+using YamlDotNet.RepresentationModel;
 
 namespace CoreCI.Server.Connectors
 {
     [Connector("github")]
     public class GitHubConnector : IConnector
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly IConfigurationProvider _configurationProvider;
-        private readonly IUserRepository _userRepository;
-        private readonly IConnectorRepository _connectorRepository;
-        private readonly IProjectRepository _projectRepository;
-        private readonly ITaskRepository _taskRepository;
-        private readonly string _serverDomainPublic;
-        private readonly string _serverApiPublicBaseAddress;
-        private readonly string _gitHubConsumerKey;
-        private readonly string _gitHubConsumerSecret;
-        private readonly string[] _gitHubScopes;
-        private readonly string _gitHubRedirectUrl;
         public const string Name = "github";
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly IConfigurationProvider configurationProvider;
+        private readonly IUserRepository userRepository;
+        private readonly IConnectorRepository connectorRepository;
+        private readonly IProjectRepository projectRepository;
+        private readonly ITaskRepository taskRepository;
+        private readonly string serverDomainPublic;
+        private readonly string serverApiPublicBaseAddress;
+        private readonly string gitHubConsumerKey;
+        private readonly string gitHubConsumerSecret;
+        private readonly string[] gitHubScopes;
+        private readonly string gitHubRedirectUrl;
 
         public GitHubConnector(IConfigurationProvider configurationProvider, IUserRepository userRepository, IConnectorRepository connectorRepository, IProjectRepository projectRepository, ITaskRepository taskRepository)
         {
-            _configurationProvider = configurationProvider;
-            _userRepository = userRepository;
-            _connectorRepository = connectorRepository;
-            _projectRepository = projectRepository;
-            _taskRepository = taskRepository;
+            this.configurationProvider = configurationProvider;
+            this.userRepository = userRepository;
+            this.connectorRepository = connectorRepository;
+            this.projectRepository = projectRepository;
+            this.taskRepository = taskRepository;
 
-            _serverDomainPublic = configurationProvider.Get("server.addresses.public.domain");
-            _serverApiPublicBaseAddress = configurationProvider.Get("server.addresses.public.api");
+            this.serverDomainPublic = configurationProvider.Get("server.addresses.public.domain");
+            this.serverApiPublicBaseAddress = configurationProvider.Get("server.addresses.public.api");
 
-            _gitHubConsumerKey = configurationProvider.Get("server.github.oauth2.consumer.key");
-            _gitHubConsumerSecret = configurationProvider.Get("server.github.oauth2.consumer.secret");
-            _gitHubScopes = configurationProvider.GetArray("server.github.oauth2.scopes") ?? new string[0];
-            _gitHubRedirectUrl = configurationProvider.Get("server.github.oauth2.redirect");
+            this.gitHubConsumerKey = configurationProvider.Get("server.github.oauth2.consumer.key");
+            this.gitHubConsumerSecret = configurationProvider.Get("server.github.oauth2.consumer.secret");
+            this.gitHubScopes = configurationProvider.GetArray("server.github.oauth2.scopes") ?? new string[0];
+            this.gitHubRedirectUrl = configurationProvider.Get("server.github.oauth2.redirect");
         }
 
         public void Dispose()
         {
-            _configurationProvider.Dispose();
-            _userRepository.Dispose();
-            _connectorRepository.Dispose();
-            _projectRepository.Dispose();
-            _taskRepository.Dispose();
+            this.configurationProvider.Dispose();
+            this.userRepository.Dispose();
+            this.connectorRepository.Dispose();
+            this.projectRepository.Dispose();
+            this.taskRepository.Dispose();
         }
 
         public object Connect(IAuthSession session, IHttpRequest req)
@@ -84,20 +82,20 @@ namespace CoreCI.Server.Connectors
 
             if (code != null)
             {
-                string accessToken = GitHubOAuth2Client.GetAccessToken(_gitHubConsumerKey, _gitHubConsumerSecret, code);
+                string accessToken = GitHubOAuth2Client.GetAccessToken(this.gitHubConsumerKey, this.gitHubConsumerSecret, code);
 
                 if (accessToken != null)
                 {
                     var userProfile = GitHubOAuth2Client.GetUserProfile(accessToken);
 
                     DateTime now = DateTime.UtcNow;
-                    UserEntity user = _userRepository.Single(u => u.Id == Guid.Parse(session.UserAuthId));
-                    ConnectorEntity connector = _connectorRepository.SingleOrDefault(c => c.Provider == Name && c.UserId == userId);
+                    UserEntity user = this.userRepository.Single(u => u.Id == Guid.Parse(session.UserAuthId));
+                    ConnectorEntity connector = this.connectorRepository.SingleOrDefault(c => c.Provider == Name && c.UserId == userId);
 
                     // create new connector if not already existent
                     if (connector == null)
                     {
-                        _logger.Info("Create new connector");
+                        Log.Info("Create new connector");
                         connector = new ConnectorEntity()
                         {
                             UserId = user.Id,
@@ -108,7 +106,7 @@ namespace CoreCI.Server.Connectors
                     }
 
                     // update connector information
-                    _logger.Info("Update connector");
+                    Log.Info("Update connector");
                     connector.Options = new Dictionary<string, string>()
                     {
                         { "AccessToken", accessToken },
@@ -120,9 +118,9 @@ namespace CoreCI.Server.Connectors
                     connector.ModifiedAt = now;
 
                     // insert or update the connector
-                    _connectorRepository.InsertOrUpdate(connector);
+                    this.connectorRepository.InsertOrUpdate(connector);
 
-                    return this.Redirect(_gitHubRedirectUrl);
+                    return this.Redirect(this.gitHubRedirectUrl);
                 }
 
                 // TODO: error
@@ -130,13 +128,13 @@ namespace CoreCI.Server.Connectors
             }
             else
             {
-                return this.Redirect(GitHubOAuth2Client.GetAuthorizeUrl(_gitHubConsumerKey, _gitHubScopes.Join(",")));
+                return this.Redirect(GitHubOAuth2Client.GetAuthorizeUrl(this.gitHubConsumerKey, this.gitHubScopes.Join(",")));
             }
         }
 
         public object ProcessHook(IHttpRequest req)
         {
-            _logger.Info("Received hook");
+            Log.Info("Received hook");
 
             string tokenString = req.GetParam("token");
             string payloadString = req.GetParam("payload");
@@ -154,17 +152,17 @@ namespace CoreCI.Server.Connectors
             string reference = payload.Child("ref");
             string branchName = ConvertReferenceToBranch(reference);
 
-            ProjectEntity project = _projectRepository.SingleOrDefault(p => p.Token == tokenString);
+            ProjectEntity project = this.projectRepository.SingleOrDefault(p => p.Token == tokenString);
 
             if (project == null)
                 throw new ArgumentException("Invalid token", "token");
 
-            string publicKeyFileString = project.Options ["PublicKey"];
-            string privateKeyFileString = project.Options ["PrivateKey"];
+            string publicKeyFileString = project.Options["PublicKey"];
+            string privateKeyFileString = project.Options["PrivateKey"];
 
-            ConnectorEntity connector = _connectorRepository.Single(c => c.Id == project.ConnectorId);
+            ConnectorEntity connector = this.connectorRepository.Single(c => c.Id == project.ConnectorId);
 
-            string accessToken = connector.Options ["AccessToken"];
+            string accessToken = connector.Options["AccessToken"];
 
             TaskEntity task = new TaskEntity()
             {
@@ -174,26 +172,26 @@ namespace CoreCI.Server.Connectors
                 Commit = commitHash,
                 CommitUrl = commit.Child("url"),
                 CommitMessage = commit.Child("message"),
-                Configuration = GetConfiguration(accessToken, ownerName, repositoryName, branchName, commitHash, publicKeyFileString, privateKeyFileString)
+                Configuration = this.GetConfiguration(accessToken, ownerName, repositoryName, branchName, commitHash, publicKeyFileString, privateKeyFileString)
             };
-            _taskRepository.Insert(task);
+            this.taskRepository.Insert(task);
 
             PushService.Push("tasks", null);
-            PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "created");
+            PushService.Push("task-" + task.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "created");
 
             return null;
         }
 
         public List<string> ListProjects(IAuthSession session, Guid connectorId)
         {
-            ConnectorEntity connector = _connectorRepository.Single(c => c.Id == connectorId);
+            ConnectorEntity connector = this.connectorRepository.Single(c => c.Id == connectorId);
 
             if (connector.UserId != Guid.Parse(session.UserAuthId))
                 throw HttpError.NotFound("Unknown connector");
             if (connector.Provider != Name)
                 throw new InvalidOperationException();
 
-            return GitHubOAuth2Client.GetRepositories(connector.Options ["AccessToken"])
+            return GitHubOAuth2Client.GetRepositories(connector.Options["AccessToken"])
                 .Select(r => r.Child("name"))
                 .ToList();
         }
@@ -201,15 +199,15 @@ namespace CoreCI.Server.Connectors
         public ProjectEntity AddProject(IAuthSession session, Guid connectorId, string projectName)
         {
             Guid userId = Guid.Parse(session.UserAuthId);
-            ConnectorEntity connector = _connectorRepository.Single(c => c.Id == connectorId);
+            ConnectorEntity connector = this.connectorRepository.Single(c => c.Id == connectorId);
 
             if (connector.UserId != userId)
                 throw HttpError.NotFound("Unknown connector");
             if (connector.Provider != Name)
                 throw new InvalidOperationException();
 
-            string gitHubUserName = connector.Options ["UserName"];
-            string accessToken = connector.Options ["AccessToken"];
+            string gitHubUserName = connector.Options["UserName"];
+            string accessToken = connector.Options["AccessToken"];
             string token = this.GenerateToken();
 
             // TODO: retrieve project information from GitHub
@@ -228,38 +226,38 @@ namespace CoreCI.Server.Connectors
 
             // create RSA key pair
             RSA rsa = new RSACryptoServiceProvider(1024);
-            project.Options ["PublicKey"] = rsa.ToOpenSshPublicKeyFileString(string.Format("{0}@{1}", NormalizeGuid(project.Id), _serverDomainPublic));
-            project.Options ["PrivateKey"] = rsa.ToOpenSshPrivateKeyFileString();
+            project.Options["PublicKey"] = rsa.ToOpenSshPublicKeyFileString(string.Format("{0}@{1}", NormalizeGuid(project.Id), this.serverDomainPublic));
+            project.Options["PrivateKey"] = rsa.ToOpenSshPrivateKeyFileString();
 
-            _projectRepository.Insert(project);
+            this.projectRepository.Insert(project);
 
             GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, project.Name, h => h.Object("config").Child("url").Contains(NormalizeGuid(project.Id)));
             GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, project.Name, k => k.Child("title").Contains(NormalizeGuid(project.Id)));
-            GitHubOAuth2Client.CreateHook(accessToken, gitHubUserName, project.Name, string.Format("{0}connector/github/hook?project={1}&token={2}", _serverApiPublicBaseAddress, NormalizeGuid(project.Id), token));
-            GitHubOAuth2Client.CreateKey(accessToken, gitHubUserName, project.Name, project.Options ["PublicKey"]);
+            GitHubOAuth2Client.CreateHook(accessToken, gitHubUserName, project.Name, string.Format("{0}connector/github/hook?project={1}&token={2}", this.serverApiPublicBaseAddress, NormalizeGuid(project.Id), token));
+            GitHubOAuth2Client.CreateKey(accessToken, gitHubUserName, project.Name, project.Options["PublicKey"]);
 
-            _logger.Info("Created hook");
+            Log.Info("Created hook");
             return project;
         }
 
         public void RemoveProject(IAuthSession session, Guid connectorId, Guid projectId)
         {
             Guid userId = Guid.Parse(session.UserAuthId);
-            ConnectorEntity connector = _connectorRepository.Single(c => c.Id == connectorId);
-            ProjectEntity project = _projectRepository.Single(p => p.Id == projectId);
+            ConnectorEntity connector = this.connectorRepository.Single(c => c.Id == connectorId);
+            ProjectEntity project = this.projectRepository.Single(p => p.Id == projectId);
 
             if (connector.UserId != userId)
                 throw HttpError.NotFound("Unknown connector");
             if (connector.Provider != Name)
                 throw new InvalidOperationException();
 
-            string gitHubUserName = connector.Options ["UserName"];
-            string accessToken = connector.Options ["AccessToken"];
+            string gitHubUserName = connector.Options["UserName"];
+            string accessToken = connector.Options["AccessToken"];
 
             GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, project.Name, h => h.Object("config").Child("url").Contains(NormalizeGuid(project.Id)));
             GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, project.Name, k => k.Child("title").Contains(NormalizeGuid(project.Id)));
 
-            _projectRepository.Delete(project);
+            this.projectRepository.Delete(project);
         }
 
         private TaskConfiguration GetConfiguration(string accessToken, string ownerName, string repositoryName, string reference, string commitHash, string publicKeyFileString, string privateKeyFileString)
@@ -273,10 +271,10 @@ namespace CoreCI.Server.Connectors
                 var yaml = new YamlStream();
                 var configReader = new StringReader(configurationRaw);
                 yaml.Load(configReader);
-                var rootNode = (YamlMappingNode)yaml.Documents [0].RootNode;
+                var rootNode = (YamlMappingNode)yaml.Documents[0].RootNode;
 
-                string machine = ((YamlScalarNode)rootNode.Children [new YamlScalarNode("machine")]).Value;
-                string script = ((YamlScalarNode)rootNode.Children [new YamlScalarNode("script")]).Value;
+                string machine = ((YamlScalarNode)rootNode.Children[new YamlScalarNode("machine")]).Value;
+                string script = ((YamlScalarNode)rootNode.Children[new YamlScalarNode("script")]).Value;
 
                 return new TaskConfiguration()
                 {
@@ -294,7 +292,7 @@ namespace CoreCI.Server.Connectors
                     Machine = "precise64",
                     SecretStartupScript = secretStartupScript,
                     CheckoutScript = checkoutScript,
-                    TestScript = ""
+                    TestScript = string.Empty
                 };
             }
         }
@@ -304,10 +302,10 @@ namespace CoreCI.Server.Connectors
             StringBuilder script = new StringBuilder();
 
             script.Append("mkdir -p .ssh\n");
-            script.Append(string.Format("echo \"{0}\" > .ssh/id_rsa.pub\n", publicKeyFileString));
+            script.Append(string.Format("echo \"{0}\" > .ssh/idthis.rsa.pub\n", publicKeyFileString));
             script.Append(string.Format("echo \"{0}\" > .ssh/id_rsa\n", privateKeyFileString));
             script.Append("chmod 600 .ssh/id_rsa\n");
-            script.Append("chmod 644 .ssh/id_rsa.pub\n");
+            script.Append("chmod 644 .ssh/idthis.rsa.pub\n");
             script.Append("ssh-keyscan -H github.com >> .ssh/known_hosts");
 
             return script.ToString();
@@ -336,7 +334,7 @@ namespace CoreCI.Server.Connectors
 
         private static string NormalizeGuid(Guid guid)
         {
-            return guid.ToString().Replace("-", "").ToLower();
+            return guid.ToString().Replace("-", string.Empty).ToLower();
         }
     }
 }

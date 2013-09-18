@@ -15,25 +15,24 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Linq;
-using ServiceStack.ServiceInterface;
-using CoreCI.Models;
 using CoreCI.Contracts;
+using CoreCI.Models;
+using ServiceStack.ServiceInterface;
 
 namespace CoreCI.Server.Services
 {
     public class RegisterService : Service
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUserRepository userRepository;
 
         public RegisterService(IUserRepository userRepository)
         {
-            _userRepository = userRepository;
+            this.userRepository = userRepository;
         }
 
         public override void Dispose()
         {
-            _userRepository.Dispose();
+            this.userRepository.Dispose();
         }
 
         public RegisterResponse Post(RegisterRequest req)
@@ -50,7 +49,7 @@ namespace CoreCI.Server.Services
             };
 
             // TODO: catch dup key exception and return proper response
-            _userRepository.Insert(newUser);
+            this.userRepository.Insert(newUser);
 
             return new RegisterResponse();
         }

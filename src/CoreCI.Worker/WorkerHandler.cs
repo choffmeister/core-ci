@@ -16,71 +16,69 @@
  */
 using System;
 using CoreCI.Common;
-using NLog;
-using ServiceStack.ServiceClient.Web;
+using CoreCI.Common.Shell;
 using CoreCI.Contracts;
 using CoreCI.Models;
-using Renci.SshNet;
-using System.Collections.Generic;
-using CoreCI.Common.Shell;
 using CoreCI.WorkerInstance.Vagrant;
+using NLog;
+using ServiceStack.ServiceClient.Web;
 
 namespace CoreCI.Worker
 {
     public class WorkerHandler
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly IConfigurationProvider _configurationProvider;
-        private readonly string _vagrantExecutablePath;
-        private readonly string _vagrantVirtualMachinesPath;
-        private readonly Guid _workerId;
-        private readonly string _serverApiBaseAddress;
-        private readonly TaskLoop _keepAliveLoop;
-        private readonly ConcurrentTaskLoop<TaskEntity> _workLoop;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly IConfigurationProvider configurationProvider;
+        private readonly string vagrantExecutablePath;
+        private readonly string vagrantVirtualMachinesPath;
+        private readonly Guid workerId;
+        private readonly string serverApiBaseAddress;
+        private readonly TaskLoop keepAliveLoop;
+        private readonly ConcurrentTaskLoop<TaskEntity> workLoop;
 
         public WorkerHandler(IConfigurationProvider configurationProvider)
         {
-            _configurationProvider = configurationProvider;
+            this.configurationProvider = configurationProvider;
 
-            _vagrantExecutablePath = _configurationProvider.Get("worker.vagrant.executable");
-            _vagrantVirtualMachinesPath = _configurationProvider.Get("worker.vagrant.machines");
-            _workerId = Guid.Parse(_configurationProvider.Get("worker.id"));
-            _serverApiBaseAddress = _configurationProvider.Get("worker.server");
+            this.vagrantExecutablePath = this.configurationProvider.Get("worker.vagrant.executable");
+            this.vagrantVirtualMachinesPath = this.configurationProvider.Get("worker.vagrant.machines");
+            this.workerId = Guid.Parse(this.configurationProvider.Get("worker.id"));
+            this.serverApiBaseAddress = this.configurationProvider.Get("worker.server");
 
-            _keepAliveLoop = new TaskLoop(this.KeepAlive, 60000);
-            _workLoop = new ConcurrentTaskLoop<TaskEntity>(this.Dispatch, this.Work, 1000, 4);
+            this.keepAliveLoop = new TaskLoop(this.KeepAlive, 60000);
+            this.workLoop = new ConcurrentTaskLoop<TaskEntity>(this.Dispatch, this.Work, 1000, 4);
         }
 
         public void Start()
         {
-            _logger.Info("Start working");
-            _workLoop.Start();
-            _keepAliveLoop.Start();
-            _logger.Info("Started");
+            Log.Info("Start working");
+            this.workLoop.Start();
+            this.keepAliveLoop.Start();
+            Log.Info("Started");
         }
 
         public void Stop()
         {
-            _logger.Info("Stop working");
-            _keepAliveLoop.Stop();
-            _workLoop.Stop();
-            _logger.Info("Stopped");
+            Log.Info("Stop working");
+            this.keepAliveLoop.Stop();
+            this.workLoop.Stop();
+            Log.Info("Stopped");
         }
 
         private TaskEntity Dispatch()
         {
             try
             {
-                using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
+                using (JsonServiceClient client = new JsonServiceClient(this.serverApiBaseAddress))
                 {
-                    DispatcherTaskPollResponse resp = client.Post(new DispatcherTaskPollRequest(_workerId));
+                    DispatcherTaskPollResponse resp = client.Post(new DispatcherTaskPollRequest(this.workerId));
 
                     return resp.Task;
                 }
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Log.Error(ex);
 
                 return null;
             }
@@ -89,14 +87,14 @@ namespace CoreCI.Worker
         private void Work(TaskEntity task)
         {
             int index = 0;
-            string boxUrls = _configurationProvider.Get("worker.vagrant.box_urls");
+            string boxUrls = this.configurationProvider.Get("worker.vagrant.box_urls");
 
             try
             {
-                using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
-                using (IWorkerInstance worker = new VagrantWorkerInstance(_vagrantExecutablePath, _vagrantVirtualMachinesPath, task.Configuration.Machine, boxUrls))
+                using (JsonServiceClient client = new JsonServiceClient(this.serverApiBaseAddress))
+                using (IWorkerInstance worker = new VagrantWorkerInstance(this.vagrantExecutablePath, this.vagrantVirtualMachinesPath, task.Configuration.Machine, boxUrls))
                 {
-                    using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id, index++))
+                    using (IShellOutput shellOutput = new ServerShellOutput(client, this.workerId, task.Id, index++))
                     {
                         shellOutput.WriteStandardOutput("Starting VM...\n");
                     }
@@ -116,16 +114,16 @@ namespace CoreCI.Worker
                         {
                             foreach (string commandLine in ShellExtensions.SplitIntoCommandLines(script))
                             {
-                                using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id, index++))
+                                using (IShellOutput shellOutput = new ServerShellOutput(client, this.workerId, task.Id, index++))
                                 {
                                     shellOutput.WriteStandardOutput(commandLine + "\n");
-                                    _logger.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
+                                    Log.Trace("Executing command '{0}' for task {1}", commandLine, task.Id);
                                     worker.Execute(commandLine, shellOutput);
                                 }
                             }
                         }
 
-                        using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id, index++))
+                        using (IShellOutput shellOutput = new ServerShellOutput(client, this.workerId, task.Id, index++))
                         {
                             shellOutput.WriteStandardOutput("Exited with code 0\n");
                             client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, 0));
@@ -133,7 +131,7 @@ namespace CoreCI.Worker
                     }
                     catch (ShellCommandFailedException ex)
                     {
-                        using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id, index++))
+                        using (IShellOutput shellOutput = new ServerShellOutput(client, this.workerId, task.Id, index++))
                         {
                             shellOutput.WriteStandardOutput("Exited with code {0}\n", ex.ExitCode);
                             client.Post(new DispatcherTaskUpdateFinishRequest(task.Id, ex.ExitCode));
@@ -145,7 +143,7 @@ namespace CoreCI.Worker
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Log.Error(ex);
             }
         }
 
@@ -153,14 +151,14 @@ namespace CoreCI.Worker
         {
             try
             {
-                using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
+                using (JsonServiceClient client = new JsonServiceClient(this.serverApiBaseAddress))
                 {
-                    client.Post(new DispatcherWorkerKeepAliveRequest(_workerId));
+                    client.Post(new DispatcherWorkerKeepAliveRequest(this.workerId));
                 }
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Log.Error(ex);
             }
 
             return false;

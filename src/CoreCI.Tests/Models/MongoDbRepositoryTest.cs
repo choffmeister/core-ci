@@ -16,122 +16,122 @@
  */
 using System;
 using System.Linq;
-using NUnit.Framework;
 using CoreCI.Models;
+using NUnit.Framework;
 
 namespace CoreCI.Tests.Models
 {
     [TestFixture]
     public class MongoDbRepositoryTest
     {
-        private int _i = 0;
-        private IRepository<TestEntity> _repo;
+        private int i = 0;
+        private IRepository<TestEntity> repo;
 
         [SetUpAttribute]
         public void SetUp()
         {
-            _repo = CreateRepository("Server=mongodb://localhost;Database=coreci-test");
+            this.repo = CreateRepository("Server=mongodb://localhost;Database=coreci-test");
         }
 
         [TearDownAttribute]
         public void TearDown()
         {
-            _repo.Clear();
-            _repo.Dispose();
+            this.repo.Clear();
+            this.repo.Dispose();
         }
 
         [Test]
         public void TestInserting()
         {
-            TestEntity e1 = CreateEntity(_i++);
-            TestEntity e2 = CreateEntity(_i++);
-            TestEntity e3 = CreateEntity(_i++);
+            TestEntity e1 = CreateEntity(this.i++);
+            TestEntity e2 = CreateEntity(this.i++);
+            TestEntity e3 = CreateEntity(this.i++);
 
-            Assert.AreEqual(0, _repo.Count());
+            Assert.AreEqual(0, this.repo.Count());
 
-            _repo.Insert(e1);
+            this.repo.Insert(e1);
 
-            Assert.AreEqual(1, _repo.Count());
-            Assert.AreNotSame(e1, _repo.Single(e => e.Id == e1.Id));
-            Assert.IsTrue(CompareEntities(e1, _repo.Single(e => e.Id == e1.Id)));
+            Assert.AreEqual(1, this.repo.Count());
+            Assert.AreNotSame(e1, this.repo.Single(e => e.Id == e1.Id));
+            Assert.IsTrue(CompareEntities(e1, this.repo.Single(e => e.Id == e1.Id)));
 
-            _repo.Insert(new TestEntity[] { e2, e3 });
+            this.repo.Insert(new TestEntity[] { e2, e3 });
 
-            Assert.AreEqual(3, _repo.Count());
-            Assert.AreNotSame(e2, _repo.Single(e => e.Id == e2.Id));
-            Assert.IsTrue(CompareEntities(e2, _repo.Single(e => e.Id == e2.Id)));
-            Assert.AreNotSame(e3, _repo.Single(e => e.Id == e3.Id));
-            Assert.IsTrue(CompareEntities(e3, _repo.Single(e => e.Id == e3.Id)));
+            Assert.AreEqual(3, this.repo.Count());
+            Assert.AreNotSame(e2, this.repo.Single(e => e.Id == e2.Id));
+            Assert.IsTrue(CompareEntities(e2, this.repo.Single(e => e.Id == e2.Id)));
+            Assert.AreNotSame(e3, this.repo.Single(e => e.Id == e3.Id));
+            Assert.IsTrue(CompareEntities(e3, this.repo.Single(e => e.Id == e3.Id)));
         }
 
         [Test]
         public void TestUpdating()
         {
-            TestEntity e1 = CreateEntity(_i++);
-            _repo.InsertOrUpdate(e1);
+            TestEntity e1 = CreateEntity(this.i++);
+            this.repo.InsertOrUpdate(e1);
 
-            Assert.AreEqual(1, _repo.Count());
-            Assert.AreNotSame(e1, _repo.Single(e => e.Id == e1.Id));
+            Assert.AreEqual(1, this.repo.Count());
+            Assert.AreNotSame(e1, this.repo.Single(e => e.Id == e1.Id));
 
-            _repo.InsertOrUpdate(e1);
+            this.repo.InsertOrUpdate(e1);
 
-            Assert.AreEqual(1, _repo.Count());
-            Assert.AreNotSame(e1, _repo.Single(e => e.Id == e1.Id));
+            Assert.AreEqual(1, this.repo.Count());
+            Assert.AreNotSame(e1, this.repo.Single(e => e.Id == e1.Id));
         }
 
         [Test]
         public void TestInsertingOrUpdating()
         {
-            TestEntity e1 = CreateEntity(_i++);
-            _repo.Insert(e1);
+            TestEntity e1 = CreateEntity(this.i++);
+            this.repo.Insert(e1);
 
-            Assert.AreEqual(1, _repo.Count());
-            Assert.AreNotSame(e1, _repo.Single(e => e.Id == e1.Id));
+            Assert.AreEqual(1, this.repo.Count());
+            Assert.AreNotSame(e1, this.repo.Single(e => e.Id == e1.Id));
 
             ModifyEntity(e1);
 
-            _repo.Update(e1);
+            this.repo.Update(e1);
 
-            Assert.AreEqual(1, _repo.Count());
-            Assert.AreNotSame(e1, _repo.Single(e => e.Id == e1.Id));
+            Assert.AreEqual(1, this.repo.Count());
+            Assert.AreNotSame(e1, this.repo.Single(e => e.Id == e1.Id));
         }
 
         [Test]
         public void TestDeleting1()
         {
-            TestEntity e1 = CreateEntity(_i++);
-            _repo.Insert(e1);
+            TestEntity e1 = CreateEntity(this.i++);
+            this.repo.Insert(e1);
 
-            Assert.AreEqual(1, _repo.Count());
-            Assert.AreNotSame(e1, _repo.Single(e => e.Id == e1.Id));
+            Assert.AreEqual(1, this.repo.Count());
+            Assert.AreNotSame(e1, this.repo.Single(e => e.Id == e1.Id));
 
-            _repo.Delete(Guid.Empty);
+            this.repo.Delete(Guid.Empty);
 
-            Assert.AreEqual(1, _repo.Count());
-            Assert.AreNotSame(e1, _repo.Single(e => e.Id == e1.Id));
+            Assert.AreEqual(1, this.repo.Count());
+            Assert.AreNotSame(e1, this.repo.Single(e => e.Id == e1.Id));
 
-            _repo.Delete(e1);
+            this.repo.Delete(e1);
 
-            Assert.AreEqual(0, _repo.Count());
+            Assert.AreEqual(0, this.repo.Count());
         }
 
         [Test]
         public void TestDeleting2()
         {
-            TestEntity e1 = CreateEntity(_i++);
-            _repo.Insert(e1);
+            TestEntity e1 = CreateEntity(this.i++);
+            this.repo.Insert(e1);
 
-            Assert.AreEqual(1, _repo.Count());
-            Assert.AreNotSame(e1, _repo.Single(e => e.Id == e1.Id));
+            Assert.AreEqual(1, this.repo.Count());
+            Assert.AreNotSame(e1, this.repo.Single(e => e.Id == e1.Id));
 
-            _repo.Delete(Guid.Empty);
+            this.repo.Delete(Guid.Empty);
 
-            Assert.AreEqual(1, _repo.Count());
-            Assert.AreNotSame(e1, _repo.Single(e => e.Id == e1.Id));
+            Assert.AreEqual(1, this.repo.Count());
+            Assert.AreNotSame(e1, this.repo.Single(e => e.Id == e1.Id));
 
-            _repo.Delete(e1.Id);
+            this.repo.Delete(e1.Id);
 
-            Assert.AreEqual(0, _repo.Count());
+            Assert.AreEqual(0, this.repo.Count());
         }
 
         private static IRepository<TestEntity> CreateRepository(string connectionString)

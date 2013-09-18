@@ -14,36 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using System.Linq;
-using ServiceStack.ServiceInterface;
-using CoreCI.Models;
-using CoreCI.Contracts;
-using ServiceStack.ServiceInterface.Auth;
-using ServiceStack.Common.Web;
 using System.Collections.Generic;
-using System.Net;
+using System.Linq;
+using CoreCI.Contracts;
+using CoreCI.Models;
+using ServiceStack.Common.Web;
+using ServiceStack.ServiceInterface;
+using ServiceStack.ServiceInterface.Auth;
 
 namespace CoreCI.Server.Services
 {
     public class ProfileService : Service
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IConnectorRepository _connectorRepository;
-        private readonly IProjectRepository _projectRepository;
+        private readonly IUserRepository userRepository;
+        private readonly IConnectorRepository connectorRepository;
+        private readonly IProjectRepository projectRepository;
 
         public ProfileService(IUserRepository userRepository, IConnectorRepository connectorRepository, IProjectRepository projectRepository)
         {
-            _userRepository = userRepository;
-            _connectorRepository = connectorRepository;
-            _projectRepository = projectRepository;
+            this.userRepository = userRepository;
+            this.connectorRepository = connectorRepository;
+            this.projectRepository = projectRepository;
         }
 
         public override void Dispose()
         {
-            _userRepository.Dispose();
-            _connectorRepository.Dispose();
-            _projectRepository.Dispose();
+            this.userRepository.Dispose();
+            this.connectorRepository.Dispose();
+            this.projectRepository.Dispose();
         }
 
         public ProfileRetrieveResponse Get(ProfileRetrieveRequest req)
@@ -52,7 +50,7 @@ namespace CoreCI.Server.Services
 
             if (!string.IsNullOrEmpty(req.UserName))
             {
-                UserEntity user = _userRepository.GetEntity(u => u.UserName == req.UserName.ToLower());
+                UserEntity user = this.userRepository.GetEntity(u => u.UserName == req.UserName.ToLower());
 
                 StripSecrets(user);
 
@@ -63,9 +61,9 @@ namespace CoreCI.Server.Services
             }
             else if (!string.IsNullOrEmpty(session.UserAuthName))
             {
-                UserEntity user = _userRepository.Single(u => u.UserName == session.UserAuthName);
-                List<ConnectorEntity> connectors = _connectorRepository.Where(c => c.UserId == user.Id).ToList();
-                List<ProjectEntity> projects = _projectRepository.Where(p => p.UserId == user.Id).ToList();
+                UserEntity user = this.userRepository.Single(u => u.UserName == session.UserAuthName);
+                List<ConnectorEntity> connectors = this.connectorRepository.Where(c => c.UserId == user.Id).ToList();
+                List<ProjectEntity> projects = this.projectRepository.Where(p => p.UserId == user.Id).ToList();
 
                 StripSecrets(user);
 

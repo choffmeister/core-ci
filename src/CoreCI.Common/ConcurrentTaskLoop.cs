@@ -29,15 +29,15 @@ namespace CoreCI.Common
     public class ConcurrentTaskLoop<T>
         where T : class
     {
-        private readonly object _lock = new object();
-        private readonly int _millisecondsIdleSleep;
-        private readonly int _parallelThreads;
-        private readonly Func<T> _dispatcher;
-        private readonly Action<T> _action;
-        private Thread _dispatcherThread;
-        private Thread[] _workerThreads;
-        private T[] _workItems;
-        private bool _isStopped;
+        private readonly object lockObject = new object();
+        private readonly int millisecondsIdleSleep;
+        private readonly int parallelThreads;
+        private readonly Func<T> dispatcher;
+        private readonly Action<T> action;
+        private Thread dispatcherThread;
+        private Thread[] workerThreads;
+        private T[] workItems;
+        private bool isStopped;
 
         /// <summary>
         /// Creates a new loop task executing an action over and over again.
@@ -51,11 +51,11 @@ namespace CoreCI.Common
         /// <param name="parallelThreads">The number of concurrent tasks.</param>
         public ConcurrentTaskLoop(Func<T> dispatcher, Action<T> action, int millisecondsIdleSleep = 100, int parallelThreads = 1)
         {
-            _dispatcher = dispatcher;
-            _action = action;
-            _millisecondsIdleSleep = millisecondsIdleSleep;
-            _parallelThreads = parallelThreads;
-            _isStopped = true;
+            this.dispatcher = dispatcher;
+            this.action = action;
+            this.millisecondsIdleSleep = millisecondsIdleSleep;
+            this.parallelThreads = parallelThreads;
+            this.isStopped = true;
         }
 
         /// <summary>
@@ -66,13 +66,13 @@ namespace CoreCI.Common
             DateTime last = DateTime.MinValue;
 
             // loop until marked as stopped
-            while (!_isStopped)
+            while (!this.isStopped)
             {
                 try
                 {
                     DateTime now = DateTime.Now;
 
-                    if ((now - last).TotalMilliseconds > _millisecondsIdleSleep)
+                    if ((now - last).TotalMilliseconds > this.millisecondsIdleSleep)
                     {
                         last = now;
 
@@ -80,11 +80,11 @@ namespace CoreCI.Common
 
                         if (freeSlot.HasValue)
                         {
-                            T workItem = _dispatcher();
+                            T workItem = this.dispatcher();
 
                             if (workItem != null)
                             {
-                                _workItems [freeSlot.Value] = workItem;
+                                this.workItems[freeSlot.Value] = workItem;
                                 last = DateTime.MinValue;
 
                                 // do not idle
@@ -111,16 +111,16 @@ namespace CoreCI.Common
             int i = (int)state;
 
             // loop until marked as stopped
-            while (!_isStopped)
+            while (!this.isStopped)
             {
                 try
                 {
-                    if (_workItems [i] != null)
+                    if (this.workItems[i] != null)
                     {
-                        T workItem = _workItems [i];
-                        _workItems [i] = null;
+                        T workItem = this.workItems[i];
+                        this.workItems[i] = null;
 
-                        _action(workItem);
+                        this.action(workItem);
                     }
                     else
                     {
@@ -144,32 +144,32 @@ namespace CoreCI.Common
         {
             // lock to make sure, that concurrent calls to this method from
             // different threads do not break the state
-            lock (_lock)
+            lock (this.lockObject)
             {
                 // throw exception if already stopped
-                if (_isStopped == false)
+                if (this.isStopped == false)
                 {
                     throw new InvalidOperationException();
                 }
 
                 // mark as started
-                _isStopped = false;
+                this.isStopped = false;
 
                 // create work item slots
-                _workItems = new T[_parallelThreads];
+                this.workItems = new T[this.parallelThreads];
 
                 // start work threads
-                _workerThreads = Enumerable.Range(0, _parallelThreads)
+                this.workerThreads = Enumerable.Range(0, this.parallelThreads)
                     .Select(i => new Thread(this.Worker))
                     .ToArray();
-                for (int i = 0; i < _parallelThreads; i++)
+                for (int i = 0; i < this.parallelThreads; i++)
                 {
-                    _workerThreads [i].Start(i);
+                    this.workerThreads[i].Start(i);
                 }
 
                 // start thread
-                _dispatcherThread = new Thread(this.Dispatcher);
-                _dispatcherThread.Start();
+                this.dispatcherThread = new Thread(this.Dispatcher);
+                this.dispatcherThread.Start();
             }
         }
 
@@ -183,36 +183,36 @@ namespace CoreCI.Common
         {
             // lock to make sure, that concurrent calls to this method from
             // different threads do not break the state
-            lock (_lock)
+            lock (this.lockObject)
             {
                 // throw exception if already started
-                if (_isStopped == true)
+                if (this.isStopped == true)
                 {
                     throw new InvalidOperationException();
                 }
 
                 // mark as stopped
-                _isStopped = true;
+                this.isStopped = true;
 
                 // block calling thread until loop thread has finished
-                _dispatcherThread.Join();
-                _dispatcherThread = null;
+                this.dispatcherThread.Join();
+                this.dispatcherThread = null;
 
-                foreach (Thread workerThread in _workerThreads)
+                foreach (Thread workerThread in this.workerThreads)
                 {
                     workerThread.Join();
                 }
-                _workerThreads = null;
 
-                _workItems = null;
+                this.workerThreads = null;
+                this.workItems = null;
             }
         }
 
         private int? FindFreeSlot()
         {
-            for (int i = 0; i < _parallelThreads; i++)
+            for (int i = 0; i < this.parallelThreads; i++)
             {
-                if (_workItems [i] == null)
+                if (this.workItems[i] == null)
                 {
                     return i;
                 }

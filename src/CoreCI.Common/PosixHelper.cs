@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
 using Mono.Unix;
 using Mono.Unix.Native;
 
@@ -40,7 +39,7 @@ namespace CoreCI.Common
 
                 if (id >= 0 && id < signals.Length)
                 {
-                    if (signals [id].IsSet)
+                    if (signals[id].IsSet)
                         exit = true;
                 }
             }

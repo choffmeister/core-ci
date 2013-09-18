@@ -126,10 +126,7 @@ namespace CoreCI.Tests.Common
         public void TestFastStopping()
         {
             var count = 0;
-            var loop = new ConcurrentTaskLoop<Foo>(() => new Foo(), (foo) =>
-            {
-                count++;
-            }, 5000);
+            var loop = new ConcurrentTaskLoop<Foo>(() => new Foo(), (foo) => count++, 5000);
 
             DateTime start = DateTime.Now;
             loop.Start();

@@ -25,15 +25,15 @@ namespace CoreCI.Server.Managers
 {
     /// <summary>
     /// A static class to allow client notification via long polling (see
-    /// <see cref="!:http://en.wikipedia.org/wiki/Push_technology#Long_polling"/>).
+    /// <see cref="!:http://en.wikipedia.org/wiki/Pushthis.technology#Long_polling"/>).
     /// This class is threadsafe.
     /// </summary>
     public static class PushMessageManager
     {
-        private static readonly object _lock = new object();
-        private static readonly Dictionary<Guid, long> _clients = new Dictionary<Guid, long>();
-        private static readonly List<PushMessage> _pushMessages = new List<PushMessage>();
-        private static long _nextPushMessageId = 1;
+        private static readonly object ClientIdLock = new object();
+        private static readonly Dictionary<Guid, long> Clients = new Dictionary<Guid, long>();
+        private static readonly List<PushMessage> PushMessages = new List<PushMessage>();
+        private static long nextPushMessageId = 1;
 
         /// <summary>
         /// Gets a client id.
@@ -42,9 +42,9 @@ namespace CoreCI.Server.Managers
         /// <returns>A new client id.</returns>
         public static Guid GetClient(Guid? clientId)
         {
-            lock (_lock)
+            lock (ClientIdLock)
             {
-                if (clientId.HasValue && _clients.ContainsKey(clientId.Value))
+                if (clientId.HasValue && Clients.ContainsKey(clientId.Value))
                 {
                     // if a cliend id has been passed in and if this id is already
                     // known, then just return the given id
@@ -53,13 +53,13 @@ namespace CoreCI.Server.Managers
                 else
                 {
                     // extract the number of the last push message
-                    long currentPushMessageId = _nextPushMessageId - 1;
+                    long currentPushMessageId = nextPushMessageId - 1;
 
                     // create a new client id
                     Guid newClientId = Guid.NewGuid();
 
                     // save the new id together with the last push message number
-                    _clients.Add(newClientId, currentPushMessageId);
+                    Clients.Add(newClientId, currentPushMessageId);
 
                     return newClientId;
                 }
@@ -77,13 +77,13 @@ namespace CoreCI.Server.Managers
             // since because of locking this could take some time
             Task.Factory.StartNew(() =>
             {
-                lock (_lock)
+                lock (ClientIdLock)
                 {
                     // get the next unused message number
-                    long newPushMessageId = _nextPushMessageId++;
+                    long newPushMessageId = nextPushMessageId++;
 
                     // create a new message with the new number as identifier
-                    _pushMessages.Add(new PushMessage(newPushMessageId, key, value));
+                    PushMessages.Add(new PushMessage(newPushMessageId, key, value));
                 }
             });
         }
@@ -95,18 +95,18 @@ namespace CoreCI.Server.Managers
         /// <returns>The new push messages.</returns>
         public static List<PushMessage> RetrievePushMessages(Guid clientId)
         {
-            lock (_lock)
+            lock (ClientIdLock)
             {
                 // extract the number of the last push message
-                long currentPushMessageId = _nextPushMessageId - 1;
+                long currentPushMessageId = nextPushMessageId - 1;
 
                 // update client id with new number to ensure, that
                 // no message is ever delivered twice to the same client
-                long lastPushMessageId = _clients [clientId];
-                _clients [clientId] = currentPushMessageId;
+                long lastPushMessageId = Clients[clientId];
+                Clients[clientId] = currentPushMessageId;
 
                 // return all available message that have not been delivered to the client yet
-                return _pushMessages.Where(n => lastPushMessageId < n.Id && n.Id <= currentPushMessageId).ToList();
+                return PushMessages.Where(n => lastPushMessageId < n.Id && n.Id <= currentPushMessageId).ToList();
             }
         }
 
@@ -122,7 +122,7 @@ namespace CoreCI.Server.Managers
             DateTime start = DateTime.Now;
 
             // block until there is a new message or the timeout has been exceeded
-            while (_clients[clientId] >= _nextPushMessageId - 1 && DateTime.Now.Subtract(start).TotalSeconds < timeoutSeconds)
+            while (Clients[clientId] >= nextPushMessageId - 1 && DateTime.Now.Subtract(start).TotalSeconds < timeoutSeconds)
             {
                 Thread.Sleep(10);
             }

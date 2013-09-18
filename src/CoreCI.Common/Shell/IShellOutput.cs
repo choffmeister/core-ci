@@ -43,21 +43,27 @@ namespace CoreCI.Common.Shell
 
     public class MemoryShellOutput : IShellOutput
     {
-        private readonly StringBuilder _standardOutput = new StringBuilder();
-        private readonly StringBuilder _standardError = new StringBuilder();
+        private readonly StringBuilder standardOutput = new StringBuilder();
+        private readonly StringBuilder standardError = new StringBuilder();
 
-        public string StandardOutput { get { return _standardOutput.ToString(); } }
+        public string StandardOutput
+        {
+            get { return this.standardOutput.ToString(); }
+        }
 
-        public string StandardError { get { return _standardError.ToString(); } }
+        public string StandardError
+        {
+            get { return this.standardError.ToString(); }
+        }
 
         public void WriteStandardOutput(string s)
         {
-            _standardOutput.Append(s);
+            this.standardOutput.Append(s);
         }
 
         public void WriteStandardError(string s)
         {
-            _standardError.Append(s);
+            this.standardError.Append(s);
         }
 
         public void Dispose()

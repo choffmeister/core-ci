@@ -15,9 +15,9 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using ServiceStack.ServiceHost;
-using CoreCI.Models;
 using System.Collections.Generic;
+using CoreCI.Models;
+using ServiceStack.ServiceHost;
 
 namespace CoreCI.Contracts
 {

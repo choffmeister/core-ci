@@ -17,9 +17,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ServiceStack.Text;
 using System.Net;
 using System.Text;
+using ServiceStack.Text;
 
 namespace CoreCI.Server.Connectors
 {
@@ -50,7 +50,7 @@ namespace CoreCI.Server.Connectors
 
             var response = JsonObject.Parse(accessTokenUrl.GetJsonFromUrl());
 
-            return response ["access_token"];
+            return response["access_token"];
         }
 
         public static JsonArrayObjects GetRepositories(string accessToken)
@@ -84,7 +84,7 @@ namespace CoreCI.Server.Connectors
                 switch (encoding)
                 {
                     case "base64":
-                        string base64 = encodedContent.Replace("\n", "");
+                        string base64 = encodedContent.Replace("\n", string.Empty);
 
                         return Encoding.UTF8.GetString(Convert.FromBase64String(base64));
                     default:

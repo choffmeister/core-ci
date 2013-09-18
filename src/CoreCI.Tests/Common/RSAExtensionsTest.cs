@@ -19,17 +19,16 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using CoreCI.Common;
+using Mono.Unix;
 using NUnit.Framework;
 using Renci.SshNet.Security;
-using Renci.SshNet;
-using Mono.Unix;
 
 namespace CoreCI.Tests.Common
 {
     [TestFixture]
     public class RSAExtensionsTest
     {
-        private string _tempFolder;
+        private string tempFolder;
 
         [TestFixtureSetUp]
         public void SetUp()
@@ -46,13 +45,13 @@ namespace CoreCI.Tests.Common
                 Assert.Ignore("Ignored because OpenSSL binary is not in the PATH");
             }
 
-            _tempFolder = TemporaryHelper.CreateTempFolder();
+            this.tempFolder = TemporaryHelper.CreateTempFolder();
         }
 
         [TestFixtureTearDown]
         public void TearDown()
         {
-            TemporaryHelper.DeleteTempFolder(_tempFolder);
+            TemporaryHelper.DeleteTempFolder(this.tempFolder);
         }
 
         [Test]
@@ -61,7 +60,7 @@ namespace CoreCI.Tests.Common
             var rsa = new RSACryptoServiceProvider(1024);
 
             var privateKeyString = rsa.ToOpenSshPrivateKeyFileString();
-            var privateKeyPath = Path.Combine(_tempFolder, "id_rsa");
+            var privateKeyPath = Path.Combine(this.tempFolder, "id_rsa");
             File.WriteAllText(privateKeyPath, privateKeyString);
 
             var result = ProcessHelper.Execute("openssl", "rsa -check -in " + privateKeyPath);
@@ -74,7 +73,7 @@ namespace CoreCI.Tests.Common
                 "\r\n",
                 "\n"
             }, StringSplitOptions.RemoveEmptyEntries);
-            string base64 = string.Join("", lines.Skip(1).Take(lines.Length - 2));
+            string base64 = string.Join(string.Empty, lines.Skip(1).Take(lines.Length - 2));
             byte[] binary = Convert.FromBase64String(base64);
 
             RsaKey rsaKey = new RsaKey(binary);
@@ -97,8 +96,8 @@ namespace CoreCI.Tests.Common
             var publicKeyString = rsa.ToOpenSshPublicKeyFileString("test@test");
             var privateKeyString = rsa.ToOpenSshPrivateKeyFileString();
 
-            var publicKeyPath = Path.Combine(_tempFolder, "id_rsa.pub");
-            var privateKeyPath = Path.Combine(_tempFolder, "id_rsa");
+            var publicKeyPath = Path.Combine(this.tempFolder, "idthis.rsa.pub");
+            var privateKeyPath = Path.Combine(this.tempFolder, "id_rsa");
 
             File.WriteAllText(publicKeyPath, publicKeyString);
             File.WriteAllText(privateKeyPath, privateKeyString);
@@ -116,8 +115,8 @@ namespace CoreCI.Tests.Common
             var publicKeyString = rsa.ToOpenSshPublicKeyFileString("test@test");
             var privateKeyString = rsa.ToOpenSshPrivateKeyFileString();
 
-            var publicKeyPath = Path.Combine(_tempFolder, "id_rsa.pub");
-            var privateKeyPath = Path.Combine(_tempFolder, "id_rsa");
+            var publicKeyPath = Path.Combine(this.tempFolder, "idthis.rsa.pub");
+            var privateKeyPath = Path.Combine(this.tempFolder, "id_rsa");
 
             File.WriteAllText(publicKeyPath, publicKeyString);
             File.WriteAllText(privateKeyPath, privateKeyString);

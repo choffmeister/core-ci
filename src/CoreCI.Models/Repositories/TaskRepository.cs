@@ -15,7 +15,6 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Linq;
 using CoreCI.Common;
 using MongoDB.Driver.Builders;
 
@@ -28,13 +27,13 @@ namespace CoreCI.Models
 
     public class TaskRepository : MongoDbRepository<TaskEntity>, ITaskRepository
     {
-        protected TaskRepository(string connectionString, string collectionName)
-            : base(connectionString, collectionName)
+        public TaskRepository(IConfigurationProvider configurationProvider)
+            : base(configurationProvider, "server.database", "tasks")
         {
         }
 
-        public TaskRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "server.database", "tasks")
+        protected TaskRepository(string connectionString, string collectionName)
+            : base(connectionString, collectionName)
         {
         }
 

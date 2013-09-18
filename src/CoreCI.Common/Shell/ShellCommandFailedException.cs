@@ -22,11 +22,11 @@ namespace CoreCI.Common.Shell
     [Serializable]
     public class ShellCommandFailedException : Exception
     {
-        private readonly int _exitCode;
+        private readonly int exitCode;
 
         public int ExitCode
         {
-            get { return _exitCode; }
+            get { return this.exitCode; }
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace CoreCI.Common.Shell
         /// </summary>
         public ShellCommandFailedException(int exitCode)
         {
-            _exitCode = exitCode;
+            this.exitCode = exitCode;
         }
 
         /// <summary>
@@ -42,9 +42,9 @@ namespace CoreCI.Common.Shell
         /// </summary>
         /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
         public ShellCommandFailedException(int exitCode, string message)
-            : base (message)
+            : base(message)
         {
-            _exitCode = exitCode;
+            this.exitCode = exitCode;
         }
 
         /// <summary>
@@ -53,9 +53,9 @@ namespace CoreCI.Common.Shell
         /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
         /// <param name="inner">The exception that is the cause of the current exception. </param>
         public ShellCommandFailedException(int exitCode, string message, Exception inner)
-            : base (message, inner)
+            : base(message, inner)
         {
-            _exitCode = exitCode;
+            this.exitCode = exitCode;
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace CoreCI.Common.Shell
         /// <param name="context">The contextual information about the source or destination.</param>
         /// <param name="info">The object that holds the serialized object data.</param>
         protected ShellCommandFailedException(SerializationInfo info, StreamingContext context)
-            : base (info, context)
+            : base(info, context)
         {
         }
     }

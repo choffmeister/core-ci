@@ -22,44 +22,44 @@ namespace CoreCI.Common
 {
     internal class OpenSshKeyWriter : IDisposable
     {
-        private readonly Stream _stream;
+        private readonly Stream stream;
 
         public OpenSshKeyWriter(Stream stream)
         {
-            _stream = stream;
+            this.stream = stream;
         }
 
         public void Dispose()
         {
-            _stream.Dispose();
+            this.stream.Dispose();
         }
 
         public void WriteMultiPrecisionInteger(byte[] i)
         {
-            bool isLeadingBitSet = (i [0] & 128) != 0;
+            bool isLeadingBitSet = (i[0] & 128) != 0;
             int length = isLeadingBitSet ? i.Length + 1 : i.Length;
 
             this.WriteInt32(length);
 
             // prepend a 0-byte to make the integer positive
             if (isLeadingBitSet)
-                _stream.WriteByte(0);
-            _stream.Write(i, 0, i.Length);
+                this.stream.WriteByte(0);
+            this.stream.Write(i, 0, i.Length);
         }
 
         public void WriteDerMultiPrecisionInteger(byte[] i)
         {
-            bool isLeadingBitSet = (i [0] & 128) != 0;
+            bool isLeadingBitSet = (i[0] & 128) != 0;
             int length = isLeadingBitSet ? i.Length + 1 : i.Length;
 
             // 0x02 marks an upcoming integer in DER format
-            _stream.WriteByte(2);
+            this.stream.WriteByte(2);
             this.WriteDerLength(length);
 
             // prepend a 0-byte to make the integer positive
             if (isLeadingBitSet)
-                _stream.WriteByte(0);
-            _stream.Write(i, 0, i.Length);
+                this.stream.WriteByte(0);
+            this.stream.Write(i, 0, i.Length);
         }
 
         public void WriteDerLength(int length)
@@ -74,21 +74,21 @@ namespace CoreCI.Common
                 }
 
                 byte[] array = new byte[num + 1];
-                array [0] = (byte)(num | 128);
+                array[0] = (byte)(num | 128);
                 int i = (num - 1) * 8;
                 int num3 = 1;
                 while (i >= 0)
                 {
-                    array [num3] = (byte)(length >> i);
+                    array[num3] = (byte)(length >> i);
                     i -= 8;
                     num3++;
                 }
 
-                _stream.Write(array, 0, array.Length);
+                this.stream.Write(array, 0, array.Length);
             }
             else
             {
-                _stream.WriteByte((byte)length);
+                this.stream.WriteByte((byte)length);
             }
         }
 
@@ -96,24 +96,24 @@ namespace CoreCI.Common
         {
             byte[] bytes = new byte[4];
 
-            bytes [0] = (byte)((i >> 24) & 255);
-            bytes [1] = (byte)((i >> 16) & 255);
-            bytes [2] = (byte)((i >> 8) & 255);
-            bytes [3] = (byte)((i >> 0) & 255);
+            bytes[0] = (byte)((i >> 24) & 255);
+            bytes[1] = (byte)((i >> 16) & 255);
+            bytes[2] = (byte)((i >> 8) & 255);
+            bytes[3] = (byte)((i >> 0) & 255);
 
-            _stream.Write(bytes, 0, 4);
+            this.stream.Write(bytes, 0, 4);
         }
 
         public void WriteString(string str)
         {
             byte[] bytes = Encoding.ASCII.GetBytes(str);
 
-            _stream.Write(bytes, 0, bytes.Length);
+            this.stream.Write(bytes, 0, bytes.Length);
         }
 
         public void WriteByte(byte b)
         {
-            _stream.WriteByte(b);
+            this.stream.WriteByte(b);
         }
     }
 }

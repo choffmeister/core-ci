@@ -14,9 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using ServiceStack.Configuration;
 using Microsoft.Practices.Unity;
+using ServiceStack.Configuration;
 
 namespace CoreCI.Server
 {
@@ -25,23 +24,23 @@ namespace CoreCI.Server
     /// </summary>
     public class UnityContainerAdapter : IContainerAdapter
     {
-        private readonly IUnityContainer _unityContainer;
+        private readonly IUnityContainer unityContainer;
 
         public UnityContainerAdapter(IUnityContainer container)
         {
-            _unityContainer = container;
+            this.unityContainer = container;
         }
 
         public T Resolve<T>()
         {
-            return _unityContainer.Resolve<T>();
+            return this.unityContainer.Resolve<T>();
         }
 
         public T TryResolve<T>()
         {
-            if (_unityContainer.IsRegistered(typeof(T)))
+            if (this.unityContainer.IsRegistered(typeof(T)))
             {
-                return (T)_unityContainer.Resolve(typeof(T));
+                return (T)this.unityContainer.Resolve(typeof(T));
             }
 
             return default(T);

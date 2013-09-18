@@ -28,11 +28,11 @@ namespace CoreCI.Common
     /// </summary>
     public class TaskLoop
     {
-        private readonly object _lock = new object();
-        private readonly int _millisecondsIdleSleep;
-        private readonly Func<bool> _action;
-        private Thread _thread;
-        private bool _isStopped;
+        private readonly object lockObject = new object();
+        private readonly int millisecondsIdleSleep;
+        private readonly Func<bool> action;
+        private Thread thread;
+        private bool isStopped;
 
         /// <summary>
         /// Creates a new loop task executing an action over and over again.
@@ -42,9 +42,9 @@ namespace CoreCI.Common
         /// <param name="millisecondsIdleSleep">The time to sleep in milliseconds if the action returns false.</param>
         public TaskLoop(Func<bool> action, int millisecondsIdleSleep)
         {
-            _action = action;
-            _millisecondsIdleSleep = millisecondsIdleSleep;
-            _isStopped = true;
+            this.action = action;
+            this.millisecondsIdleSleep = millisecondsIdleSleep;
+            this.isStopped = true;
         }
 
         /// <summary>
@@ -55,17 +55,17 @@ namespace CoreCI.Common
             DateTime last = DateTime.MinValue;
 
             // loop until marked as stopped
-            while (!_isStopped)
+            while (!this.isStopped)
             {
                 try
                 {
                     DateTime now = DateTime.Now;
 
-                    if ((now - last).TotalMilliseconds > _millisecondsIdleSleep)
+                    if ((now - last).TotalMilliseconds > this.millisecondsIdleSleep)
                     {
                         last = now;
 
-                        if (_action())
+                        if (this.action())
                         {
                             last = DateTime.MinValue;
                         }
@@ -92,20 +92,20 @@ namespace CoreCI.Common
         {
             // lock to make sure, that concurrent calls to this method from
             // different threads do not break the state
-            lock (_lock)
+            lock (this.lockObject)
             {
                 // throw exception if already stopped
-                if (_isStopped == false)
+                if (this.isStopped == false)
                 {
                     throw new InvalidOperationException();
                 }
 
                 // mark as started
-                _isStopped = false;
+                this.isStopped = false;
 
                 // start thread
-                _thread = new Thread(this.Loop);
-                _thread.Start();
+                this.thread = new Thread(this.Loop);
+                this.thread.Start();
             }
         }
 
@@ -119,20 +119,20 @@ namespace CoreCI.Common
         {
             // lock to make sure, that concurrent calls to this method from
             // different threads do not break the state
-            lock (_lock)
+            lock (this.lockObject)
             {
                 // throw exception if already started
-                if (_isStopped == true)
+                if (this.isStopped == true)
                 {
                     throw new InvalidOperationException();
                 }
 
                 // mark as stopped
-                _isStopped = true;
+                this.isStopped = true;
 
                 // block calling thread until loop thread has finished
-                _thread.Join();
-                _thread = null;
+                this.thread.Join();
+                this.thread = null;
             }
         }
     }

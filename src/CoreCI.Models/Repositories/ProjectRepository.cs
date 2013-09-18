@@ -25,13 +25,13 @@ namespace CoreCI.Models
 
     public class ProjectRepository : MongoDbRepository<ProjectEntity>, IProjectRepository
     {
-        protected ProjectRepository(string connectionString, string collectionName)
-            : base(connectionString, collectionName)
+        public ProjectRepository(IConfigurationProvider configurationProvider)
+            : base(configurationProvider, "server.database", "projects")
         {
         }
 
-        public ProjectRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "server.database", "projects")
+        protected ProjectRepository(string connectionString, string collectionName)
+            : base(connectionString, collectionName)
         {
         }
 

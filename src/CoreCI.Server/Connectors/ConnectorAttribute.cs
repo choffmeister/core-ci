@@ -18,19 +18,19 @@ using System;
 
 namespace CoreCI.Server.Connectors
 {
-    [AttributeUsage (AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class ConnectorAttribute : Attribute
     {
-        private readonly string _name;
+        private readonly string name;
 
         public string Name
         {
-            get { return _name; }
+            get { return this.name; }
         }
 
         public ConnectorAttribute(string name)
         {
-            this._name = name;
+            this.name = name;
         }
     }
 }

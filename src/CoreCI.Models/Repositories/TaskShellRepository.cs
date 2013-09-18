@@ -25,13 +25,13 @@ namespace CoreCI.Models
 
     public class TaskShellRepository : MongoDbRepository<TaskShellEntity>, ITaskShellRepository
     {
-        protected TaskShellRepository(string connectionString, string collectionName)
-            : base(connectionString, collectionName)
+        public TaskShellRepository(IConfigurationProvider configurationProvider)
+            : base(configurationProvider, "server.database", "taskshells")
         {
         }
 
-        public TaskShellRepository(IConfigurationProvider configurationProvider)
-            : base(configurationProvider, "server.database", "taskshells")
+        protected TaskShellRepository(string connectionString, string collectionName)
+            : base(connectionString, collectionName)
         {
         }
 

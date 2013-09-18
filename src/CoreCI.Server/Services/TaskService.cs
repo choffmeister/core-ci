@@ -14,38 +14,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using System.Linq;
-using ServiceStack.ServiceInterface;
-using CoreCI.Models;
-using CoreCI.Contracts;
-using ServiceStack.Common.Web;
 using System.Collections.Generic;
+using System.Linq;
+using CoreCI.Contracts;
+using CoreCI.Models;
+using ServiceStack.ServiceInterface;
 
 namespace CoreCI.Server.Services
 {
     public class TaskService : Service
     {
-        private readonly ITaskRepository _taskRepository;
-        private readonly ITaskShellRepository _taskShellRepository;
+        private readonly ITaskRepository taskRepository;
+        private readonly ITaskShellRepository taskShellRepository;
 
         public TaskService(ITaskRepository taskRepository, ITaskShellRepository taskShellRepository)
         {
-            _taskRepository = taskRepository;
-            _taskShellRepository = taskShellRepository;
+            this.taskRepository = taskRepository;
+            this.taskShellRepository = taskShellRepository;
         }
 
         public override void Dispose()
         {
-            _taskRepository.Dispose();
-            _taskShellRepository.Dispose();
+            this.taskRepository.Dispose();
+            this.taskShellRepository.Dispose();
         }
 
         public TaskListResponse Get(TaskListRequest req)
         {
             return new TaskListResponse()
             {
-                Tasks = _taskRepository.OrderByDescending(t => t.CreatedAt).ToList()
+                Tasks = this.taskRepository.OrderByDescending(t => t.CreatedAt).ToList()
             };
         }
 
@@ -53,14 +51,14 @@ namespace CoreCI.Server.Services
         {
             return new TaskListByProjectResponse()
             {
-                Tasks = _taskRepository.Where(t => t.ProjectId == req.ProjectId).OrderByDescending(t => t.CreatedAt).ToList()
+                Tasks = this.taskRepository.Where(t => t.ProjectId == req.ProjectId).OrderByDescending(t => t.CreatedAt).ToList()
             };
         }
 
         public TaskRetrieveResponse Get(TaskRetrieveRequest req)
         {
-            TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
-            List<TaskShellEntity> taskShells = _taskShellRepository
+            TaskEntity task = this.taskRepository.GetEntityById(req.TaskId);
+            List<TaskShellEntity> taskShells = this.taskShellRepository
                 .OrderBy(ts => ts.Index).Where(ts => ts.TaskId == task.Id)
                 .ToList();
 

@@ -15,20 +15,19 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using NUnit.Framework;
-using CoreCI.WorkerInstance.Vagrant;
-using Renci.SshNet.Common;
 using CoreCI.Common;
 using CoreCI.Common.Shell;
-using System.Text;
+using CoreCI.WorkerInstance.Vagrant;
+using NUnit.Framework;
+using Renci.SshNet.Common;
 
 namespace CoreCI.Tests.WorkerInstance.Vagrant
 {
-    [TestFixture()]
+    [TestFixture]
     public class SshClientExtensionsTest
     {
-        private string _tempFolder;
-        private IVirtualMachine _vm;
+        private string tempFolder;
+        private IVirtualMachine vm;
 
         [TestFixtureSetUp]
         public void SetUp()
@@ -45,31 +44,31 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
                 Assert.Ignore("Ignored because Vagrant binary is not in the PATH");
             }
 
-            _tempFolder = TemporaryHelper.CreateTempFolder();
-            _vm = new VagrantVirtualMachine("vagrant", _tempFolder, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024);
-            _vm.Up();
+            this.tempFolder = TemporaryHelper.CreateTempFolder();
+            this.vm = new VagrantVirtualMachine("vagrant", this.tempFolder, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024);
+            this.vm.Up();
         }
 
         [TestFixtureTearDown]
         public void TearDown()
         {
-            if (_vm != null)
+            if (this.vm != null)
             {
-                _vm.Down();
-                _vm = null;
+                this.vm.Down();
+                this.vm = null;
             }
 
-            if (_tempFolder != null)
+            if (this.tempFolder != null)
             {
-                TemporaryHelper.DeleteTempFolder(_tempFolder);
-                _tempFolder = null;
+                TemporaryHelper.DeleteTempFolder(this.tempFolder);
+                this.tempFolder = null;
             }
         }
 
         [Test]
         public void TestCommandExecution()
         {
-            using (var shell = _vm.CreateClient())
+            using (var shell = this.vm.CreateClient())
             {
                 shell.Connect();
 
@@ -107,7 +106,7 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
         [Test]
         public void TestCommandTimeout()
         {
-            using (var shell = _vm.CreateClient())
+            using (var shell = this.vm.CreateClient())
             {
                 shell.Connect();
 
@@ -126,7 +125,7 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
 
                 DateTime end = DateTime.Now;
 
-                Assert.That((int)((end - start).TotalMilliseconds), Is.InRange(1000 - 200, 1000 + 200));
+                Assert.That((int)(end - start).TotalMilliseconds, Is.InRange(1000 - 200, 1000 + 200));
 
                 shell.Disconnect();
             }

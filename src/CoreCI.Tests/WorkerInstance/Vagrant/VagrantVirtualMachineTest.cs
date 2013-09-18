@@ -15,21 +15,17 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using NUnit.Framework;
-using System.IO;
 using System.Threading.Tasks;
 using CoreCI.Common;
-using CoreCI.Common.Shell;
 using CoreCI.WorkerInstance.Vagrant;
-using Renci.SshNet.Common;
-using System.CodeDom.Compiler;
+using NUnit.Framework;
 
 namespace CoreCI.Tests.WorkerInstance.Vagrant
 {
     [TestFixture]
     public class VagrantVirtualMachineTest
     {
-        private string _tempFolder;
+        private string tempFolder;
 
         [TestFixtureSetUp]
         public void SetUp()
@@ -46,23 +42,23 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
                 Assert.Ignore("Ignored because Vagrant binary is not in the PATH");
             }
 
-            _tempFolder = TemporaryHelper.CreateTempFolder();
+            this.tempFolder = TemporaryHelper.CreateTempFolder();
         }
 
         [TestFixtureTearDown]
         public void TearDown()
         {
-            if (_tempFolder != null)
+            if (this.tempFolder != null)
             {
-                TemporaryHelper.DeleteTempFolder(_tempFolder);
-                _tempFolder = null;
+                TemporaryHelper.DeleteTempFolder(this.tempFolder);
+                this.tempFolder = null;
             }
         }
 
         [Test]
         public void TestCreationOfVirtualMachine()
         {
-            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
+            using (var vm = new VagrantVirtualMachine("vagrant", this.tempFolder, "precise64", new Uri("http://files.vagrantup.com/precise64.box"), 2, 1024))
             {
                 vm.Up();
 
@@ -97,7 +93,7 @@ namespace CoreCI.Tests.WorkerInstance.Vagrant
         [ExpectedException(typeof(VagrantException))]
         public void TestExceptionForUnknownBox()
         {
-            using (var vm = new VagrantVirtualMachine("vagrant", _tempFolder, "unknown", new Uri("http://files.vagrantup.com/unknown-box-that-does-not-exist.box"), 2, 1024))
+            using (var vm = new VagrantVirtualMachine("vagrant", this.tempFolder, "unknown", new Uri("http://files.vagrantup.com/unknown-box-that-does-not-exist.box"), 2, 1024))
             {
                 vm.Up();
                 vm.Down();

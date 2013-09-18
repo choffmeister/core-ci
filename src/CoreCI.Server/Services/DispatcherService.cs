@@ -16,61 +16,57 @@
  */
 using System;
 using System.Linq;
-using ServiceStack.ServiceInterface;
-using ServiceStack.ServiceHost;
 using CoreCI.Contracts;
 using CoreCI.Models;
-using ServiceStack.Common.Web;
 using NLog;
+using ServiceStack.ServiceInterface;
 
 namespace CoreCI.Server.Services
 {
     public class DispatcherService : Service
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private static readonly object _taskLock = new object();
-        private readonly IWorkerRepository _workerRepository;
-        private readonly ITaskRepository _taskRepository;
-        private readonly ITaskShellRepository _taskShellRepository;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly IWorkerRepository workerRepository;
+        private readonly ITaskRepository taskRepository;
+        private readonly ITaskShellRepository taskShellRepository;
 
         public DispatcherService(IWorkerRepository workerRepository, ITaskRepository taskRepository, ITaskShellRepository taskShellRepository)
         {
-            _workerRepository = workerRepository;
-            _taskRepository = taskRepository;
-            _taskShellRepository = taskShellRepository;
+            this.workerRepository = workerRepository;
+            this.taskRepository = taskRepository;
+            this.taskShellRepository = taskShellRepository;
         }
 
         public override void Dispose()
         {
-            _workerRepository.Dispose();
-            _taskRepository.Dispose();
-            _taskShellRepository.Dispose();
+            this.workerRepository.Dispose();
+            this.taskRepository.Dispose();
+            this.taskShellRepository.Dispose();
         }
 
         public DispatcherWorkerKeepAliveResponse Post(DispatcherWorkerKeepAliveRequest req)
         {
-            WorkerEntity worker = _workerRepository.SingleOrDefault(w => w.Id == req.WorkerId);
+            WorkerEntity worker = this.workerRepository.SingleOrDefault(w => w.Id == req.WorkerId);
 
             if (worker != null)
             {
-                _logger.Trace("Worker {0} alive", req.WorkerId);
+                Log.Trace("Worker {0} alive", req.WorkerId);
 
                 worker.LastKeepAlive = DateTime.UtcNow;
 
-                _workerRepository.Update(worker);
+                this.workerRepository.Update(worker);
             }
             else
             {
-                _logger.Info("New worker {0} registered", req.WorkerId);
+                Log.Info("New worker {0} registered", req.WorkerId);
 
                 worker = new WorkerEntity()
                 {
-
                     Id = req.WorkerId,
                     LastKeepAlive = DateTime.UtcNow
                 };
 
-                _workerRepository.InsertOrUpdate(worker);
+                this.workerRepository.InsertOrUpdate(worker);
             }
 
             return new DispatcherWorkerKeepAliveResponse();
@@ -78,58 +74,55 @@ namespace CoreCI.Server.Services
 
         public DispatcherTaskPollResponse Post(DispatcherTaskPollRequest req)
         {
-            lock (_taskLock)
+            TaskEntity task = this.taskRepository.GetPendingTask(req.WorkerId);
+
+            if (task != null)
             {
-                TaskEntity task = _taskRepository.GetPendingTask(req.WorkerId);
+                Log.Info("Delegating task {0} to worker {1}", task.Id, req.WorkerId);
 
-                if (task != null)
-                {
-                    _logger.Info("Delegating task {0} to worker {1}", task.Id, req.WorkerId);
+                PushService.Push("tasks", null);
+                PushService.Push("task-" + task.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "started");
 
-                    PushService.Push("tasks", null);
-                    PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "started");
-
-                    return new DispatcherTaskPollResponse(task);
-                }
-
-                return new DispatcherTaskPollResponse();
+                return new DispatcherTaskPollResponse(task);
             }
+
+            return new DispatcherTaskPollResponse();
         }
 
         public DispatcherTaskUpdateStartResponse Post(DispatcherTaskUpdateStartRequest req)
         {
-            TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
-            _logger.Info("Task {0} started", req.TaskId);
+            TaskEntity task = this.taskRepository.GetEntityById(req.TaskId);
+            Log.Info("Task {0} started", req.TaskId);
 
             task.StartedAt = DateTime.UtcNow;
-            _taskRepository.Update(task);
+            this.taskRepository.Update(task);
 
             PushService.Push("tasks", null);
-            PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "finished");
+            PushService.Push("task-" + task.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "finished");
 
             return new DispatcherTaskUpdateStartResponse();
         }
 
         public DispatcherTaskUpdateFinishResponse Post(DispatcherTaskUpdateFinishRequest req)
         {
-            TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
-            _logger.Info("Task {0} finished with exit code {1}", req.TaskId, req.ExitCode);
+            TaskEntity task = this.taskRepository.GetEntityById(req.TaskId);
+            Log.Info("Task {0} finished with exit code {1}", req.TaskId, req.ExitCode);
 
             task.FinishedAt = DateTime.UtcNow;
             task.ExitCode = req.ExitCode;
             task.State = task.ExitCode == 0 ? TaskState.Succeeded : TaskState.Failed;
-            _taskRepository.Update(task);
+            this.taskRepository.Update(task);
 
             PushService.Push("tasks", null);
-            PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "finished");
+            PushService.Push("task-" + task.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "finished");
 
             return new DispatcherTaskUpdateFinishResponse();
         }
 
         public DispatcherTaskUpdateShellResponse Post(DispatcherTaskUpdateShellRequest req)
         {
-            TaskEntity task = _taskRepository.GetEntityById(req.TaskId);
-            TaskShellEntity taskShell = _taskShellRepository.SingleOrDefault(ts => ts.TaskId == task.Id && ts.Index == req.Index);
+            TaskEntity task = this.taskRepository.GetEntityById(req.TaskId);
+            TaskShellEntity taskShell = this.taskShellRepository.SingleOrDefault(ts => ts.TaskId == task.Id && ts.Index == req.Index);
 
             if (taskShell == null)
             {
@@ -139,16 +132,16 @@ namespace CoreCI.Server.Services
                     Index = req.Index,
                     Output = req.Output
                 };
-                _taskShellRepository.Insert(taskShell);
+                this.taskShellRepository.Insert(taskShell);
             }
             else
             {
                 taskShell.Output = req.Output;
-                _taskShellRepository.Update(taskShell);
+                this.taskShellRepository.Update(taskShell);
             }
 
             PushService.Push("tasks", null);
-            PushService.Push("task-" + task.Id.ToString().Replace("-", "").ToLowerInvariant(), "updated");
+            PushService.Push("task-" + task.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "updated");
 
             return new DispatcherTaskUpdateShellResponse();
         }

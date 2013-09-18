@@ -14,9 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using System.IO;
-using System.Threading;
 using System.Collections.Generic;
 using System.Text;
 
@@ -35,9 +32,9 @@ namespace CoreCI.Common.Shell
 
             while (i < script.Length)
             {
-                char current = script [i];
-                char? next = i + 1 < script.Length ? script [i + 1] : default(char?);
-                char? nextnext = i + 2 < script.Length ? script [i + 2] : default(char?);
+                char current = script[i];
+                char? next = i + 1 < script.Length ? script[i + 1] : default(char?);
+                char? nextnext = i + 2 < script.Length ? script[i + 2] : default(char?);
 
                 if (current == '\r' && next == '\n' && quoted == null)
                 {

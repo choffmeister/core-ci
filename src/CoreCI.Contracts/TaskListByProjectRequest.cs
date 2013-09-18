@@ -16,8 +16,8 @@
  */
 using System;
 using System.Collections.Generic;
-using ServiceStack.ServiceHost;
 using CoreCI.Models;
+using ServiceStack.ServiceHost;
 
 namespace CoreCI.Contracts
 {
