@@ -53,11 +53,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Vagrantfile-bootstrap-template.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Vagrantfile-template.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <EmbeddedResource Include="Resources\Vagrantfile-bootstrap-template.txt" />
+    <EmbeddedResource Include="Resources\Vagrantfile-template.txt" />
   </ItemGroup>
 </Project>

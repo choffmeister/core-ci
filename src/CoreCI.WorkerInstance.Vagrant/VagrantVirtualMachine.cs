@@ -228,7 +228,10 @@ namespace CoreCI.WorkerInstance.Vagrant
 
         private static string GetResource(string name, params object[] args)
         {
-            using (Stream stream = new FileStream(Path.Combine("Resources", name), FileMode.Open, FileAccess.Read))
+            string fullName = string.Format("CoreCI.WorkerInstance.Vagrant.Resources.{0}", name);
+            Assembly assembly = typeof(VagrantWorkerInstance).Assembly;
+
+            using (Stream stream = assembly.GetManifestResourceStream(fullName))
             {
                 using (StreamReader reader = new StreamReader(stream))
                 {
