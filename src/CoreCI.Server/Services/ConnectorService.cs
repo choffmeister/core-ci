@@ -16,6 +16,7 @@
  */
 using System;
 using System.Linq;
+using CoreCI.Common;
 using CoreCI.Contracts;
 using CoreCI.Models;
 using CoreCI.Server.Connectors;
@@ -97,7 +98,7 @@ namespace CoreCI.Server.Services
                 ProjectEntity project = connector.AddProject(session, req.ConnectorId, req.ProjectName);
 
                 PushService.Push("projects", null);
-                PushService.Push("project-" + project.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "created");
+                PushService.Push("project-" + project.Id.ToUndashedString(), "created");
 
                 return new ConnectorAddProjectResponse();
             }
@@ -115,7 +116,7 @@ namespace CoreCI.Server.Services
                 connector.RemoveProject(session, req.ConnectorId, req.ProjectId);
 
                 PushService.Push("projects", null);
-                PushService.Push("project-" + req.ProjectId.ToString().Replace("-", string.Empty).ToLowerInvariant(), "removed");
+                PushService.Push("project-" + req.ProjectId.ToUndashedString(), "removed");
 
                 return new ConnectorRemoveProjectResponse();
             }

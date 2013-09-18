@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Cryptography;
+using CoreCI.Common;
 using CoreCI.Models;
 using ServiceStack.Common.Web;
 using ServiceStack.ServiceHost;
@@ -54,7 +55,7 @@ namespace CoreCI.Server.Connectors
             byte[] bytes = new byte[byteCount];
             rng.GetBytes(bytes);
 
-            return BitConverter.ToString(bytes).Replace("-", string.Empty).ToLower();
+            return bytes.ToHexString();
         }
     }
 }

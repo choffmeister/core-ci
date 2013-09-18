@@ -16,6 +16,7 @@
  */
 using System;
 using System.Linq;
+using CoreCI.Common;
 using CoreCI.Contracts;
 using CoreCI.Models;
 using NLog;
@@ -81,7 +82,7 @@ namespace CoreCI.Server.Services
                 Log.Info("Delegating task {0} to worker {1}", task.Id, req.WorkerId);
 
                 PushService.Push("tasks", null);
-                PushService.Push("task-" + task.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "started");
+                PushService.Push("task-" + task.Id.ToUndashedString(), "started");
 
                 return new DispatcherTaskPollResponse(task);
             }
@@ -98,7 +99,7 @@ namespace CoreCI.Server.Services
             this.taskRepository.Update(task);
 
             PushService.Push("tasks", null);
-            PushService.Push("task-" + task.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "finished");
+            PushService.Push("task-" + task.Id.ToUndashedString(), "finished");
 
             return new DispatcherTaskUpdateStartResponse();
         }
@@ -114,7 +115,7 @@ namespace CoreCI.Server.Services
             this.taskRepository.Update(task);
 
             PushService.Push("tasks", null);
-            PushService.Push("task-" + task.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "finished");
+            PushService.Push("task-" + task.Id.ToUndashedString(), "finished");
 
             return new DispatcherTaskUpdateFinishResponse();
         }
@@ -141,7 +142,7 @@ namespace CoreCI.Server.Services
             }
 
             PushService.Push("tasks", null);
-            PushService.Push("task-" + task.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "updated");
+            PushService.Push("task-" + task.Id.ToUndashedString(), "updated");
 
             return new DispatcherTaskUpdateShellResponse();
         }

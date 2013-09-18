@@ -63,6 +63,7 @@
     <Compile Include="Common\Shell\BufferedShellOutputTest.cs" />
     <Compile Include="Common\YamlConfigurationProviderTest.cs" />
     <Compile Include="Common\ConfigurationProviderExtensionsTest.cs" />
+    <Compile Include="Common\BinaryExtensionsTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

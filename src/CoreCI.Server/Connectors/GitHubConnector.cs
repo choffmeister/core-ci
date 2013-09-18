@@ -177,7 +177,7 @@ namespace CoreCI.Server.Connectors
             this.taskRepository.Insert(task);
 
             PushService.Push("tasks", null);
-            PushService.Push("task-" + task.Id.ToString().Replace("-", string.Empty).ToLowerInvariant(), "created");
+            PushService.Push("task-" + task.Id.ToUndashedString(), "created");
 
             return null;
         }
@@ -224,16 +224,18 @@ namespace CoreCI.Server.Connectors
                 IsPrivate = false
             };
 
+            string projectIdString = project.Id.ToUndashedString();
+
             // create RSA key pair
             RSA rsa = new RSACryptoServiceProvider(1024);
-            project.Options["PublicKey"] = rsa.ToOpenSshPublicKeyFileString(string.Format("{0}@{1}", NormalizeGuid(project.Id), this.serverDomainPublic));
+            project.Options["PublicKey"] = rsa.ToOpenSshPublicKeyFileString(string.Format("{0}@{1}", projectIdString, this.serverDomainPublic));
             project.Options["PrivateKey"] = rsa.ToOpenSshPrivateKeyFileString();
 
             this.projectRepository.Insert(project);
 
-            GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, project.Name, h => h.Object("config").Child("url").Contains(NormalizeGuid(project.Id)));
-            GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, project.Name, k => k.Child("title").Contains(NormalizeGuid(project.Id)));
-            GitHubOAuth2Client.CreateHook(accessToken, gitHubUserName, project.Name, string.Format("{0}connector/github/hook?project={1}&token={2}", this.serverApiPublicBaseAddress, NormalizeGuid(project.Id), token));
+            GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, project.Name, h => h.Object("config").Child("url").Contains(projectIdString));
+            GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, project.Name, k => k.Child("title").Contains(projectIdString));
+            GitHubOAuth2Client.CreateHook(accessToken, gitHubUserName, project.Name, string.Format("{0}connector/github/hook?project={1}&token={2}", this.serverApiPublicBaseAddress, projectIdString, token));
             GitHubOAuth2Client.CreateKey(accessToken, gitHubUserName, project.Name, project.Options["PublicKey"]);
 
             Log.Info("Created hook");
@@ -251,11 +253,12 @@ namespace CoreCI.Server.Connectors
             if (connector.Provider != Name)
                 throw new InvalidOperationException();
 
+            string projectIdString = project.Id.ToUndashedString();
             string gitHubUserName = connector.Options["UserName"];
             string accessToken = connector.Options["AccessToken"];
 
-            GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, project.Name, h => h.Object("config").Child("url").Contains(NormalizeGuid(project.Id)));
-            GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, project.Name, k => k.Child("title").Contains(NormalizeGuid(project.Id)));
+            GitHubOAuth2Client.RemoveHooks(accessToken, gitHubUserName, project.Name, h => h.Object("config").Child("url").Contains(projectIdString));
+            GitHubOAuth2Client.RemoveKeys(accessToken, gitHubUserName, project.Name, k => k.Child("title").Contains(projectIdString));
 
             this.projectRepository.Delete(project);
         }
@@ -330,11 +333,6 @@ namespace CoreCI.Server.Connectors
             }
 
             return reference.Substring("refs/heads/".Length);
-        }
-
-        private static string NormalizeGuid(Guid guid)
-        {
-            return guid.ToString().Replace("-", string.Empty).ToLower();
         }
     }
 }
