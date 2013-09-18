@@ -14,15 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using System.Text;
+using System.Collections.Generic;
+using CoreCI.Models;
 
-namespace CoreCI.Common.Shell
+namespace CoreCI.Contracts
 {
-    public interface IShellOutput : IDisposable
+    public class ProfileRetrieveResponse
     {
-        void WriteStandardOutput(string s);
+        public ProfileRetrieveResponse()
+        {
+            this.Connectors = new List<ConnectorEntity>();
+            this.Projects = new List<ProjectEntity>();
+        }
 
-        void WriteStandardError(string s);
+        public UserEntity User { get; set; }
+
+        public List<ConnectorEntity> Connectors { get; set; }
+
+        public List<ProjectEntity> Projects { get; set; }
     }
 }

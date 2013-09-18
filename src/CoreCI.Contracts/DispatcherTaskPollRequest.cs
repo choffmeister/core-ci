@@ -15,7 +15,6 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using CoreCI.Models;
 using ServiceStack.ServiceHost;
 
 namespace CoreCI.Contracts
@@ -29,19 +28,5 @@ namespace CoreCI.Contracts
         }
 
         public Guid WorkerId { get; set; }
-    }
-
-    public class DispatcherTaskPollResponse
-    {
-        public DispatcherTaskPollResponse()
-        {
-        }
-
-        public DispatcherTaskPollResponse(TaskEntity task)
-        {
-            this.Task = task;
-        }
-
-        public TaskEntity Task { get; set; }
     }
 }

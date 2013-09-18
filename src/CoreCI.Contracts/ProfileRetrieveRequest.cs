@@ -14,8 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System.Collections.Generic;
-using CoreCI.Models;
 using ServiceStack.ServiceHost;
 
 namespace CoreCI.Contracts
@@ -25,20 +23,5 @@ namespace CoreCI.Contracts
     public class ProfileRetrieveRequest : IReturn<ProfileRetrieveResponse>
     {
         public string UserName { get; set; }
-    }
-
-    public class ProfileRetrieveResponse
-    {
-        public ProfileRetrieveResponse()
-        {
-            this.Connectors = new List<ConnectorEntity>();
-            this.Projects = new List<ProjectEntity>();
-        }
-
-        public UserEntity User { get; set; }
-
-        public List<ConnectorEntity> Connectors { get; set; }
-
-        public List<ProjectEntity> Projects { get; set; }
     }
 }

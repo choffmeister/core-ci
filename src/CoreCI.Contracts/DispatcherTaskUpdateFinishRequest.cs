@@ -32,8 +32,4 @@ namespace CoreCI.Contracts
 
         public int ExitCode { get; set; }
     }
-
-    public class DispatcherTaskUpdateFinishResponse
-    {
-    }
 }

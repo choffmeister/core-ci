@@ -26,8 +26,4 @@ namespace CoreCI.Contracts
 
         public Guid ProjectId { get; set; }
     }
-
-    public class ConnectorRemoveProjectResponse
-    {
-    }
 }

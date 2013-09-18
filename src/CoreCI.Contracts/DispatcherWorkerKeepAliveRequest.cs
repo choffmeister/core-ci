@@ -29,8 +29,4 @@ namespace CoreCI.Contracts
 
         public Guid WorkerId { get; set; }
     }
-
-    public class DispatcherWorkerKeepAliveResponse
-    {
-    }
 }

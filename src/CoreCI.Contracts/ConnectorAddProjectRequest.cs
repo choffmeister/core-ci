@@ -26,8 +26,4 @@ namespace CoreCI.Contracts
 
         public string ProjectName { get; set; }
     }
-
-    public class ConnectorAddProjectResponse
-    {
-    }
 }

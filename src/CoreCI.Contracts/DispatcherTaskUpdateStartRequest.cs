@@ -29,8 +29,4 @@ namespace CoreCI.Contracts
 
         public Guid TaskId { get; set; }
     }
-
-    public class DispatcherTaskUpdateStartResponse
-    {
-    }
 }

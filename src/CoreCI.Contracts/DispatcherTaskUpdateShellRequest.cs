@@ -36,8 +36,4 @@ namespace CoreCI.Contracts
 
         public string Output { get; set; }
     }
-
-    public class DispatcherTaskUpdateShellResponse
-    {
-    }
 }

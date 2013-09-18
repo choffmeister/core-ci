@@ -14,15 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using System.Text;
+using System.Collections.Generic;
+using CoreCI.Models;
 
-namespace CoreCI.Common.Shell
+namespace CoreCI.Contracts
 {
-    public interface IShellOutput : IDisposable
+    public class ProjectListResponse
     {
-        void WriteStandardOutput(string s);
-
-        void WriteStandardError(string s);
+        public List<ProjectEntity> Projects { get; set; }
     }
 }

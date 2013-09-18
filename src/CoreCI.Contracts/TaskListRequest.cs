@@ -24,9 +24,4 @@ namespace CoreCI.Contracts
     public class TaskListRequest : IReturn<TaskListResponse>
     {
     }
-
-    public class TaskListResponse
-    {
-        public List<TaskEntity> Tasks { get; set; }
-    }
 }

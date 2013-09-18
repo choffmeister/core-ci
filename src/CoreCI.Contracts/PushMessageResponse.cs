@@ -15,14 +15,25 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Text;
+using System.Collections.Generic;
 
-namespace CoreCI.Common.Shell
+namespace CoreCI.Contracts
 {
-    public interface IShellOutput : IDisposable
+    public class PushMessageResponse
     {
-        void WriteStandardOutput(string s);
+        public PushMessageResponse()
+        {
+            this.Messages = new List<PushMessage>();
+        }
 
-        void WriteStandardError(string s);
+        public PushMessageResponse(Guid clientId)
+            : this()
+        {
+            this.ClientId = clientId;
+        }
+
+        public Guid ClientId { get; set; }
+
+        public List<PushMessage> Messages { get; set; }
     }
 }

@@ -14,15 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
-using System.Text;
+using CoreCI.Models;
 
-namespace CoreCI.Common.Shell
+namespace CoreCI.Contracts
 {
-    public interface IShellOutput : IDisposable
+    public class DispatcherTaskPollResponse
     {
-        void WriteStandardOutput(string s);
+        public DispatcherTaskPollResponse()
+        {
+        }
 
-        void WriteStandardError(string s);
+        public DispatcherTaskPollResponse(TaskEntity task)
+        {
+            this.Task = task;
+        }
+
+        public TaskEntity Task { get; set; }
     }
 }

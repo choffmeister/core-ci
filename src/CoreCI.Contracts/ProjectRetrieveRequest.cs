@@ -15,7 +15,6 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using CoreCI.Models;
 using ServiceStack.ServiceHost;
 
 namespace CoreCI.Contracts
@@ -24,10 +23,5 @@ namespace CoreCI.Contracts
     public class ProjectRetrieveRequest : IReturn<ProjectRetrieveResponse>
     {
         public Guid ProjectId { get; set; }
-    }
-
-    public class ProjectRetrieveResponse
-    {
-        public ProjectEntity Project { get; set; }
     }
 }

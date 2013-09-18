@@ -154,7 +154,7 @@ namespace CoreCI.WorkerInstance.Vagrant
         private void VagrantUp()
         {
             Log.Info("Starting VM");
-            ProcessResult result = this.ExecuteVagrantCommand("up --no-provision");
+            ProcessHelper.Result result = this.ExecuteVagrantCommand("up --no-provision");
 
             if (!result.Success)
             {
@@ -170,7 +170,7 @@ namespace CoreCI.WorkerInstance.Vagrant
 
         private void VagrantProvision()
         {
-            ProcessResult result = this.ExecuteVagrantCommand("provision");
+            ProcessHelper.Result result = this.ExecuteVagrantCommand("provision");
 
             if (!result.Success)
             {
@@ -180,7 +180,7 @@ namespace CoreCI.WorkerInstance.Vagrant
 
         private ConnectionInfo VagrantSshConfig()
         {
-            ProcessResult result = this.ExecuteVagrantCommand("ssh-config");
+            ProcessHelper.Result result = this.ExecuteVagrantCommand("ssh-config");
 
             if (!result.Success)
             {
@@ -204,7 +204,7 @@ namespace CoreCI.WorkerInstance.Vagrant
             return new ConnectionInfo(hostName, port, userName, new PrivateKeyAuthenticationMethod(userName, privateKeyFile));
         }
 
-        private ProcessResult ExecuteVagrantCommand(string vagrantCommand)
+        private ProcessHelper.Result ExecuteVagrantCommand(string vagrantCommand)
         {
             return ProcessHelper.Execute(this.vagrantExecutable, vagrantCommand, this.folder);
         }

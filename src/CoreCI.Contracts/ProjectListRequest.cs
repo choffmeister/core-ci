@@ -14,8 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System.Collections.Generic;
-using CoreCI.Models;
 using ServiceStack.ServiceHost;
 
 namespace CoreCI.Contracts
@@ -23,10 +21,5 @@ namespace CoreCI.Contracts
     [Route("/projects", "GET")]
     public class ProjectListRequest : IReturn<ProjectListResponse>
     {
-    }
-
-    public class ProjectListResponse
-    {
-        public List<ProjectEntity> Projects { get; set; }
     }
 }

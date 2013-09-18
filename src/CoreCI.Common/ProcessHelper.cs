@@ -21,7 +21,7 @@ namespace CoreCI.Common
 {
     public static class ProcessHelper
     {
-        public static ProcessResult Execute(string fileName, string arguments, string workingDirectory = "")
+        public static Result Execute(string fileName, string arguments, string workingDirectory = "")
         {
             ProcessStartInfo psi = new ProcessStartInfo(fileName, arguments);
             psi.RedirectStandardInput = true;
@@ -53,7 +53,7 @@ namespace CoreCI.Common
                 p.BeginErrorReadLine();
                 p.WaitForExit();
 
-                return new ProcessResult()
+                return new Result()
                 {
                     ExitCode = p.ExitCode,
                     StdOut = stdOut.ToString(),
@@ -62,21 +62,21 @@ namespace CoreCI.Common
                 };
             }
         }
-    }
 
-    public class ProcessResult
-    {
-        public int ExitCode { get; set; }
-
-        public bool Success
+        public class Result
         {
-            get { return this.ExitCode == 0; }
+            public int ExitCode { get; set; }
+
+            public bool Success
+            {
+                get { return this.ExitCode == 0; }
+            }
+
+            public string StdOut { get; set; }
+
+            public string StdError { get; set; }
+
+            public string Output { get; set; }
         }
-
-        public string StdOut { get; set; }
-
-        public string StdError { get; set; }
-
-        public string Output { get; set; }
     }
 }

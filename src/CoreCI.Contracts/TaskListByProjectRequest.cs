@@ -15,8 +15,6 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Collections.Generic;
-using CoreCI.Models;
 using ServiceStack.ServiceHost;
 
 namespace CoreCI.Contracts
@@ -25,10 +23,5 @@ namespace CoreCI.Contracts
     public class TaskListByProjectRequest : IReturn<TaskListByProjectResponse>
     {
         public Guid ProjectId { get; set; }
-    }
-
-    public class TaskListByProjectResponse
-    {
-        public List<TaskEntity> Tasks { get; set; }
     }
 }

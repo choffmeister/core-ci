@@ -63,6 +63,8 @@
     <Compile Include="YamlConfigurationProvider.cs" />
     <Compile Include="ConfigurationProviderExtensions.cs" />
     <Compile Include="BinaryExtensions.cs" />
+    <Compile Include="Shell\MemoryShellOutput.cs" />
+    <Compile Include="Shell\NullShellOutput.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

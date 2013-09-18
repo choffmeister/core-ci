@@ -15,7 +15,6 @@
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
 using System;
-using System.Collections.Generic;
 using ServiceStack.ServiceHost;
 
 namespace CoreCI.Contracts
@@ -24,10 +23,5 @@ namespace CoreCI.Contracts
     public class ConnectorListProjectsRequest : IReturn<ConnectorListProjectsResponse>
     {
         public Guid ConnectorId { get; set; }
-    }
-
-    public class ConnectorListProjectsResponse
-    {
-        public List<string> Projects { get; set; }
     }
 }

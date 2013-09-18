@@ -54,6 +54,23 @@
     <Compile Include="ConnectorListProjectsRequest.cs" />
     <Compile Include="ConnectorAddProjectRequest.cs" />
     <Compile Include="ConnectorRemoveProjectRequest.cs" />
+    <Compile Include="TaskListResponse.cs" />
+    <Compile Include="TaskRetrieveResponse.cs" />
+    <Compile Include="DispatcherTaskPollResponse.cs" />
+    <Compile Include="DispatcherTaskUpdateShellResponse.cs" />
+    <Compile Include="DispatcherWorkerKeepAliveResponse.cs" />
+    <Compile Include="ConnectorRemoveProjectResponse.cs" />
+    <Compile Include="ConnectorListProjectsResponse.cs" />
+    <Compile Include="ConnectorAddProjectResponse.cs" />
+    <Compile Include="ProfileRetrieveResponse.cs" />
+    <Compile Include="RegisterResponse.cs" />
+    <Compile Include="TaskListByProjectResponse.cs" />
+    <Compile Include="ProjectRetrieveResponse.cs" />
+    <Compile Include="ProjectListResponse.cs" />
+    <Compile Include="DispatcherTaskUpdateFinishResponse.cs" />
+    <Compile Include="DispatcherTaskUpdateStartResponse.cs" />
+    <Compile Include="PushMessageResponse.cs" />
+    <Compile Include="PushMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

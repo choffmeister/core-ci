@@ -14,15 +14,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see {http://www.gnu.org/licenses/}.
  */
-using System;
 using System.Text;
 
 namespace CoreCI.Common.Shell
 {
-    public interface IShellOutput : IDisposable
+    public class MemoryShellOutput : IShellOutput
     {
-        void WriteStandardOutput(string s);
+        private readonly StringBuilder standardOutput = new StringBuilder();
+        private readonly StringBuilder standardError = new StringBuilder();
 
-        void WriteStandardError(string s);
+        public string StandardOutput
+        {
+            get { return this.standardOutput.ToString(); }
+        }
+
+        public string StandardError
+        {
+            get { return this.standardError.ToString(); }
+        }
+
+        public void WriteStandardOutput(string s)
+        {
+            this.standardOutput.Append(s);
+        }
+
+        public void WriteStandardError(string s)
+        {
+            this.standardError.Append(s);
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }
