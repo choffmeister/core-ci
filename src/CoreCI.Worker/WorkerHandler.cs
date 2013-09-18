@@ -89,11 +89,12 @@ namespace CoreCI.Worker
         private void Work(TaskEntity task)
         {
             int index = 0;
+            string boxUrls = _configurationProvider.Get("worker.vagrant.box_urls");
 
             try
             {
                 using (JsonServiceClient client = new JsonServiceClient(_serverApiBaseAddress))
-                using (IWorkerInstance worker = new VagrantWorkerInstance(_vagrantExecutablePath, _vagrantVirtualMachinesPath, task.Configuration.Machine))
+                using (IWorkerInstance worker = new VagrantWorkerInstance(_vagrantExecutablePath, _vagrantVirtualMachinesPath, task.Configuration.Machine, boxUrls))
                 {
                     using (IShellOutput shellOutput = new ServerShellOutput(client, _workerId, task.Id, index++))
                     {

@@ -34,13 +34,13 @@ namespace CoreCI.WorkerInstance.Vagrant
         private readonly IVirtualMachine _vm;
         private SshClient _shell;
 
-        public VagrantWorkerInstance(string vagrantExecutablePath, string vagrantVirtualMachinesPath, string machine)
+        public VagrantWorkerInstance(string vagrantExecutablePath, string vagrantVirtualMachinesPath, string machine, string boxUrls)
         {
             _vagrantExecutablePath = vagrantExecutablePath;
             _vagrantVirtualMachinesPath = vagrantVirtualMachinesPath;
             _machine = machine;
 
-            Uri machineUri = new Uri("http://boxes.choffmeister.de/" + machine + ".box");
+            Uri machineUri = new Uri(boxUrls + machine + ".box");
             _vm = new VagrantVirtualMachine(_vagrantExecutablePath, _vagrantVirtualMachinesPath, machine, machineUri, 2, 1024);
         }
 

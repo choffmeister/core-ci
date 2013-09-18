@@ -29,3 +29,4 @@ worker:
   vagrant:
     executable: /usr/bin/vagrant
     machines: /tmp/core-ci
+    box_urls: http://localhost/boxes/
