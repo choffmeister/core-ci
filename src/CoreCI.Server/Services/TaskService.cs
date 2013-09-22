@@ -43,7 +43,10 @@ namespace CoreCI.Server.Services
         {
             return new TaskListResponse()
             {
-                Tasks = this.taskRepository.OrderByDescending(t => t.CreatedAt).ToList()
+                Tasks = this.taskRepository
+                    .OrderByDescending(t => t.CreatedAt)
+                    .Select(t => t.CloneWithoutSecrets())
+                    .ToList()
             };
         }
 
@@ -51,13 +54,17 @@ namespace CoreCI.Server.Services
         {
             return new TaskListByProjectResponse()
             {
-                Tasks = this.taskRepository.Where(t => t.ProjectId == req.ProjectId).OrderByDescending(t => t.CreatedAt).ToList()
+                Tasks = this.taskRepository
+                    .Where(t => t.ProjectId == req.ProjectId)
+                    .OrderByDescending(t => t.CreatedAt)
+                    .Select(t => t.CloneWithoutSecrets())
+                    .ToList()
             };
         }
 
         public TaskRetrieveResponse Get(TaskRetrieveRequest req)
         {
-            TaskEntity task = this.taskRepository.GetEntityById(req.TaskId);
+            TaskEntity task = this.taskRepository.GetEntityById(req.TaskId).CloneWithoutSecrets();
             List<TaskShellEntity> taskShells = this.taskShellRepository
                 .OrderBy(ts => ts.Index).Where(ts => ts.TaskId == task.Id)
                 .ToList();

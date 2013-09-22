@@ -163,9 +163,9 @@ namespace CoreCI.Server.Services
             {
                 return typeof(IConnector).Assembly.GetTypes()
                     .Where(t => typeof(IConnector).IsAssignableFrom(t))
-                        .Select(t => new ConnectorDescriptor(t))
-                        .Where(hd => hd.Meta != null)
-                        .SingleOrDefault(hd => hd.Meta.Name == name);
+                    .Select(t => new ConnectorDescriptor(t))
+                    .Where(hd => hd.Meta != null)
+                    .SingleOrDefault(hd => hd.Meta.Name == name);
             }
         }
     }

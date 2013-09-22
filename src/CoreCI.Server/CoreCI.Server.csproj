@@ -90,6 +90,7 @@
     <Compile Include="Connectors\IConnector.cs" />
     <Compile Include="Connectors\ConnectorAttribute.cs" />
     <Compile Include="Connectors\GitHubOAuth2Client.cs" />
+    <Compile Include="EntityExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

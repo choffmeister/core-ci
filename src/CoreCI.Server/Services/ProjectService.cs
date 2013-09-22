@@ -39,13 +39,16 @@ namespace CoreCI.Server.Services
         {
             return new ProjectListResponse()
             {
-                Projects = this.projectRepository.OrderBy(p => p.Name).ToList()
+                Projects = this.projectRepository
+                    .OrderBy(p => p.Name)
+                    .Select(p => p.CloneWithoutSecrets())
+                    .ToList()
             };
         }
 
         public ProjectRetrieveResponse Get(ProjectRetrieveRequest req)
         {
-            ProjectEntity project = this.projectRepository.GetEntityById(req.ProjectId);
+            ProjectEntity project = this.projectRepository.GetEntityById(req.ProjectId).CloneWithoutSecrets();
 
             return new ProjectRetrieveResponse()
             {

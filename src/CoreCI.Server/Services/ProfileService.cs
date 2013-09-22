@@ -50,9 +50,9 @@ namespace CoreCI.Server.Services
 
             if (!string.IsNullOrEmpty(req.UserName))
             {
-                UserEntity user = this.userRepository.GetEntity(u => u.UserName == req.UserName.ToLower());
-
-                StripSecrets(user);
+                UserEntity user = this.userRepository
+                    .GetEntity(u => u.UserName == req.UserName.ToLower())
+                    .CloneWithoutSecrets();
 
                 return new ProfileRetrieveResponse()
                 {
@@ -61,11 +61,17 @@ namespace CoreCI.Server.Services
             }
             else if (!string.IsNullOrEmpty(session.UserAuthName))
             {
-                UserEntity user = this.userRepository.Single(u => u.UserName == session.UserAuthName);
-                List<ConnectorEntity> connectors = this.connectorRepository.Where(c => c.UserId == user.Id).ToList();
-                List<ProjectEntity> projects = this.projectRepository.Where(p => p.UserId == user.Id).ToList();
-
-                StripSecrets(user);
+                UserEntity user = this.userRepository
+                    .Single(u => u.UserName == session.UserAuthName)
+                    .CloneWithoutSecrets();
+                List<ConnectorEntity> connectors = this.connectorRepository
+                    .Where(c => c.UserId == user.Id)
+                    .Select(c => c.CloneWithoutSecrets())
+                    .ToList();
+                List<ProjectEntity> projects = this.projectRepository
+                    .Where(p => p.UserId == user.Id)
+                    .Select(p => p.CloneWithoutSecrets())
+                    .ToList();
 
                 return new ProfileRetrieveResponse()
                 {
@@ -76,13 +82,6 @@ namespace CoreCI.Server.Services
             }
 
             throw HttpError.NotFound("Either specify a user name or log in to view your own profile");
-        }
-
-        private static void StripSecrets(UserEntity user)
-        {
-            user.PasswordHash = null;
-            user.PasswordHashAlgorithm = null;
-            user.PasswordSalt = null;
         }
     }
 }
